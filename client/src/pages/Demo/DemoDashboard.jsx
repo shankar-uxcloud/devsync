@@ -1,87 +1,93 @@
-﻿import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+﻿import { useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
-  FaBell,
+  FaArrowRight,
   FaBolt,
   FaCheckCircle,
-  FaChevronDown,
+  FaChevronRight,
   FaCode,
-  FaCog,
-  FaComments,
+  FaEllipsisH,
   FaFolderOpen,
   FaGithub,
-  FaHome,
   FaPlus,
-  FaSearch,
+  FaRocket,
   FaTasks,
   FaUsers,
-  FaChartLine,
-  FaRocket,
-  FaArrowUp,
-  FaArrowRight,
-  FaArrowLeft,
-  FaEllipsisH,
 } from "react-icons/fa";
 
 /* =========================================================
-   SAMPLE DATA
+   DEMO DATA
 ========================================================= */
 
 const projects = [
   {
+    id: "devsync",
     name: "DevSync",
     description: "Developer collaboration platform",
-    technologies: ["React", "Node.js", "MongoDB"],
     progress: 82,
     members: 8,
     status: "Active",
+    technology: "React · Node.js · MongoDB",
+    accent: "blue",
   },
   {
+    id: "skilltree",
     name: "SkillTree",
     description: "Technical skill discovery platform",
-    technologies: ["React", "Supabase", "REST API"],
     progress: 68,
     members: 5,
     status: "Active",
+    technology: "React · Supabase · REST API",
+    accent: "violet",
   },
   {
+    id: "ecoloop",
     name: "EcoLoop",
     description: "Smart waste exchange platform",
-    technologies: ["MERN", "Maps API"],
     progress: 45,
     members: 6,
     status: "Planning",
+    technology: "MERN · Maps API",
+    accent: "emerald",
   },
 ];
 
 const activities = [
   {
+    initials: "A",
     user: "Alex Morgan",
     action: "completed",
-    target: "Authentication Module",
+    target: "JWT Authentication",
     time: "12 min ago",
     icon: <FaCheckCircle />,
+    type: "success",
   },
   {
+    initials: "P",
     user: "Priya Sharma",
-    action: "created",
-    target: "Dashboard UI task",
+    action: "updated",
+    target: "Dashboard UI",
     time: "35 min ago",
-    icon: <FaPlus />,
+    icon: <FaCode />,
+    type: "blue",
   },
   {
+    initials: "R",
     user: "Rahul Kumar",
     action: "joined",
     target: "DevSync project",
     time: "1 hour ago",
     icon: <FaUsers />,
+    type: "violet",
   },
   {
+    initials: "E",
     user: "Emma Wilson",
     action: "pushed changes to",
     target: "main branch",
     time: "2 hours ago",
     icon: <FaGithub />,
+    type: "amber",
   },
 ];
 
@@ -113,1307 +119,831 @@ const tasks = [
 ];
 
 /* =========================================================
-   DEMO THEMES
-   Self-contained so /demo does not require ThemeContext.
-========================================================= */
-
-const demoThemes = {
-  light: {
-    name: "Light",
-    icon: "☀️",
-    description: "Clean and bright workspace",
-  },
-  ocean: {
-    name: "Ocean",
-    icon: "🌊",
-    description: "Cool blue developer workspace",
-  },
-  midnight: {
-    name: "Midnight",
-    icon: "🌙",
-    description: "Dark developer workspace",
-  },
-};
-
-const getInitialTheme = () => {
-  try {
-    return localStorage.getItem("devsync-demo-theme") || "light";
-  } catch {
-    return "light";
-  }
-};
-
-/* =========================================================
-   MAIN DASHBOARD
-========================================================= */
-
-function DemoDashboard() {
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const [showSidebarProfile, setShowSidebarProfile] = useState(false);
-  const [showTopProfile, setShowTopProfile] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [showThemes, setShowThemes] = useState(false);
-
-  const [theme, setTheme] = useState(getInitialTheme);
-
-  /* Apply demo theme locally */
-  useEffect(() => {
-    try {
-      localStorage.setItem("devsync-demo-theme", theme);
-    } catch {
-      // Ignore localStorage errors.
-    }
-
-    document.documentElement.dataset.demoTheme = theme;
-  }, [theme]);
-
-  const changeTheme = (themeId) => {
-    if (demoThemes[themeId]) {
-      setTheme(themeId);
-    }
-  };
-
-  /* =======================================================
-     ACTIVE SIDEBAR PAGE
-  ======================================================= */
-
-  const getActivePage = () => {
-    const path = location.pathname;
-
-    if (path.includes("/tasks")) return "Tasks";
-    if (path.includes("/team")) return "Developers";
-    if (path.includes("/chat")) return "Chat";
-    if (path.includes("/files")) return "Files";
-    if (path.includes("/activity")) return "Activity";
-    if (path.includes("/analytics")) return "Analytics";
-    if (path.includes("/settings")) return "Settings";
-    if (path.includes("/demo/project")) return "Projects";
-
-    return "Dashboard";
-  };
-
-  const activePage = getActivePage();
-
-  /* =======================================================
-     DEMO NAVIGATION
-  ======================================================= */
-
-  const goToDemoPage = (page) => {
-    const routes = {
-      Dashboard: "/demo",
-      Projects: "/demo/project/devsync",
-      Tasks: "/demo/project/devsync/tasks",
-      Developers: "/demo/project/devsync/team",
-      Chat: "/demo/project/devsync/chat",
-      Files: "/demo/project/devsync/files",
-      Activity: "/demo/project/devsync/activity",
-      Profile: "/demo/profile",
-      Settings: "/demo/settings",
-    };
-
-    if (routes[page]) {
-      navigate(routes[page]);
-      return;
-    }
-
-    if (page === "Analytics") {
-      navigate("/demo");
-    }
-  };
-
-  /* =======================================================
-     SIDEBAR NAVIGATION
-  ======================================================= */
-
-  const navigation = [
-    {
-      name: "Dashboard",
-      icon: <FaHome />,
-    },
-    {
-      name: "Projects",
-      icon: <FaFolderOpen />,
-    },
-    {
-      name: "Tasks",
-      icon: <FaTasks />,
-    },
-    {
-      name: "Developers",
-      icon: <FaUsers />,
-    },
-    {
-      name: "Chat",
-      icon: <FaComments />,
-    },
-    {
-      name: "Analytics",
-      icon: <FaChartLine />,
-    },
-    {
-      name: "Files",
-      icon: <FaFolderOpen />,
-    },
-    {
-      name: "Activity",
-      icon: <FaBolt />,
-    },
-  ];
-
-  return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      {/* =====================================================
-          SIDEBAR
-      ===================================================== */}
-
-      <aside className="fixed left-0 top-0 z-40 hidden h-screen w-64 flex-col border-r border-slate-200 bg-white lg:flex">
-        {/* LOGO */}
-
-        <div className="flex h-20 shrink-0 items-center border-b border-slate-100 px-6">
-          <Link
-            to="/demo"
-            className="group flex items-center gap-3"
-          >
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-200 transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-blue-300">
-              <FaCode />
-            </div>
-
-            <span className="text-2xl font-black tracking-tight">
-              Dev<span className="text-blue-600">Sync</span>
-            </span>
-          </Link>
-        </div>
-
-        {/* DEMO CARD */}
-
-        <div className="mx-4 mt-5 shrink-0 rounded-2xl border border-blue-100 bg-blue-50 p-4">
-          <div className="flex items-center gap-2 text-sm font-bold text-blue-700">
-            <FaRocket />
-            Interactive Demo
-          </div>
-
-          <p className="mt-1 text-xs leading-5 text-blue-600">
-            Explore DevSync using sample project data.
-          </p>
-        </div>
-
-        {/* NAVIGATION */}
-
-        <nav className="mt-7 flex-1 overflow-y-auto px-4">
-          <p className="mb-3 px-3 text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">
-            Workspace
-          </p>
-
-          <div className="space-y-1">
-            {navigation.map((item) => (
-              <button
-                key={item.name}
-                type="button"
-                onClick={() => goToDemoPage(item.name)}
-                className={`group flex w-full items-center gap-4 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 ${
-                  activePage === item.name
-                    ? "bg-blue-600 text-white shadow-lg shadow-blue-200"
-                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                }`}
-              >
-                <span className="text-lg transition-transform duration-300 group-hover:scale-110">
-                  {item.icon}
-                </span>
-
-                <span className="flex-1 text-left">
-                  {item.name}
-                </span>
-
-                {item.name === "Projects" && (
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                      activePage === "Projects"
-                        ? "bg-white/20 text-white"
-                        : "bg-slate-100 text-slate-500"
-                    }`}
-                  >
-                    12
-                  </span>
-                )}
-
-                {item.name === "Tasks" && (
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                      activePage === "Tasks"
-                        ? "bg-white/20 text-white"
-                        : "bg-slate-100 text-slate-500"
-                    }`}
-                  >
-                    8
-                  </span>
-                )}
-
-                {item.name === "Developers" && (
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                      activePage === "Developers"
-                        ? "bg-white/20 text-white"
-                        : "bg-slate-100 text-slate-500"
-                    }`}
-                  >
-                    32
-                  </span>
-                )}
-
-                {item.name === "Chat" && (
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                      activePage === "Chat"
-                        ? "bg-white/20 text-white"
-                        : "bg-red-100 text-red-500"
-                    }`}
-                  >
-                    3
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-
-          {/* SYSTEM */}
-
-          <p className="mb-3 mt-8 px-3 text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">
-            System
-          </p>
-
-          <button
-            type="button"
-            onClick={() => goToDemoPage("Settings")}
-            className={`group flex w-full items-center gap-4 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 ${
-              activePage === "Settings"
-                ? "bg-blue-600 text-white shadow-lg shadow-blue-200"
-                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-            }`}
-          >
-            <span className="text-lg transition-transform duration-300 group-hover:scale-110">
-              <FaCog />
-            </span>
-
-            <span className="flex-1 text-left">
-              Settings
-            </span>
-          </button>
-        </nav>
-
-        {/* USER SECTION */}
-
-        <div className="shrink-0 border-t border-slate-100 p-4">
-          <button
-            type="button"
-            onClick={() => {
-              setShowSidebarProfile(!showSidebarProfile);
-              setShowTopProfile(false);
-              setShowThemes(false);
-              setShowNotifications(false);
-            }}
-            className="group flex w-full items-center gap-3 rounded-xl p-2 transition-all duration-300 hover:bg-slate-50"
-          >
-            {/* Avatar */}
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 font-bold text-white shadow-md">
-              A
-            </div>
-
-            {/* User */}
-            <div className="min-w-0 flex-1 text-left">
-              <p className="truncate text-sm font-bold text-slate-800">
-                Alex Morgan
-              </p>
-
-              <p className="truncate text-xs text-slate-500">
-                Full Stack Developer
-              </p>
-            </div>
-
-            <FaChevronDown
-              className={`shrink-0 text-xs text-slate-400 transition-transform duration-300 ${
-                showSidebarProfile ? "rotate-180" : ""
-              }`}
-            />
-          </button>
-
-          {/* PROFILE MENU */}
-
-          {showSidebarProfile && (
-            <div className="absolute bottom-20 left-4 z-50 w-72 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-300/40">
-              {/* PROFILE HEADER */}
-
-              <div className="border-b border-slate-100 bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4">
-                <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-lg font-black text-white shadow-lg shadow-blue-200">
-                      A
-                    </div>
-
-                    <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-white bg-emerald-500" />
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-black text-slate-900">
-                      Alex Morgan
-                    </p>
-
-                    <p className="truncate text-xs text-slate-500">
-                      Full Stack Developer
-                    </p>
-
-                    <div className="mt-1 flex items-center gap-1.5">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                      <span className="text-[10px] font-bold text-emerald-600">
-                        Online
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* MENU ITEMS */}
-
-              <div className="p-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowSidebarProfile(false);
-                    goToDemoPage("Profile");
-                  }}
-                  className="group flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-3 text-left transition-all duration-200 hover:bg-blue-50"
-                >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition group-hover:bg-blue-600 group-hover:text-white">
-                    <FaUsers />
-                  </span>
-
-                  <span className="flex-1">
-                    <span className="block text-sm font-bold text-slate-800">
-                      My Profile
-                    </span>
-
-                    <span className="mt-0.5 block text-[11px] text-slate-400">
-                      View your developer profile
-                    </span>
-                  </span>
-
-                  <FaArrowRight className="text-xs text-slate-300 transition group-hover:translate-x-1 group-hover:text-blue-600" />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowSidebarProfile(false);
-                    goToDemoPage("Settings");
-                  }}
-                  className="group flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-all duration-200 hover:bg-purple-50"
-                >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-50 text-purple-600 transition group-hover:bg-purple-600 group-hover:text-white">
-                    <FaCog />
-                  </span>
-
-                  <span className="flex-1">
-                    <span className="block text-sm font-bold text-slate-800">
-                      Account Settings
-                    </span>
-
-                    <span className="mt-0.5 block text-[11px] text-slate-400">
-                      Preferences & account controls
-                    </span>
-                  </span>
-
-                  <FaArrowRight className="text-xs text-slate-300 transition group-hover:translate-x-1 group-hover:text-purple-600" />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowSidebarProfile(false);
-                    setShowTopProfile(false);
-                    setShowThemes(false);
-                    setShowNotifications(false);
-                    navigate("/demo/workspace");
-                  }}
-                  className="group flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-3 text-left transition-all duration-200 hover:bg-cyan-50"
-                >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cyan-50 text-cyan-600 transition group-hover:bg-cyan-600 group-hover:text-white">
-                    <FaRocket />
-                  </span>
-
-                  <span className="flex-1">
-                    <span className="block text-sm font-bold text-slate-800">
-                      My Workspace
-                    </span>
-
-                    <span className="mt-0.5 block text-[11px] text-slate-400">
-                      Return to your dashboard
-                    </span>
-                  </span>
-
-                  <FaArrowRight className="text-xs text-slate-300 transition group-hover:translate-x-1 group-hover:text-cyan-600" />
-                </button>
-              </div>
-
-              {/* EXIT */}
-
-              <div className="border-t border-slate-100 p-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowSidebarProfile(false);
-                    navigate("/");
-                  }}
-                  className="group flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-all duration-200 hover:bg-red-50"
-                >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-500 transition group-hover:bg-red-500 group-hover:text-white">
-                    <FaArrowLeft />
-                  </span>
-
-                  <span className="flex-1">
-                    <span className="block text-sm font-bold text-red-500">
-                      Exit Demo
-                    </span>
-
-                    <span className="mt-0.5 block text-[11px] text-slate-400">
-                      Return to DevSync landing page
-                    </span>
-                  </span>
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </aside>
-
-      {/* =====================================================
-          MAIN
-      ===================================================== */}
-
-      <main className="lg:ml-64">
-        {/* ===================================================
-            TOPBAR
-        =================================================== */}
-
-        <header className="sticky top-0 z-20 flex h-20 items-center justify-between border-b border-slate-200 bg-white/95 px-5 backdrop-blur lg:px-8">
-          {/* Mobile logo */}
-
-          <div className="flex items-center gap-3 lg:hidden">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
-              <FaCode />
-            </div>
-
-            <span className="text-xl font-black">
-              Dev<span className="text-blue-600">Sync</span>
-            </span>
-          </div>
-
-          {/* Search */}
-
-          <div className="relative hidden w-80 md:block">
-            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-slate-400" />
-
-            <input
-              type="text"
-              placeholder="Search projects, tasks..."
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm outline-none transition focus:border-blue-500 focus:bg-white"
-            />
-          </div>
-
-          <div className="flex items-center gap-3">
-            {/* THEME SELECTOR */}
-
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowThemes(!showThemes);
-                  setShowSidebarProfile(false);
-                  setShowNotifications(false);
-                  setShowTopProfile(false);
-                }}
-                className="flex items-center gap-2 rounded-xl bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
-              >
-                <span className="text-base">
-                  {demoThemes[theme]?.icon || "🎨"}
-                </span>
-
-                <span className="hidden lg:block">
-                  Theme
-                </span>
-
-                <FaChevronDown
-                  className={`text-xs transition-transform ${
-                    showThemes ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-
-              {showThemes && (
-                <div className="absolute right-0 top-14 z-50 w-80 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
-                  {/* HEADER */}
-
-                  <div className="border-b border-slate-100 px-4 py-4">
-                    <p className="text-sm font-black text-slate-900">
-                      Appearance
-                    </p>
-
-                    <p className="mt-1 text-xs text-slate-500">
-                      Choose your DevSync demo theme
-                    </p>
-                  </div>
-
-                  {/* THEMES */}
-
-                  <div className="max-h-[420px] overflow-y-auto p-2">
-                    {Object.entries(demoThemes).map(
-                      ([themeId, item]) => (
-                        <button
-                          type="button"
-                          key={themeId}
-                          onClick={() => {
-                            changeTheme(themeId);
-                            setShowThemes(false);
-                          }}
-                          className={`group flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-all ${
-                            theme === themeId
-                              ? "bg-blue-50 ring-1 ring-blue-200"
-                              : "hover:bg-slate-50"
-                          }`}
-                        >
-                          <span
-                            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-lg ${
-                              theme === themeId
-                                ? "bg-blue-600 text-white shadow-md"
-                                : "bg-slate-100"
-                            }`}
-                          >
-                            {item.icon}
-                          </span>
-
-                          <span className="flex-1">
-                            <span
-                              className={`block text-sm font-bold ${
-                                theme === themeId
-                                  ? "text-blue-600"
-                                  : "text-slate-800"
-                              }`}
-                            >
-                              {item.name}
-                            </span>
-
-                            <span className="mt-0.5 block text-xs text-slate-400">
-                              {item.description}
-                            </span>
-                          </span>
-
-                          {theme === themeId && (
-                            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
-                              ✓
-                            </span>
-                          )}
-                        </button>
-                      )
-                    )}
-                  </div>
-
-                  <div className="border-t border-slate-100 bg-slate-50 px-4 py-3">
-                    <p className="text-[11px] text-slate-400">
-                      Theme preference is saved automatically.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* DEMO LABEL */}
-
-            <span className="hidden rounded-full bg-blue-50 px-4 py-2 text-xs font-bold text-blue-600 sm:block">
-              DEMO MODE
-            </span>
-
-            {/* NOTIFICATIONS */}
-
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowNotifications(!showNotifications);
-                  setShowThemes(false);
-                  setShowSidebarProfile(false);
-                  setShowTopProfile(false);
-                }}
-                className="relative flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
-              >
-                <FaBell />
-
-                <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500" />
-              </button>
-
-              {showNotifications && (
-                <div className="absolute right-0 top-14 w-80 rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl">
-                  <h3 className="font-bold">
-                    Notifications
-                  </h3>
-
-                  <div className="mt-4 rounded-xl bg-slate-50 p-3 text-sm">
-                    <p className="font-semibold">
-                      Rahul joined DevSync
-                    </p>
-
-                    <p className="mt-1 text-xs text-slate-500">
-                      1 hour ago
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* PROFILE */}
-
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowTopProfile(!showTopProfile);
-                  setShowSidebarProfile(false);
-                  setShowThemes(false);
-                  setShowNotifications(false);
-                }}
-                className="flex items-center gap-3 rounded-xl p-1.5 transition hover:bg-slate-100"
-              >
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 font-bold text-white">
-                  A
-                </div>
-
-                <div className="hidden text-left sm:block">
-                  <p className="text-sm font-bold">
-                    Alex Morgan
-                  </p>
-
-                  <p className="text-xs text-slate-500">
-                    Developer
-                  </p>
-                </div>
-
-                <FaChevronDown className="hidden text-xs text-slate-400 sm:block" />
-              </button>
-
-              {showTopProfile && (
-                <div className="absolute right-0 top-14 z-50 w-80 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-300/50">
-                  {/* PROFILE HEADER */}
-
-                  <div className="border-b border-slate-100 bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="relative">
-                        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-xl font-black text-white shadow-lg shadow-blue-200">
-                          A
-                        </div>
-
-                        <span className="absolute bottom-0 right-0 h-4 w-4 rounded-full border-2 border-white bg-emerald-500" />
-                      </div>
-
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between gap-2">
-                          <p className="truncate text-base font-black text-slate-900">
-                            Alex Morgan
-                          </p>
-
-                          <span className="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-black text-emerald-600">
-                            ONLINE
-                          </span>
-                        </div>
-
-                        <p className="mt-1 text-xs font-medium text-slate-500">
-                          Full Stack Developer
-                        </p>
-
-                        <p className="mt-1 text-[11px] text-slate-400">
-                          Developer workspace
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* MENU */}
-
-                  <div className="p-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowTopProfile(false);
-                        navigate("/demo/workspace");
-                      }}
-                      className="group flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-3 text-left transition-all duration-200 hover:bg-blue-50"
-                    >
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition group-hover:bg-blue-600 group-hover:text-white">
-                        <FaHome />
-                      </span>
-
-                      <span className="flex-1">
-                        <span className="block text-sm font-bold text-slate-800">
-                          My Workspace
-                        </span>
-
-                        <span className="mt-0.5 block text-[11px] text-slate-400">
-                          Return to your dashboard
-                        </span>
-                      </span>
-
-                      <FaArrowRight className="text-xs text-slate-300 transition group-hover:translate-x-1 group-hover:text-blue-600" />
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowTopProfile(false);
-                        goToDemoPage("Settings");
-                      }}
-                      className="group flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-all duration-200 hover:bg-purple-50"
-                    >
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-50 text-purple-600 transition group-hover:bg-purple-600 group-hover:text-white">
-                        <FaCog />
-                      </span>
-
-                      <span className="flex-1">
-                        <span className="block text-sm font-bold text-slate-800">
-                          Account Settings
-                        </span>
-
-                        <span className="mt-0.5 block text-[11px] text-slate-400">
-                          Preferences & account controls
-                        </span>
-                      </span>
-
-                      <FaArrowRight className="text-xs text-slate-300 transition group-hover:translate-x-1 group-hover:text-purple-600" />
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowTopProfile(false);
-                        goToDemoPage("Profile");
-                      }}
-                      className="group flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-3 text-left transition-all duration-200 hover:bg-cyan-50"
-                    >
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cyan-50 text-cyan-600 transition group-hover:bg-cyan-600 group-hover:text-white">
-                        <FaUsers />
-                      </span>
-
-                      <span className="flex-1">
-                        <span className="block text-sm font-bold text-slate-800">
-                          My Profile
-                        </span>
-
-                        <span className="mt-0.5 block text-[11px] text-slate-400">
-                          View your developer profile
-                        </span>
-                      </span>
-
-                      <FaArrowRight className="text-xs text-slate-300 transition group-hover:translate-x-1 group-hover:text-cyan-600" />
-                    </button>
-                  </div>
-
-                  {/* DEMO WORKSPACE */}
-
-                  <div className="px-2 pb-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowTopProfile(false);
-                        setShowSidebarProfile(false);
-                        setShowThemes(false);
-                        setShowNotifications(false);
-                        navigate("/demo/workspace");
-                      }}
-                      className="group mt-2 w-full rounded-xl border border-blue-200 bg-blue-50 p-3 text-left transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-400 hover:bg-blue-100 hover:shadow-md"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-xs text-white shadow-md transition-transform duration-300 group-hover:scale-110">
-                          <FaRocket />
-                        </span>
-
-                        <div className="min-w-0 flex-1">
-                          <p className="text-[11px] font-black uppercase tracking-wide text-blue-700">
-                            Demo Workspace
-                          </p>
-
-                          <p className="mt-1 text-[10px] text-blue-500">
-                            Open a sample coding workspace
-                          </p>
-                        </div>
-
-                        <FaArrowRight className="text-xs text-blue-400 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-blue-600" />
-                      </div>
-                    </button>
-                  </div>
-
-                  {/* EXIT DEMO */}
-
-                  <div className="mt-2 border-t border-slate-100 p-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowTopProfile(false);
-                        navigate("/");
-                      }}
-                      className="group flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-all duration-200 hover:bg-red-50"
-                    >
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-500 transition group-hover:bg-red-500 group-hover:text-white">
-                        <FaArrowLeft />
-                      </span>
-
-                      <span className="flex-1">
-                        <span className="block text-sm font-bold text-red-500">
-                          Exit Demo
-                        </span>
-
-                        <span className="mt-0.5 block text-[11px] text-slate-400">
-                          Return to DevSync landing page
-                        </span>
-                      </span>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </header>
-
-        {/* =====================================================
-            CONTENT
-        ===================================================== */}
-
-        <div className="p-5 lg:p-8">
-          {/* WELCOME */}
-
-          <div className="mb-8 flex flex-col justify-between gap-5 md:flex-row md:items-center">
-            <div>
-              <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-blue-600">
-                <FaBolt />
-                Demo Workspace
-              </div>
-
-              <h1 className="text-3xl font-black tracking-tight text-slate-900 lg:text-4xl">
-                Good morning, Alex 👋
-              </h1>
-
-              <p className="mt-2 text-slate-500">
-                Here's what's happening with your development workspace.
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => navigate("/register")}
-              className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-bold text-white shadow-lg shadow-blue-200 transition hover:-translate-y-0.5 hover:bg-blue-700"
-            >
-              <FaPlus />
-              New Project
-            </button>
-          </div>
-
-          {/* STATS */}
-
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <StatCard
-              icon={<FaFolderOpen />}
-              title="Active Projects"
-              value="12"
-              change="+3"
-              color="blue"
-            />
-
-            <StatCard
-              icon={<FaTasks />}
-              title="Tasks Completed"
-              value="124"
-              change="+18%"
-              color="green"
-            />
-
-            <StatCard
-              icon={<FaUsers />}
-              title="Team Members"
-              value="32"
-              change="+6"
-              color="purple"
-            />
-
-            <StatCard
-              icon={<FaChartLine />}
-              title="Productivity"
-              value="87%"
-              change="+12%"
-              color="orange"
-            />
-          </div>
-
-          {/* PROJECTS + ACTIVITY */}
-
-          <div className="mt-8 grid gap-8 xl:grid-cols-3">
-            {/* PROJECTS */}
-
-            <section className="xl:col-span-2">
-              <div className="mb-5 flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl font-black">
-                    Your Projects
-                  </h2>
-
-                  <p className="mt-1 text-sm text-slate-500">
-                    Track your active development work.
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => goToDemoPage("Projects")}
-                  className="text-sm font-bold text-blue-600 hover:text-blue-700"
-                >
-                  View all
-                </button>
-              </div>
-
-              <div className="grid gap-5 md:grid-cols-2">
-                {projects.map((project) => (
-                  <ProjectCard
-                    key={project.name}
-                    project={project}
-                  />
-                ))}
-              </div>
-            </section>
-
-            {/* ACTIVITY */}
-
-            <section>
-              <div className="mb-5">
-                <h2 className="text-xl font-black">
-                  Recent Activity
-                </h2>
-
-                <p className="mt-1 text-sm text-slate-500">
-                  Latest team updates.
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <div className="space-y-6">
-                  {activities.map((activity, index) => (
-                    <div
-                      key={index}
-                      className="flex gap-3"
-                    >
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm text-blue-600">
-                        {activity.icon}
-                      </div>
-
-                      <div className="min-w-0">
-                        <p className="text-sm leading-6 text-slate-700">
-                          <span className="font-bold">
-                            {activity.user}
-                          </span>{" "}
-                          {activity.action}{" "}
-                          <span className="font-semibold text-slate-900">
-                            {activity.target}
-                          </span>
-                        </p>
-
-                        <p className="mt-1 text-xs text-slate-400">
-                          {activity.time}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-          </div>
-
-          {/* TASKS */}
-
-          <section className="mt-8">
-            <div className="mb-5 flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-black">
-                  Recent Tasks
-                </h2>
-
-                <p className="mt-1 text-sm text-slate-500">
-                  Keep your development workflow moving.
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => goToDemoPage("Tasks")}
-                className="text-sm font-bold text-blue-600"
-              >
-                View tasks
-              </button>
-            </div>
-
-            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-              <div className="hidden grid-cols-12 gap-4 border-b border-slate-100 bg-slate-50 px-6 py-4 text-xs font-bold uppercase tracking-wide text-slate-400 md:grid">
-                <div className="col-span-5">
-                  Task
-                </div>
-
-                <div className="col-span-2">
-                  Project
-                </div>
-
-                <div className="col-span-2">
-                  Priority
-                </div>
-
-                <div className="col-span-2">
-                  Status
-                </div>
-
-                <div className="col-span-1" />
-              </div>
-
-              {tasks.map((task, index) => (
-                <div
-                  key={index}
-                  className="grid gap-3 border-b border-slate-100 px-6 py-5 last:border-0 md:grid-cols-12 md:items-center md:gap-4"
-                >
-                  <div className="md:col-span-5">
-                    <p className="font-bold text-slate-800">
-                      {task.title}
-                    </p>
-                  </div>
-
-                  <div className="text-sm text-slate-500 md:col-span-2">
-                    {task.project}
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <PriorityBadge priority={task.priority} />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <StatusBadge status={task.status} />
-                  </div>
-
-                  <div className="hidden justify-end md:col-span-1 md:flex">
-                    <button
-                      type="button"
-                      className="text-slate-400 hover:text-slate-700"
-                    >
-                      <FaEllipsisH />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* CTA */}
-
-          <section className="relative mt-10 overflow-hidden rounded-3xl bg-slate-900 p-8 text-white shadow-xl lg:p-10">
-            <div className="relative z-10 max-w-2xl">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600">
-                <FaRocket />
-              </div>
-
-              <h2 className="text-2xl font-black lg:text-3xl">
-                Ready to build with your team?
-              </h2>
-
-              <p className="mt-3 leading-7 text-slate-300">
-                This is just a demo. Create your own DevSync workspace
-                and start managing real projects with your team.
-              </p>
-
-              <button
-                type="button"
-                onClick={() => navigate("/register")}
-                className="mt-6 rounded-xl bg-white px-6 py-3 font-bold text-slate-900 transition hover:bg-blue-50"
-              >
-                Get Started
-              </button>
-            </div>
-
-            <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-blue-600/20 blur-3xl" />
-
-            <div className="absolute -bottom-20 right-20 h-48 w-48 rounded-full bg-indigo-500/20 blur-3xl" />
-          </section>
-        </div>
-      </main>
-    </div>
-  );
-}
-
-/* =========================================================
-   STAT CARD
+   SMALL HELPERS
 ========================================================= */
 
 function StatCard({
   icon,
-  title,
+  label,
   value,
   change,
-  color,
+  description,
+  iconClass = "bg-blue-50 text-blue-600",
 }) {
-  const colors = {
-    blue: "bg-blue-50 text-blue-600",
-    green: "bg-green-50 text-green-600",
-    purple: "bg-purple-50 text-purple-600",
-    orange: "bg-orange-50 text-orange-600",
-  };
-
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
+    <div className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.04)] transition-all duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-[0_18px_45px_rgba(37,99,235,0.10)]">
       <div className="flex items-start justify-between">
         <div
-          className={`flex h-12 w-12 items-center justify-center rounded-xl ${colors[color]}`}
+          className={`flex h-11 w-11 items-center justify-center rounded-xl ${iconClass}`}
         >
           {icon}
         </div>
 
-        <span className="flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 text-xs font-bold text-green-600">
-          <FaArrowUp />
+        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-600">
           {change}
         </span>
       </div>
 
-      <p className="mt-5 text-sm font-medium text-slate-500">
-        {title}
-      </p>
+      <div className="mt-5">
+        <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+          {label}
+        </p>
 
-      <h3 className="mt-1 text-3xl font-black">
-        {value}
-      </h3>
+        <div className="mt-1 flex items-end gap-2">
+          <span className="text-3xl font-black tracking-tight text-slate-900">
+            {value}
+          </span>
+        </div>
+
+        <p className="mt-1 text-xs text-slate-400">{description}</p>
+      </div>
+
+      <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-blue-500/[0.03] blur-2xl transition-all duration-300 group-hover:bg-blue-500/[0.08]" />
     </div>
   );
 }
 
-/* =========================================================
-   PROJECT CARD
-========================================================= */
-
-function ProjectCard({ project }) {
-  const projectId = project.name
-    .toLowerCase()
-    .replace(/\s+/g, "");
+function ProgressBar({ value, accent = "blue" }) {
+  const gradient =
+    accent === "violet"
+      ? "from-violet-500 to-purple-500"
+      : accent === "emerald"
+        ? "from-emerald-500 to-teal-500"
+        : "from-blue-500 to-indigo-500";
 
   return (
-    <Link
-      to={`/demo/project/${projectId}`}
-      className="group block rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl"
-    >
-      <div className="flex items-start justify-between">
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
-          <FaCode />
-        </div>
-
-        <span
-          className={`rounded-full px-3 py-1 text-xs font-bold ${
-            project.status === "Active"
-              ? "bg-green-50 text-green-600"
-              : "bg-orange-50 text-orange-600"
-          }`}
-        >
-          {project.status}
-        </span>
-      </div>
-
-      <h3 className="mt-5 text-lg font-black">
-        {project.name}
-      </h3>
-
-      <p className="mt-2 text-sm leading-6 text-slate-500">
-        {project.description}
-      </p>
-
-      <div className="mt-4 flex flex-wrap gap-2">
-        {project.technologies.map((tech) => (
-          <span
-            key={tech}
-            className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600"
-          >
-            {tech}
-          </span>
-        ))}
-      </div>
-
-      <div className="mt-6">
-        <div className="mb-2 flex items-center justify-between text-xs">
-          <span className="font-semibold text-slate-500">
-            Progress
-          </span>
-
-          <span className="font-bold text-slate-900">
-            {project.progress}%
-          </span>
-        </div>
-
-        <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-          <div
-            className="h-full rounded-full bg-blue-600 transition-all duration-700"
-            style={{
-              width: `${project.progress}%`,
-            }}
-          />
-        </div>
-      </div>
-
-      <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-5">
-        <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
-          <FaUsers />
-          {project.members} members
-        </div>
-
-        <span className="text-sm font-bold text-blue-600 opacity-0 transition group-hover:opacity-100">
-          Open →
-        </span>
-      </div>
-    </Link>
+    <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+      <div
+        className={`h-full rounded-full bg-gradient-to-r ${gradient} transition-all duration-700`}
+        style={{ width: `${value}%` }}
+      />
+    </div>
   );
 }
 
-/* =========================================================
-   PRIORITY BADGE
-========================================================= */
-
 function PriorityBadge({ priority }) {
   const styles = {
-    High: "bg-red-50 text-red-600",
-    Medium: "bg-yellow-50 text-yellow-600",
-    Low: "bg-green-50 text-green-600",
+    High: "bg-red-50 text-red-600 border-red-100",
+    Medium: "bg-amber-50 text-amber-600 border-amber-100",
+    Low: "bg-emerald-50 text-emerald-600 border-emerald-100",
   };
 
   return (
     <span
-      className={`inline-block rounded-full px-3 py-1 text-xs font-bold ${styles[priority]}`}
+      className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-bold ${
+        styles[priority] || styles.Low
+      }`}
     >
       {priority}
     </span>
   );
 }
 
-/* =========================================================
-   STATUS BADGE
-========================================================= */
-
 function StatusBadge({ status }) {
   const styles = {
     "In Progress": "bg-blue-50 text-blue-600",
-    Review: "bg-purple-50 text-purple-600",
+    Review: "bg-violet-50 text-violet-600",
     "To Do": "bg-slate-100 text-slate-600",
-    Done: "bg-green-50 text-green-600",
+    Done: "bg-emerald-50 text-emerald-600",
   };
 
   return (
     <span
-      className={`inline-block rounded-full px-3 py-1 text-xs font-bold ${styles[status]}`}
+      className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-bold ${
+        styles[status] || styles["To Do"]
+      }`}
     >
       {status}
     </span>
   );
 }
 
-export default DemoDashboard;
+/* =========================================================
+   MAIN DEMO DASHBOARD
+========================================================= */
+
+export default function DemoDashboard() {
+  const navigate = useNavigate();
+
+  const [taskFilter, setTaskFilter] = useState("All");
+  const [showProjectMenu, setShowProjectMenu] = useState(null);
+
+  const filteredTasks = useMemo(() => {
+    if (taskFilter === "All") {
+      return tasks;
+    }
+
+    return tasks.filter((task) => task.status === taskFilter);
+  }, [taskFilter]);
+
+  const openProject = (projectId) => {
+    navigate(`/demo/project/${projectId}`);
+  };
+
+  return (
+    <div className="min-h-full bg-slate-50">
+      {/* =====================================================
+          PAGE HEADER
+      ===================================================== */}
+
+      <section className="border-b border-slate-200 bg-white">
+        <div className="mx-auto max-w-[1600px] px-5 py-7 sm:px-7 lg:px-8">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-blue-600">
+                <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+                Interactive Demo
+              </div>
+
+              <h1 className="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
+                Good morning, Developer 👋
+              </h1>
+
+              <p className="mt-1.5 text-sm text-slate-500">
+                Here's what's happening across your workspace.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => navigate("/demo/project/devsync")}
+              className="group inline-flex items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-blue-200 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-200"
+            >
+              <FaPlus className="text-xs" />
+              New Project
+              <FaArrowRight className="text-xs transition-transform duration-300 group-hover:translate-x-1" />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* =====================================================
+          MAIN CONTENT
+      ===================================================== */}
+
+      <main className="mx-auto max-w-[1600px] px-5 py-7 sm:px-7 lg:px-8 lg:py-8">
+        {/* ===================================================
+            STATS
+        =================================================== */}
+
+        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <StatCard
+            icon={<FaFolderOpen />}
+            label="Active Projects"
+            value="8"
+            change="+2"
+            description="Compared with last month"
+            iconClass="bg-blue-50 text-blue-600"
+          />
+
+          <StatCard
+            icon={<FaCheckCircle />}
+            label="Tasks Completed"
+            value="124"
+            change="+12"
+            description="Completed this month"
+            iconClass="bg-emerald-50 text-emerald-600"
+          />
+
+          <StatCard
+            icon={<FaUsers />}
+            label="Team Members"
+            value="12"
+            change="+3"
+            description="Across all workspaces"
+            iconClass="bg-violet-50 text-violet-600"
+          />
+
+          <StatCard
+            icon={<FaGithub />}
+            label="GitHub Activity"
+            value="+18%"
+            change="↑ 18%"
+            description="Activity this week"
+            iconClass="bg-slate-100 text-slate-700"
+          />
+        </section>
+
+        {/* ===================================================
+            PROJECTS + QUICK ACTION
+        =================================================== */}
+
+        <section className="mt-8 grid gap-6 xl:grid-cols-[1.55fr_0.45fr]">
+          {/* PROJECTS */}
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.04)] sm:p-6">
+            <div className="mb-6 flex items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-black tracking-tight text-slate-900">
+                  Active Projects
+                </h2>
+
+                <p className="mt-1 text-xs text-slate-500">
+                  Monitor progress across your development workspaces.
+                </p>
+              </div>
+
+              <Link
+                to="/demo/project/devsync"
+                className="hidden items-center gap-1.5 text-xs font-bold text-blue-600 transition hover:text-blue-700 sm:inline-flex"
+              >
+                View all
+                <FaArrowRight className="text-[10px]" />
+              </Link>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-3">
+              {projects.map((project) => (
+                <div
+                  key={project.id}
+                  className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50/70 p-4 transition-all duration-300 hover:-translate-y-1 hover:border-blue-200 hover:bg-white hover:shadow-[0_16px_40px_rgba(15,23,42,0.07)]"
+                >
+                  {/* TOP */}
+
+                  <div className="flex items-start justify-between gap-3">
+                    <button
+                      type="button"
+                      onClick={() => openProject(project.id)}
+                      className="flex min-w-0 items-center gap-3 text-left"
+                    >
+                      <div
+                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+                          project.accent === "violet"
+                            ? "bg-violet-100 text-violet-600"
+                            : project.accent === "emerald"
+                              ? "bg-emerald-100 text-emerald-600"
+                              : "bg-blue-100 text-blue-600"
+                        }`}
+                      >
+                        {project.id === "devsync" ? (
+                          <FaCode />
+                        ) : project.id === "skilltree" ? (
+                          <FaTasks />
+                        ) : (
+                          <FaRocket />
+                        )}
+                      </div>
+
+                      <div className="min-w-0">
+                        <h3 className="truncate text-sm font-black text-slate-900">
+                          {project.name}
+                        </h3>
+
+                        <p className="mt-0.5 truncate text-[11px] text-slate-500">
+                          {project.description}
+                        </p>
+                      </div>
+                    </button>
+
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setShowProjectMenu(
+                            showProjectMenu === project.id
+                              ? null
+                              : project.id,
+                          )
+                        }
+                        className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-white hover:text-slate-700"
+                      >
+                        <FaEllipsisH className="text-xs" />
+                      </button>
+
+                      {showProjectMenu === project.id && (
+                        <div className="absolute right-0 top-9 z-20 w-36 overflow-hidden rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl">
+                          <button
+                            type="button"
+                            onClick={() => openProject(project.id)}
+                            className="w-full rounded-lg px-3 py-2 text-left text-xs font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-blue-600"
+                          >
+                            Open project
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setShowProjectMenu(null)}
+                            className="w-full rounded-lg px-3 py-2 text-left text-xs font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-blue-600"
+                          >
+                            View details
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* PROGRESS */}
+
+                  <div className="mt-5">
+                    <div className="mb-2 flex items-center justify-between">
+                      <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400">
+                        Progress
+                      </span>
+
+                      <span className="text-xs font-black text-slate-700">
+                        {project.progress}%
+                      </span>
+                    </div>
+
+                    <ProgressBar
+                      value={project.progress}
+                      accent={project.accent}
+                    />
+                  </div>
+
+                  {/* FOOTER */}
+
+                  <div className="mt-5 flex items-center justify-between border-t border-slate-200/80 pt-4">
+                    <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500">
+                      <FaUsers className="text-slate-400" />
+                      {project.members} members
+                    </div>
+
+                    <span
+                      className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${
+                        project.status === "Active"
+                          ? "bg-emerald-50 text-emerald-600"
+                          : "bg-amber-50 text-amber-600"
+                      }`}
+                    >
+                      {project.status}
+                    </span>
+                  </div>
+
+                  <p className="mt-3 truncate text-[10px] font-medium text-slate-400">
+                    {project.technology}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* QUICK ACTIONS */}
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.04)] sm:p-6">
+            <div>
+              <h2 className="text-lg font-black tracking-tight text-slate-900">
+                Quick Actions
+              </h2>
+
+              <p className="mt-1 text-xs text-slate-500">
+                Jump directly into your workflow.
+              </p>
+            </div>
+
+            <div className="mt-6 space-y-3">
+              <button
+                type="button"
+                onClick={() => navigate("/demo/workspace")}
+                className="group flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-left transition-all duration-300 hover:border-blue-200 hover:bg-blue-50"
+              >
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
+                  <FaCode />
+                </span>
+
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-bold text-slate-800">
+                    Open Workspace
+                  </span>
+
+                  <span className="mt-0.5 block text-[11px] text-slate-400">
+                    Explore the developer environment
+                  </span>
+                </span>
+
+                <FaChevronRight className="text-xs text-slate-300 transition group-hover:translate-x-1 group-hover:text-blue-600" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  navigate("/demo/project/devsync/tasks")
+                }
+                className="group flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-left transition-all duration-300 hover:border-violet-200 hover:bg-violet-50"
+              >
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 text-violet-600">
+                  <FaTasks />
+                </span>
+
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-bold text-slate-800">
+                    Manage Tasks
+                  </span>
+
+                  <span className="mt-0.5 block text-[11px] text-slate-400">
+                    Track the development workflow
+                  </span>
+                </span>
+
+                <FaChevronRight className="text-xs text-slate-300 transition group-hover:translate-x-1 group-hover:text-violet-600" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  navigate("/demo/project/devsync/team")
+                }
+                className="group flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-left transition-all duration-300 hover:border-emerald-200 hover:bg-emerald-50"
+              >
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
+                  <FaUsers />
+                </span>
+
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-bold text-slate-800">
+                    Team Members
+                  </span>
+
+                  <span className="mt-0.5 block text-[11px] text-slate-400">
+                    Explore your development team
+                  </span>
+                </span>
+
+                <FaChevronRight className="text-xs text-slate-300 transition group-hover:translate-x-1 group-hover:text-emerald-600" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  navigate("/demo/project/devsync/chat")
+                }
+                className="group flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-left transition-all duration-300 hover:border-cyan-200 hover:bg-cyan-50"
+              >
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-100 text-cyan-600">
+                  <FaBolt />
+                </span>
+
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-bold text-slate-800">
+                    Team Chat
+                  </span>
+
+                  <span className="mt-0.5 block text-[11px] text-slate-400">
+                    Continue the conversation
+                  </span>
+                </span>
+
+                <FaChevronRight className="text-xs text-slate-300 transition group-hover:translate-x-1 group-hover:text-cyan-600" />
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* ===================================================
+            LOWER GRID
+        =================================================== */}
+
+        <section className="mt-8 grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+          {/* PROJECT PROGRESS */}
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.04)] sm:p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-black tracking-tight text-slate-900">
+                  Project Progress
+                </h2>
+
+                <p className="mt-1 text-xs text-slate-500">
+                  Current progress across your main initiatives.
+                </p>
+              </div>
+
+              <FaRocket className="text-blue-500" />
+            </div>
+
+            <div className="mt-7 space-y-6">
+              <div>
+                <div className="mb-2.5 flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-bold text-slate-800">
+                      DevSync Platform
+                    </p>
+
+                    <p className="mt-0.5 text-[10px] text-slate-400">
+                      Product development
+                    </p>
+                  </div>
+
+                  <span className="text-xs font-black text-slate-700">
+                    78%
+                  </span>
+                </div>
+
+                <ProgressBar value={78} accent="blue" />
+              </div>
+
+              <div>
+                <div className="mb-2.5 flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-bold text-slate-800">
+                      Mobile App
+                    </p>
+
+                    <p className="mt-0.5 text-[10px] text-slate-400">
+                      Cross-platform client
+                    </p>
+                  </div>
+
+                  <span className="text-xs font-black text-slate-700">
+                    61%
+                  </span>
+                </div>
+
+                <ProgressBar value={61} accent="violet" />
+              </div>
+
+              <div>
+                <div className="mb-2.5 flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-bold text-slate-800">
+                      AI Assistant
+                    </p>
+
+                    <p className="mt-0.5 text-[10px] text-slate-400">
+                      Intelligent workflow tools
+                    </p>
+                  </div>
+
+                  <span className="text-xs font-black text-slate-700">
+                    86%
+                  </span>
+                </div>
+
+                <ProgressBar value={86} accent="emerald" />
+              </div>
+            </div>
+          </div>
+
+          {/* RECENT ACTIVITY */}
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.04)] sm:p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-black tracking-tight text-slate-900">
+                  Recent Activity
+                </h2>
+
+                <p className="mt-1 text-xs text-slate-500">
+                  Latest changes across the workspace.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() =>
+                  navigate("/demo/project/devsync/activity")
+                }
+                className="text-xs font-bold text-blue-600 transition hover:text-blue-700"
+              >
+                View activity
+              </button>
+            </div>
+
+            <div className="mt-6 divide-y divide-slate-100">
+              {activities.map((activity) => (
+                <div
+                  key={`${activity.user}-${activity.target}`}
+                  className="flex items-center gap-3 py-3.5 first:pt-0 last:pb-0"
+                >
+                  <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-xs font-black text-white">
+                    {activity.initials}
+
+                    <span
+                      className={`absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full border-2 border-white text-[7px] ${
+                        activity.type === "success"
+                          ? "bg-emerald-500"
+                          : activity.type === "violet"
+                            ? "bg-violet-500"
+                            : activity.type === "amber"
+                              ? "bg-amber-500"
+                              : "bg-blue-500"
+                      }`}
+                    >
+                      {activity.icon}
+                    </span>
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-xs font-semibold text-slate-700">
+                      <span className="font-black text-slate-900">
+                        {activity.user}
+                      </span>{" "}
+                      {activity.action}{" "}
+                      <span className="font-bold text-blue-600">
+                        {activity.target}
+                      </span>
+                    </p>
+
+                    <p className="mt-1 text-[10px] text-slate-400">
+                      {activity.time}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ===================================================
+            TASKS
+        =================================================== */}
+
+        <section className="mt-8 rounded-2xl border border-slate-200 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.04)]">
+          <div className="flex flex-col gap-4 border-b border-slate-200 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+            <div>
+              <h2 className="text-lg font-black tracking-tight text-slate-900">
+                Recent Tasks
+              </h2>
+
+              <p className="mt-1 text-xs text-slate-500">
+                Keep your development workflow moving.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="flex rounded-xl bg-slate-100 p-1">
+                {["All", "In Progress", "Done"].map((filter) => (
+                  <button
+                    key={filter}
+                    type="button"
+                    onClick={() => setTaskFilter(filter)}
+                    className={`rounded-lg px-3 py-1.5 text-[10px] font-bold transition-all ${
+                      taskFilter === filter
+                        ? "bg-white text-blue-600 shadow-sm"
+                        : "text-slate-500 hover:text-slate-800"
+                    }`}
+                  >
+                    {filter}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={() =>
+                  navigate("/demo/project/devsync/tasks")
+                }
+                className="hidden items-center gap-1.5 text-xs font-bold text-blue-600 sm:inline-flex"
+              >
+                View tasks
+                <FaArrowRight className="text-[10px]" />
+              </button>
+            </div>
+          </div>
+
+          {/* DESKTOP TABLE */}
+
+          <div className="hidden overflow-x-auto md:block">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-slate-100 bg-slate-50/70">
+                  <th className="px-6 py-3 text-left text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">
+                    Task
+                  </th>
+
+                  <th className="px-6 py-3 text-left text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">
+                    Project
+                  </th>
+
+                  <th className="px-6 py-3 text-left text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">
+                    Priority
+                  </th>
+
+                  <th className="px-6 py-3 text-left text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">
+                    Status
+                  </th>
+
+                  <th className="px-6 py-3 text-right text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">
+                    Action
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {filteredTasks.map((task) => (
+                  <tr
+                    key={task.title}
+                    className="group border-b border-slate-100 last:border-0 transition hover:bg-slate-50/70"
+                  >
+                    <td className="px-6 py-4">
+                      <span className="text-sm font-bold text-slate-800">
+                        {task.title}
+                      </span>
+                    </td>
+
+                    <td className="px-6 py-4">
+                      <span className="text-xs font-semibold text-slate-500">
+                        {task.project}
+                      </span>
+                    </td>
+
+                    <td className="px-6 py-4">
+                      <PriorityBadge priority={task.priority} />
+                    </td>
+
+                    <td className="px-6 py-4">
+                      <StatusBadge status={task.status} />
+                    </td>
+
+                    <td className="px-6 py-4 text-right">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          navigate("/demo/project/devsync/tasks")
+                        }
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-300 transition hover:bg-blue-50 hover:text-blue-600"
+                      >
+                        <FaEllipsisH className="text-xs" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* MOBILE TASK LIST */}
+
+          <div className="divide-y divide-slate-100 md:hidden">
+            {filteredTasks.map((task) => (
+              <button
+                key={task.title}
+                type="button"
+                onClick={() =>
+                  navigate("/demo/project/devsync/tasks")
+                }
+                className="flex w-full items-start gap-3 p-5 text-left transition hover:bg-slate-50"
+              >
+                <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                  <FaTasks className="text-xs" />
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold text-slate-800">
+                    {task.title}
+                  </p>
+
+                  <p className="mt-1 text-[11px] text-slate-400">
+                    {task.project}
+                  </p>
+
+                  <div className="mt-3 flex items-center gap-2">
+                    <PriorityBadge priority={task.priority} />
+                    <StatusBadge status={task.status} />
+                  </div>
+                </div>
+
+                <FaChevronRight className="mt-2 text-xs text-slate-300" />
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* ===================================================
+            FINAL DEMO CTA
+        =================================================== */}
+
+        <section className="relative mt-8 overflow-hidden rounded-3xl bg-gradient-to-br from-[#0f172a] via-[#111c3a] to-[#172554] p-7 shadow-[0_20px_60px_rgba(15,23,42,0.18)] sm:p-9 lg:p-10">
+          {/* Decorative glow */}
+
+          <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-blue-500/20 blur-[80px]" />
+
+          <div className="pointer-events-none absolute bottom-0 left-1/3 h-40 w-80 rounded-full bg-violet-500/10 blur-[80px]" />
+
+          <div className="relative z-10 max-w-3xl">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-500/30">
+              <FaRocket />
+            </div>
+
+            <h2 className="mt-6 text-2xl font-black tracking-tight text-white sm:text-3xl">
+              Ready to build with your team?
+            </h2>
+
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
+              This is an interactive DevSync demonstration using sample
+              project data. Explore the workspace, tasks, team, chat,
+              files, and activity without creating an account.
+            </p>
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <Link
+                to="/register"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-slate-900 transition-all duration-300 hover:-translate-y-0.5 hover:bg-slate-100"
+              >
+                Create your workspace
+                <FaArrowRight className="text-xs" />
+              </Link>
+
+              <Link
+                to="/demo/project/devsync"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-bold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/10"
+              >
+                Explore DevSync
+              </Link>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+}
