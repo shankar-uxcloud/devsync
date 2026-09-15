@@ -11,17 +11,6 @@ import ResetPassword from "../pages/Auth/ResetPassword";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import RoleDashboard from "../pages/Dashboard/RoleDashboard";
 
-import DemoDashboard from "../pages/Demo/DemoDashboard";
-import CodeWorkspace from "../pages/Demo/CodeWorkspace";
-import ProjectOverview from "../pages/DemoProject/ProjectOverview";
-import TaskBoard from "../pages/DemoTasks/TaskBoard";
-import TeamPage from "../pages/DemoTeam/TeamPage";
-import ProjectChat from "../pages/DemoChat/ProjectChat";
-import ProjectFiles from "../pages/DemoFiles/ProjectFiles";
-import ProjectActivity from "../pages/DemoActivity/ProjectActivity";
-import DemoProfile from "../pages/DemoProfile";
-import DemoSettings from "../pages/DemoSettings";
-
 import NotFound from "../pages/NotFound";
 
 import ProtectedRoute from "../components/ProtectedRoute";
@@ -83,109 +72,64 @@ function AppRoutes() {
         />
 
         {/* =====================================================
-            GENERAL PROTECTED APPLICATION
+            PROTECTED APPLICATION
         ===================================================== */}
 
         <Route element={<ProtectedRoute />}>
 
+          {/* General dashboard */}
           <Route
             path="/dashboard"
             element={<Dashboard />}
           />
 
-          {/* ===================================================
-              ROLE DASHBOARDS
-          =================================================== */}
-
+          {/* Student */}
           <Route
-            path="/dashboard/student"
             element={
-              <RoleProtectedRoute allowedRoles={["student"]}>
-                <RoleDashboard />
-              </RoleProtectedRoute>
+              <RoleProtectedRoute allowedRole="student" />
             }
-          />
+          >
+            <Route
+              path="/dashboard/student"
+              element={<RoleDashboard />}
+            />
+          </Route>
 
+          {/* Developer */}
           <Route
-            path="/dashboard/developer"
             element={
-              <RoleProtectedRoute allowedRoles={["developer"]}>
-                <RoleDashboard />
-              </RoleProtectedRoute>
+              <RoleProtectedRoute allowedRole="developer" />
             }
-          />
+          >
+            <Route
+              path="/dashboard/developer"
+              element={<RoleDashboard />}
+            />
+          </Route>
 
+          {/* Mentor */}
           <Route
-            path="/dashboard/mentor"
             element={
-              <RoleProtectedRoute allowedRoles={["mentor"]}>
-                <RoleDashboard />
-              </RoleProtectedRoute>
+              <RoleProtectedRoute allowedRole="mentor" />
             }
-          />
+          >
+            <Route
+              path="/dashboard/mentor"
+              element={<RoleDashboard />}
+            />
+          </Route>
 
+          {/* Client */}
           <Route
-            path="/dashboard/client"
             element={
-              <RoleProtectedRoute allowedRoles={["client"]}>
-                <RoleDashboard />
-              </RoleProtectedRoute>
+              <RoleProtectedRoute allowedRole="client" />
             }
-          />
-
-          {/* ===================================================
-              DEVSYNC DEMO APPLICATION
-          =================================================== */}
-
-          <Route
-            path="/demo"
-            element={<DemoDashboard />}
-          />
-
-          <Route
-            path="/demo/workspace"
-            element={<CodeWorkspace />}
-          />
-
-          <Route
-            path="/demo/project/:projectId"
-            element={<ProjectOverview />}
-          />
-
-          <Route
-            path="/demo/project/:projectId/tasks"
-            element={<TaskBoard />}
-          />
-
-          <Route
-            path="/demo/project/:projectId/team"
-            element={<TeamPage />}
-          />
-
-          <Route
-            path="/demo/project/:projectId/chat"
-            element={<ProjectChat />}
-          />
-
-          <Route
-            path="/demo/project/:projectId/files"
-            element={<ProjectFiles />}
-          />
-
-          <Route
-            path="/demo/project/:projectId/activity"
-            element={<ProjectActivity />}
-          />
-
-          <Route
-            path="/demo/profile"
-            element={<DemoProfile />}
-          />
-
-          <Route
-            path="/demo/settings"
-            element={<DemoSettings />}
-          />
+          >
+            <Route
+              path="/dashboard/client"
+              element={<RoleDashboard />}
+            />
+          </Route>
 
         </Route>
 

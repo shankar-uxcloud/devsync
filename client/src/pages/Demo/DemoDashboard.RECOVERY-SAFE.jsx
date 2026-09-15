@@ -1,5 +1,6 @@
 ﻿import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useContext, useState } from "react";
+import { ThemeContext } from "../../context/ThemeContext";
 import {
   FaBell,
   FaBolt,
@@ -113,37 +114,6 @@ const tasks = [
 ];
 
 /* =========================================================
-   DEMO THEMES
-   Self-contained so /demo does not require ThemeContext.
-========================================================= */
-
-const demoThemes = {
-  light: {
-    name: "Light",
-    icon: "☀️",
-    description: "Clean and bright workspace",
-  },
-  ocean: {
-    name: "Ocean",
-    icon: "🌊",
-    description: "Cool blue developer workspace",
-  },
-  midnight: {
-    name: "Midnight",
-    icon: "🌙",
-    description: "Dark developer workspace",
-  },
-};
-
-const getInitialTheme = () => {
-  try {
-    return localStorage.getItem("devsync-demo-theme") || "light";
-  } catch {
-    return "light";
-  }
-};
-
-/* =========================================================
    MAIN DASHBOARD
 ========================================================= */
 
@@ -156,24 +126,7 @@ function DemoDashboard() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showThemes, setShowThemes] = useState(false);
 
-  const [theme, setTheme] = useState(getInitialTheme);
-
-  /* Apply demo theme locally */
-  useEffect(() => {
-    try {
-      localStorage.setItem("devsync-demo-theme", theme);
-    } catch {
-      // Ignore localStorage errors.
-    }
-
-    document.documentElement.dataset.demoTheme = theme;
-  }, [theme]);
-
-  const changeTheme = (themeId) => {
-    if (demoThemes[themeId]) {
-      setTheme(themeId);
-    }
-  };
+  const { theme, changeTheme, themes } = useContext(ThemeContext);
 
   /* =======================================================
      ACTIVE SIDEBAR PAGE
@@ -218,6 +171,10 @@ function DemoDashboard() {
       return;
     }
 
+    /*
+      These pages don't have dedicated routes yet.
+      Keep the button functional without causing errors.
+    */
     if (page === "Analytics") {
       navigate("/demo");
     }
@@ -264,18 +221,22 @@ function DemoDashboard() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
+
       {/* =====================================================
           SIDEBAR
       ===================================================== */}
 
       <aside className="fixed left-0 top-0 z-40 hidden h-screen w-64 flex-col border-r border-slate-200 bg-white lg:flex">
+
         {/* LOGO */}
 
         <div className="flex h-20 shrink-0 items-center border-b border-slate-100 px-6">
+
           <Link
             to="/demo"
             className="group flex items-center gap-3"
           >
+
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-200 transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-blue-300">
               <FaCode />
             </div>
@@ -283,12 +244,15 @@ function DemoDashboard() {
             <span className="text-2xl font-black tracking-tight">
               Dev<span className="text-blue-600">Sync</span>
             </span>
+
           </Link>
+
         </div>
 
         {/* DEMO CARD */}
 
         <div className="mx-4 mt-5 shrink-0 rounded-2xl border border-blue-100 bg-blue-50 p-4">
+
           <div className="flex items-center gap-2 text-sm font-bold text-blue-700">
             <FaRocket />
             Interactive Demo
@@ -297,20 +261,23 @@ function DemoDashboard() {
           <p className="mt-1 text-xs leading-5 text-blue-600">
             Explore DevSync using sample project data.
           </p>
+
         </div>
 
         {/* NAVIGATION */}
 
         <nav className="mt-7 flex-1 overflow-y-auto px-4">
+
           <p className="mb-3 px-3 text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">
             Workspace
           </p>
 
           <div className="space-y-1">
+
             {navigation.map((item) => (
+
               <button
                 key={item.name}
-                type="button"
                 onClick={() => goToDemoPage(item.name)}
                 className={`group flex w-full items-center gap-4 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 ${
                   activePage === item.name
@@ -318,6 +285,7 @@ function DemoDashboard() {
                     : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                 }`}
               >
+
                 <span className="text-lg transition-transform duration-300 group-hover:scale-110">
                   {item.icon}
                 </span>
@@ -373,8 +341,11 @@ function DemoDashboard() {
                     3
                   </span>
                 )}
+
               </button>
+
             ))}
+
           </div>
 
           {/* SYSTEM */}
@@ -384,7 +355,6 @@ function DemoDashboard() {
           </p>
 
           <button
-            type="button"
             onClick={() => goToDemoPage("Settings")}
             className={`group flex w-full items-center gap-4 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 ${
               activePage === "Settings"
@@ -392,6 +362,7 @@ function DemoDashboard() {
                 : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
             }`}
           >
+
             <span className="text-lg transition-transform duration-300 group-hover:scale-110">
               <FaCog />
             </span>
@@ -399,14 +370,16 @@ function DemoDashboard() {
             <span className="flex-1 text-left">
               Settings
             </span>
+
           </button>
+
         </nav>
 
         {/* USER SECTION */}
 
         <div className="shrink-0 border-t border-slate-100 p-4">
+
           <button
-            type="button"
             onClick={() => {
               setShowSidebarProfile(!showSidebarProfile);
               setShowTopProfile(false);
@@ -415,13 +388,17 @@ function DemoDashboard() {
             }}
             className="group flex w-full items-center gap-3 rounded-xl p-2 transition-all duration-300 hover:bg-slate-50"
           >
+
             {/* Avatar */}
+
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 font-bold text-white shadow-md">
               A
             </div>
 
             {/* User */}
+
             <div className="min-w-0 flex-1 text-left">
+
               <p className="truncate text-sm font-bold text-slate-800">
                 Alex Morgan
               </p>
@@ -429,6 +406,7 @@ function DemoDashboard() {
               <p className="truncate text-xs text-slate-500">
                 Full Stack Developer
               </p>
+
             </div>
 
             <FaChevronDown
@@ -436,16 +414,18 @@ function DemoDashboard() {
                 showSidebarProfile ? "rotate-180" : ""
               }`}
             />
+
           </button>
 
           {/* PROFILE MENU */}
 
           {showSidebarProfile && (
             <div className="absolute bottom-20 left-4 z-50 w-72 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-300/40">
-              {/* PROFILE HEADER */}
 
+              {/* PROFILE HEADER */}
               <div className="border-b border-slate-100 bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4">
                 <div className="flex items-center gap-3">
+
                   <div className="relative">
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-lg font-black text-white shadow-lg shadow-blue-200">
                       A
@@ -470,14 +450,14 @@ function DemoDashboard() {
                       </span>
                     </div>
                   </div>
+
                 </div>
               </div>
 
               {/* MENU ITEMS */}
-
               <div className="p-2">
+
                 <button
-                  type="button"
                   onClick={() => {
                     setShowSidebarProfile(false);
                     goToDemoPage("Profile");
@@ -492,7 +472,6 @@ function DemoDashboard() {
                     <span className="block text-sm font-bold text-slate-800">
                       My Profile
                     </span>
-
                     <span className="mt-0.5 block text-[11px] text-slate-400">
                       View your developer profile
                     </span>
@@ -502,7 +481,6 @@ function DemoDashboard() {
                 </button>
 
                 <button
-                  type="button"
                   onClick={() => {
                     setShowSidebarProfile(false);
                     goToDemoPage("Settings");
@@ -517,7 +495,6 @@ function DemoDashboard() {
                     <span className="block text-sm font-bold text-slate-800">
                       Account Settings
                     </span>
-
                     <span className="mt-0.5 block text-[11px] text-slate-400">
                       Preferences & account controls
                     </span>
@@ -527,7 +504,6 @@ function DemoDashboard() {
                 </button>
 
                 <button
-                  type="button"
                   onClick={() => {
                     setShowSidebarProfile(false);
                     setShowTopProfile(false);
@@ -545,7 +521,6 @@ function DemoDashboard() {
                     <span className="block text-sm font-bold text-slate-800">
                       My Workspace
                     </span>
-
                     <span className="mt-0.5 block text-[11px] text-slate-400">
                       Return to your dashboard
                     </span>
@@ -553,13 +528,12 @@ function DemoDashboard() {
 
                   <FaArrowRight className="text-xs text-slate-300 transition group-hover:translate-x-1 group-hover:text-cyan-600" />
                 </button>
+
               </div>
 
               {/* EXIT */}
-
               <div className="border-t border-slate-100 p-2">
                 <button
-                  type="button"
                   onClick={() => {
                     setShowSidebarProfile(false);
                     navigate("/");
@@ -574,16 +548,18 @@ function DemoDashboard() {
                     <span className="block text-sm font-bold text-red-500">
                       Exit Demo
                     </span>
-
                     <span className="mt-0.5 block text-[11px] text-slate-400">
                       Return to DevSync landing page
                     </span>
                   </span>
                 </button>
               </div>
+
             </div>
           )}
+
         </div>
+
       </aside>
 
       {/* =====================================================
@@ -591,14 +567,17 @@ function DemoDashboard() {
       ===================================================== */}
 
       <main className="lg:ml-64">
+
         {/* ===================================================
             TOPBAR
         =================================================== */}
 
         <header className="sticky top-0 z-20 flex h-20 items-center justify-between border-b border-slate-200 bg-white/95 px-5 backdrop-blur lg:px-8">
+
           {/* Mobile logo */}
 
           <div className="flex items-center gap-3 lg:hidden">
+
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
               <FaCode />
             </div>
@@ -606,11 +585,13 @@ function DemoDashboard() {
             <span className="text-xl font-black">
               Dev<span className="text-blue-600">Sync</span>
             </span>
+
           </div>
 
           {/* Search */}
 
           <div className="relative hidden w-80 md:block">
+
             <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-slate-400" />
 
             <input
@@ -618,24 +599,28 @@ function DemoDashboard() {
               placeholder="Search projects, tasks..."
               className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm outline-none transition focus:border-blue-500 focus:bg-white"
             />
+
           </div>
 
           <div className="flex items-center gap-3">
-            {/* THEME SELECTOR */}
+
+            {/* =================================================
+                THEME SELECTOR
+            ================================================= */}
 
             <div className="relative">
+
               <button
-                type="button"
                 onClick={() => {
                   setShowThemes(!showThemes);
                   setShowSidebarProfile(false);
                   setShowNotifications(false);
-                  setShowTopProfile(false);
                 }}
                 className="flex items-center gap-2 rounded-xl bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
               >
+
                 <span className="text-base">
-                  {demoThemes[theme]?.icon || "🎨"}
+                  {themes?.[theme]?.icon || "ðŸŽ¨"}
                 </span>
 
                 <span className="hidden lg:block">
@@ -647,29 +632,35 @@ function DemoDashboard() {
                     showThemes ? "rotate-180" : ""
                   }`}
                 />
+
               </button>
 
               {showThemes && (
+
                 <div className="absolute right-0 top-14 z-50 w-80 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+
                   {/* HEADER */}
 
                   <div className="border-b border-slate-100 px-4 py-4">
+
                     <p className="text-sm font-black text-slate-900">
                       Appearance
                     </p>
 
                     <p className="mt-1 text-xs text-slate-500">
-                      Choose your DevSync demo theme
+                      Choose your DevSync theme
                     </p>
+
                   </div>
 
                   {/* THEMES */}
 
                   <div className="max-h-[420px] overflow-y-auto p-2">
-                    {Object.entries(demoThemes).map(
+
+                    {Object.entries(themes || {}).map(
                       ([themeId, item]) => (
+
                         <button
-                          type="button"
                           key={themeId}
                           onClick={() => {
                             changeTheme(themeId);
@@ -681,6 +672,7 @@ function DemoDashboard() {
                               : "hover:bg-slate-50"
                           }`}
                         >
+
                           <span
                             className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-lg ${
                               theme === themeId
@@ -692,6 +684,7 @@ function DemoDashboard() {
                           </span>
 
                           <span className="flex-1">
+
                             <span
                               className={`block text-sm font-bold ${
                                 theme === themeId
@@ -705,25 +698,34 @@ function DemoDashboard() {
                             <span className="mt-0.5 block text-xs text-slate-400">
                               {item.description}
                             </span>
+
                           </span>
 
                           {theme === themeId && (
                             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
-                              ✓
+                              âœ“
                             </span>
                           )}
+
                         </button>
+
                       )
                     )}
+
                   </div>
 
                   <div className="border-t border-slate-100 bg-slate-50 px-4 py-3">
+
                     <p className="text-[11px] text-slate-400">
                       Theme preference is saved automatically.
                     </p>
+
                   </div>
+
                 </div>
+
               )}
+
             </div>
 
             {/* DEMO LABEL */}
@@ -732,31 +734,37 @@ function DemoDashboard() {
               DEMO MODE
             </span>
 
-            {/* NOTIFICATIONS */}
+            {/* =================================================
+                NOTIFICATIONS
+            ================================================= */}
 
             <div className="relative">
+
               <button
-                type="button"
                 onClick={() => {
                   setShowNotifications(!showNotifications);
                   setShowThemes(false);
                   setShowSidebarProfile(false);
-                  setShowTopProfile(false);
                 }}
                 className="relative flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
               >
+
                 <FaBell />
 
                 <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500" />
+
               </button>
 
               {showNotifications && (
+
                 <div className="absolute right-0 top-14 w-80 rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl">
+
                   <h3 className="font-bold">
                     Notifications
                   </h3>
 
                   <div className="mt-4 rounded-xl bg-slate-50 p-3 text-sm">
+
                     <p className="font-semibold">
                       Rahul joined DevSync
                     </p>
@@ -764,16 +772,22 @@ function DemoDashboard() {
                     <p className="mt-1 text-xs text-slate-500">
                       1 hour ago
                     </p>
+
                   </div>
+
                 </div>
+
               )}
+
             </div>
 
-            {/* PROFILE */}
+            {/* =================================================
+                PROFILE
+            ================================================= */}
 
             <div className="relative">
+
               <button
-                type="button"
                 onClick={() => {
                   setShowTopProfile(!showTopProfile);
                   setShowSidebarProfile(false);
@@ -782,11 +796,13 @@ function DemoDashboard() {
                 }}
                 className="flex items-center gap-3 rounded-xl p-1.5 transition hover:bg-slate-100"
               >
+
                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 font-bold text-white">
                   A
                 </div>
 
                 <div className="hidden text-left sm:block">
+
                   <p className="text-sm font-bold">
                     Alex Morgan
                   </p>
@@ -794,17 +810,20 @@ function DemoDashboard() {
                   <p className="text-xs text-slate-500">
                     Developer
                   </p>
+
                 </div>
 
                 <FaChevronDown className="hidden text-xs text-slate-400 sm:block" />
+
               </button>
 
               {showTopProfile && (
                 <div className="absolute right-0 top-14 z-50 w-80 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-300/50">
-                  {/* PROFILE HEADER */}
 
+                  {/* PROFILE HEADER */}
                   <div className="border-b border-slate-100 bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4">
                     <div className="flex items-center gap-3">
+
                       <div className="relative">
                         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-xl font-black text-white shadow-lg shadow-blue-200">
                           A
@@ -832,16 +851,19 @@ function DemoDashboard() {
                           Developer workspace
                         </p>
                       </div>
+
                     </div>
                   </div>
 
                   {/* MENU */}
-
                   <div className="p-2">
+
                     <button
-                      type="button"
                       onClick={() => {
                         setShowTopProfile(false);
+                        setShowSidebarProfile(false);
+                        setShowThemes(false);
+                        setShowNotifications(false);
                         navigate("/demo/workspace");
                       }}
                       className="group flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-3 text-left transition-all duration-200 hover:bg-blue-50"
@@ -864,7 +886,6 @@ function DemoDashboard() {
                     </button>
 
                     <button
-                      type="button"
                       onClick={() => {
                         setShowTopProfile(false);
                         goToDemoPage("Settings");
@@ -889,7 +910,6 @@ function DemoDashboard() {
                     </button>
 
                     <button
-                      type="button"
                       onClick={() => {
                         setShowTopProfile(false);
                         goToDemoPage("Profile");
@@ -912,13 +932,10 @@ function DemoDashboard() {
 
                       <FaArrowRight className="text-xs text-slate-300 transition group-hover:translate-x-1 group-hover:text-cyan-600" />
                     </button>
+
                   </div>
-
-                  {/* DEMO WORKSPACE */}
-
-                  <div className="px-2 pb-2">
+                    {/* DEMO WORKSPACE */}
                     <button
-                      type="button"
                       onClick={() => {
                         setShowTopProfile(false);
                         setShowSidebarProfile(false);
@@ -946,13 +963,10 @@ function DemoDashboard() {
                         <FaArrowRight className="text-xs text-blue-400 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-blue-600" />
                       </div>
                     </button>
-                  </div>
 
                   {/* EXIT DEMO */}
-
                   <div className="mt-2 border-t border-slate-100 p-2">
                     <button
-                      type="button"
                       onClick={() => {
                         setShowTopProfile(false);
                         navigate("/");
@@ -974,10 +988,14 @@ function DemoDashboard() {
                       </span>
                     </button>
                   </div>
+
                 </div>
               )}
+
             </div>
+
           </div>
+
         </header>
 
         {/* =====================================================
@@ -985,37 +1003,38 @@ function DemoDashboard() {
         ===================================================== */}
 
         <div className="p-5 lg:p-8">
+
           {/* WELCOME */}
 
           <div className="mb-8 flex flex-col justify-between gap-5 md:flex-row md:items-center">
+
             <div>
+
               <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-blue-600">
                 <FaBolt />
                 Demo Workspace
               </div>
 
               <h1 className="text-3xl font-black tracking-tight text-slate-900 lg:text-4xl">
-                Good morning, Alex 👋
+                Good morning, Alex ðŸ‘‹
               </h1>
 
               <p className="mt-2 text-slate-500">
                 Here's what's happening with your development workspace.
               </p>
+
             </div>
 
-            <button
-              type="button"
-              onClick={() => navigate("/register")}
-              className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-bold text-white shadow-lg shadow-blue-200 transition hover:-translate-y-0.5 hover:bg-blue-700"
-            >
-              <FaPlus />
-              New Project
-            </button>
+            <button onClick={() => navigate("/register")} className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-bold text-white shadow-lg shadow-blue-200 transition hover:-translate-y-0.5 hover:bg-blue-700"><FaPlus />New Project</button>
+
           </div>
 
-          {/* STATS */}
+          {/* =================================================
+              STATS
+          ================================================= */}
 
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
             <StatCard
               icon={<FaFolderOpen />}
               title="Active Projects"
@@ -1047,16 +1066,23 @@ function DemoDashboard() {
               change="+12%"
               color="orange"
             />
+
           </div>
 
-          {/* PROJECTS + ACTIVITY */}
+          {/* =================================================
+              PROJECTS + ACTIVITY
+          ================================================= */}
 
           <div className="mt-8 grid gap-8 xl:grid-cols-3">
+
             {/* PROJECTS */}
 
             <section className="xl:col-span-2">
+
               <div className="mb-5 flex items-center justify-between">
+
                 <div>
+
                   <h2 className="text-xl font-black">
                     Your Projects
                   </h2>
@@ -1064,31 +1090,37 @@ function DemoDashboard() {
                   <p className="mt-1 text-sm text-slate-500">
                     Track your active development work.
                   </p>
+
                 </div>
 
                 <button
-                  type="button"
                   onClick={() => goToDemoPage("Projects")}
                   className="text-sm font-bold text-blue-600 hover:text-blue-700"
                 >
                   View all
                 </button>
+
               </div>
 
               <div className="grid gap-5 md:grid-cols-2">
+
                 {projects.map((project) => (
                   <ProjectCard
                     key={project.name}
                     project={project}
                   />
                 ))}
+
               </div>
+
             </section>
 
             {/* ACTIVITY */}
 
             <section>
+
               <div className="mb-5">
+
                 <h2 className="text-xl font-black">
                   Recent Activity
                 </h2>
@@ -1096,46 +1128,68 @@ function DemoDashboard() {
                 <p className="mt-1 text-sm text-slate-500">
                   Latest team updates.
                 </p>
+
               </div>
 
               <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+
                 <div className="space-y-6">
+
                   {activities.map((activity, index) => (
+
                     <div
                       key={index}
                       className="flex gap-3"
                     >
+
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm text-blue-600">
                         {activity.icon}
                       </div>
 
                       <div className="min-w-0">
+
                         <p className="text-sm leading-6 text-slate-700">
+
                           <span className="font-bold">
                             {activity.user}
                           </span>{" "}
+
                           {activity.action}{" "}
+
                           <span className="font-semibold text-slate-900">
                             {activity.target}
                           </span>
+
                         </p>
 
                         <p className="mt-1 text-xs text-slate-400">
                           {activity.time}
                         </p>
+
                       </div>
+
                     </div>
+
                   ))}
+
                 </div>
+
               </div>
+
             </section>
+
           </div>
 
-          {/* TASKS */}
+          {/* =================================================
+              TASKS
+          ================================================= */}
 
           <section className="mt-8">
+
             <div className="mb-5 flex items-center justify-between">
+
               <div>
+
                 <h2 className="text-xl font-black">
                   Recent Tasks
                 </h2>
@@ -1143,19 +1197,22 @@ function DemoDashboard() {
                 <p className="mt-1 text-sm text-slate-500">
                   Keep your development workflow moving.
                 </p>
+
               </div>
 
               <button
-                type="button"
                 onClick={() => goToDemoPage("Tasks")}
                 className="text-sm font-bold text-blue-600"
               >
                 View tasks
               </button>
+
             </div>
 
             <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
               <div className="hidden grid-cols-12 gap-4 border-b border-slate-100 bg-slate-50 px-6 py-4 text-xs font-bold uppercase tracking-wide text-slate-400 md:grid">
+
                 <div className="col-span-5">
                   Task
                 </div>
@@ -1173,17 +1230,22 @@ function DemoDashboard() {
                 </div>
 
                 <div className="col-span-1" />
+
               </div>
 
               {tasks.map((task, index) => (
+
                 <div
                   key={index}
                   className="grid gap-3 border-b border-slate-100 px-6 py-5 last:border-0 md:grid-cols-12 md:items-center md:gap-4"
                 >
+
                   <div className="md:col-span-5">
+
                     <p className="font-bold text-slate-800">
                       {task.title}
                     </p>
+
                   </div>
 
                   <div className="text-sm text-slate-500 md:col-span-2">
@@ -1199,22 +1261,29 @@ function DemoDashboard() {
                   </div>
 
                   <div className="hidden justify-end md:col-span-1 md:flex">
-                    <button
-                      type="button"
-                      className="text-slate-400 hover:text-slate-700"
-                    >
+
+                    <button className="text-slate-400 hover:text-slate-700">
                       <FaEllipsisH />
                     </button>
+
                   </div>
+
                 </div>
+
               ))}
+
             </div>
+
           </section>
 
-          {/* CTA */}
+          {/* =================================================
+              CTA
+          ================================================= */}
 
           <section className="relative mt-10 overflow-hidden rounded-3xl bg-slate-900 p-8 text-white shadow-xl lg:p-10">
+
             <div className="relative z-10 max-w-2xl">
+
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600">
                 <FaRocket />
               </div>
@@ -1229,20 +1298,24 @@ function DemoDashboard() {
               </p>
 
               <button
-                type="button"
                 onClick={() => navigate("/register")}
                 className="mt-6 rounded-xl bg-white px-6 py-3 font-bold text-slate-900 transition hover:bg-blue-50"
               >
                 Get Started
               </button>
+
             </div>
 
             <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-blue-600/20 blur-3xl" />
 
             <div className="absolute -bottom-20 right-20 h-48 w-48 rounded-full bg-indigo-500/20 blur-3xl" />
+
           </section>
+
         </div>
+
       </main>
+
     </div>
   );
 }
@@ -1251,13 +1324,8 @@ function DemoDashboard() {
    STAT CARD
 ========================================================= */
 
-function StatCard({
-  icon,
-  title,
-  value,
-  change,
-  color,
-}) {
+function StatCard({ icon, title, value, change, color }) {
+
   const colors = {
     blue: "bg-blue-50 text-blue-600",
     green: "bg-green-50 text-green-600",
@@ -1266,8 +1334,11 @@ function StatCard({
   };
 
   return (
+
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
+
       <div className="flex items-start justify-between">
+
         <div
           className={`flex h-12 w-12 items-center justify-center rounded-xl ${colors[color]}`}
         >
@@ -1275,9 +1346,13 @@ function StatCard({
         </div>
 
         <span className="flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 text-xs font-bold text-green-600">
+
           <FaArrowUp />
+
           {change}
+
         </span>
+
       </div>
 
       <p className="mt-5 text-sm font-medium text-slate-500">
@@ -1287,7 +1362,9 @@ function StatCard({
       <h3 className="mt-1 text-3xl font-black">
         {value}
       </h3>
+
     </div>
+
   );
 }
 
@@ -1296,16 +1373,20 @@ function StatCard({
 ========================================================= */
 
 function ProjectCard({ project }) {
+
   const projectId = project.name
     .toLowerCase()
     .replace(/\s+/g, "");
 
   return (
+
     <Link
       to={`/demo/project/${projectId}`}
       className="group block rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl"
     >
+
       <div className="flex items-start justify-between">
+
         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
           <FaCode />
         </div>
@@ -1319,6 +1400,7 @@ function ProjectCard({ project }) {
         >
           {project.status}
         </span>
+
       </div>
 
       <h3 className="mt-5 text-lg font-black">
@@ -1330,18 +1412,24 @@ function ProjectCard({ project }) {
       </p>
 
       <div className="mt-4 flex flex-wrap gap-2">
+
         {project.technologies.map((tech) => (
+
           <span
             key={tech}
             className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600"
           >
             {tech}
           </span>
+
         ))}
+
       </div>
 
       <div className="mt-6">
+
         <div className="mb-2 flex items-center justify-between text-xs">
+
           <span className="font-semibold text-slate-500">
             Progress
           </span>
@@ -1349,29 +1437,38 @@ function ProjectCard({ project }) {
           <span className="font-bold text-slate-900">
             {project.progress}%
           </span>
+
         </div>
 
         <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+
           <div
             className="h-full rounded-full bg-blue-600 transition-all duration-700"
-            style={{
-              width: `${project.progress}%`,
-            }}
+            style={{ width: `${project.progress}%` }}
           />
+
         </div>
+
       </div>
 
       <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-5">
+
         <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+
           <FaUsers />
+
           {project.members} members
+
         </div>
 
         <span className="text-sm font-bold text-blue-600 opacity-0 transition group-hover:opacity-100">
-          Open →
+          Open â†’
         </span>
+
       </div>
+
     </Link>
+
   );
 }
 
@@ -1380,6 +1477,7 @@ function ProjectCard({ project }) {
 ========================================================= */
 
 function PriorityBadge({ priority }) {
+
   const styles = {
     High: "bg-red-50 text-red-600",
     Medium: "bg-yellow-50 text-yellow-600",
@@ -1387,11 +1485,13 @@ function PriorityBadge({ priority }) {
   };
 
   return (
+
     <span
       className={`inline-block rounded-full px-3 py-1 text-xs font-bold ${styles[priority]}`}
     >
       {priority}
     </span>
+
   );
 }
 
@@ -1400,6 +1500,7 @@ function PriorityBadge({ priority }) {
 ========================================================= */
 
 function StatusBadge({ status }) {
+
   const styles = {
     "In Progress": "bg-blue-50 text-blue-600",
     Review: "bg-purple-50 text-purple-600",
@@ -1408,11 +1509,13 @@ function StatusBadge({ status }) {
   };
 
   return (
+
     <span
       className={`inline-block rounded-full px-3 py-1 text-xs font-bold ${styles[status]}`}
     >
       {status}
     </span>
+
   );
 }
 
