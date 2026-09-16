@@ -71,7 +71,4 @@ A responsive interface built with modern design principles, animations, reusable
 
 DevSync includes an interactive demo dashboard using sample project and team data.
 
-Open the demo locally:
 
-```text
-http://localhost:5173/demo
