@@ -1,22 +1,36 @@
-﻿import { useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import {
-  FaArrowRight,
-  FaBolt,
-  FaCheckCircle,
-  FaChevronRight,
-  FaCode,
-  FaEllipsisH,
-  FaFolderOpen,
-  FaGithub,
-  FaPlus,
-  FaRocket,
-  FaTasks,
-  FaUsers,
-} from "react-icons/fa";
+﻿import {
+  Activity,
+  ArrowRight,
+  Check,
+  ChevronRight,
+  CircleDot,
+  Code2,
+  FolderGit2,
+  GitBranch,
+  GitCommit,
+  GitPullRequest,
+  MessageSquare,
+  MoreHorizontal,
+  Rocket,
+  Sparkles,
+  Terminal,
+  Users,
+  Zap,
+} from "lucide-react";
+import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 /* =========================================================
-   DEMO DATA
+   DEVSYNC — DASHBOARD CONTENT ONLY
+   NOTE:
+   DemoLayout already provides:
+   - Sidebar
+   - Topbar
+   - Profile
+   - Notifications
+   - Theme controls
+
+   This file intentionally does NOT render another shell.
 ========================================================= */
 
 const projects = [
@@ -25,69 +39,93 @@ const projects = [
     name: "DevSync",
     description: "Developer collaboration platform",
     progress: 82,
-    members: 8,
     status: "Active",
-    technology: "React · Node.js · MongoDB",
-    accent: "blue",
+    branch: "main",
+    commits: 48,
+    prs: 7,
+    tasks: 18,
+    stack: ["React", "Node.js", "MongoDB"],
+    icon: Code2,
+    tone: "blue",
   },
   {
     id: "skilltree",
     name: "SkillTree",
     description: "Technical skill discovery platform",
     progress: 68,
-    members: 5,
     status: "Active",
-    technology: "React · Supabase · REST API",
-    accent: "violet",
+    branch: "develop",
+    commits: 31,
+    prs: 4,
+    tasks: 12,
+    stack: ["React", "Supabase", "REST API"],
+    icon: FolderGit2,
+    tone: "violet",
   },
   {
     id: "ecoloop",
     name: "EcoLoop",
     description: "Smart waste exchange platform",
     progress: 45,
-    members: 6,
     status: "Planning",
-    technology: "MERN · Maps API",
-    accent: "emerald",
+    branch: "main",
+    commits: 17,
+    prs: 2,
+    tasks: 9,
+    stack: ["MERN", "Maps API"],
+    icon: Rocket,
+    tone: "emerald",
   },
 ];
 
 const activities = [
   {
-    initials: "A",
+    icon: GitPullRequest,
+    title: "Pull request merged",
+    description: "Authentication flow",
     user: "Alex Morgan",
-    action: "completed",
-    target: "JWT Authentication",
-    time: "12 min ago",
-    icon: <FaCheckCircle />,
-    type: "success",
+    time: "4 min ago",
+    tone: "violet",
   },
   {
-    initials: "P",
-    user: "Priya Sharma",
-    action: "updated",
-    target: "Dashboard UI",
-    time: "35 min ago",
-    icon: <FaCode />,
-    type: "blue",
-  },
-  {
-    initials: "R",
+    icon: GitCommit,
+    title: "12 commits pushed",
+    description: "devsync / main",
     user: "Rahul Kumar",
-    action: "joined",
-    target: "DevSync project",
-    time: "1 hour ago",
-    icon: <FaUsers />,
-    type: "violet",
+    time: "31 min ago",
+    tone: "blue",
   },
   {
-    initials: "E",
+    icon: Check,
+    title: "Task completed",
+    description: "Responsive dashboard",
+    user: "Priya Sharma",
+    time: "18 min ago",
+    tone: "emerald",
+  },
+  {
+    icon: Users,
+    title: "Developer joined",
+    description: "EcoLoop project",
     user: "Emma Wilson",
-    action: "pushed changes to",
-    target: "main branch",
-    time: "2 hours ago",
-    icon: <FaGithub />,
-    type: "amber",
+    time: "52 min ago",
+    tone: "orange",
+  },
+  {
+    icon: MessageSquare,
+    title: "New project comment",
+    description: "Sprint planning",
+    user: "David Chen",
+    time: "1 hr ago",
+    tone: "blue",
+  },
+  {
+    icon: Rocket,
+    title: "Production deployment",
+    description: "devsync / production",
+    user: "CI Pipeline",
+    time: "2 hrs ago",
+    tone: "emerald",
   },
 ];
 
@@ -95,855 +133,906 @@ const tasks = [
   {
     title: "Implement JWT Authentication",
     project: "DevSync",
-    priority: "High",
     status: "In Progress",
+    priority: "High",
+    progress: 72,
   },
   {
     title: "Design Developer Profile",
     project: "SkillTree",
-    priority: "Medium",
     status: "Review",
+    priority: "Medium",
+    progress: 88,
   },
   {
-    title: "Create project API",
+    title: "Create Project API",
     project: "EcoLoop",
-    priority: "High",
     status: "To Do",
+    priority: "High",
+    progress: 12,
   },
   {
-    title: "Fix responsive navbar",
+    title: "Fix Responsive Navbar",
     project: "DevSync",
-    priority: "Low",
     status: "Done",
+    priority: "Low",
+    progress: 100,
   },
 ];
 
 /* =========================================================
-   SMALL HELPERS
+   SMALL COMPONENTS
 ========================================================= */
 
 function StatCard({
-  icon,
+  icon: Icon,
   label,
   value,
   change,
   description,
-  iconClass = "bg-blue-50 text-blue-600",
+  tone = "blue",
 }) {
+  const tones = {
+    blue: {
+      icon: "bg-blue-50 text-blue-600",
+      glow: "group-hover:shadow-blue-100",
+    },
+    violet: {
+      icon: "bg-violet-50 text-violet-600",
+      glow: "group-hover:shadow-violet-100",
+    },
+    emerald: {
+      icon: "bg-emerald-50 text-emerald-600",
+      glow: "group-hover:shadow-emerald-100",
+    },
+    orange: {
+      icon: "bg-orange-50 text-orange-600",
+      glow: "group-hover:shadow-orange-100",
+    },
+  };
+
+  const current = tones[tone];
+
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.04)] transition-all duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-[0_18px_45px_rgba(37,99,235,0.10)]">
-      <div className="flex items-start justify-between">
+    <div
+      className={`group relative overflow-hidden rounded-[22px] border border-slate-200 bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.035)] transition-all duration-300 hover:-translate-y-1 hover:border-slate-300 hover:shadow-xl ${current.glow}`}
+    >
+      <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-slate-50 blur-2xl" />
+
+      <div className="relative flex items-start justify-between">
         <div
-          className={`flex h-11 w-11 items-center justify-center rounded-xl ${iconClass}`}
+          className={`flex h-11 w-11 items-center justify-center rounded-xl ${current.icon}`}
         >
-          {icon}
+          <Icon size={18} />
         </div>
 
-        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-600">
+        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[8px] font-black text-emerald-600">
           {change}
         </span>
       </div>
 
-      <div className="mt-5">
-        <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+      <div className="relative mt-5">
+        <p className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400">
           {label}
         </p>
 
-        <div className="mt-1 flex items-end gap-2">
-          <span className="text-3xl font-black tracking-tight text-slate-900">
-            {value}
+        <p className="mt-1 text-3xl font-black tracking-[-0.05em] text-slate-950">
+          {value}
+        </p>
+
+        <p className="mt-1 text-[9px] font-medium text-slate-400">
+          {description}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function ProjectCard({ project, onOpen }) {
+  const Icon = project.icon;
+
+  const iconClass =
+    project.tone === "violet"
+      ? "bg-violet-50 text-violet-600"
+      : project.tone === "emerald"
+      ? "bg-emerald-50 text-emerald-600"
+      : "bg-blue-50 text-blue-600";
+
+  return (
+    <button
+      onClick={onOpen}
+      className="group w-full rounded-[22px] border border-slate-200 bg-white p-5 text-left shadow-[0_8px_30px_rgba(15,23,42,0.035)] transition-all duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-[0_20px_50px_rgba(37,99,235,0.09)]"
+    >
+      <div className="flex items-start justify-between">
+        <div
+          className={`flex h-11 w-11 items-center justify-center rounded-xl ${iconClass}`}
+        >
+          <Icon size={18} />
+        </div>
+
+        <MoreHorizontal
+          size={17}
+          className="text-slate-300"
+        />
+      </div>
+
+      <div className="mt-5">
+        <div className="flex items-center gap-2">
+          <h3 className="text-sm font-black text-slate-950">
+            {project.name}
+          </h3>
+
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+        </div>
+
+        <p className="mt-1 text-[10px] leading-5 text-slate-500">
+          {project.description}
+        </p>
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-1.5">
+        {project.stack.map((tech) => (
+          <span
+            key={tech}
+            className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[8px] font-bold text-slate-500"
+          >
+            {tech}
+          </span>
+        ))}
+      </div>
+
+      <div className="mt-5">
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-[8px] font-bold uppercase tracking-wider text-slate-400">
+            Development progress
+          </span>
+
+          <span className="text-[9px] font-black text-slate-700">
+            {project.progress}%
           </span>
         </div>
 
-        <p className="mt-1 text-xs text-slate-400">{description}</p>
+        <div className="h-1.5 overflow-hidden rounded-full bg-slate-100">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-blue-600 to-indigo-500 transition-all duration-700"
+            style={{
+              width: `${project.progress}%`,
+            }}
+          />
+        </div>
       </div>
 
-      <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-blue-500/[0.03] blur-2xl transition-all duration-300 group-hover:bg-blue-500/[0.08]" />
+      <div className="mt-5 grid grid-cols-3 divide-x divide-slate-100 border-t border-slate-100 pt-4">
+        <div>
+          <p className="flex items-center gap-1 text-[8px] text-slate-400">
+            <GitCommit size={10} />
+            Commits
+          </p>
+          <p className="mt-1 text-xs font-black text-slate-800">
+            {project.commits}
+          </p>
+        </div>
+
+        <div className="pl-3">
+          <p className="flex items-center gap-1 text-[8px] text-slate-400">
+            <GitPullRequest size={10} />
+            PRs
+          </p>
+          <p className="mt-1 text-xs font-black text-slate-800">
+            {project.prs}
+          </p>
+        </div>
+
+        <div className="pl-3">
+          <p className="flex items-center gap-1 text-[8px] text-slate-400">
+            <Check size={10} />
+            Tasks
+          </p>
+          <p className="mt-1 text-xs font-black text-slate-800">
+            {project.tasks}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-4 flex items-center justify-between">
+        <span className="flex items-center gap-1.5 text-[8px] font-bold text-slate-400">
+          <GitBranch size={10} />
+          {project.branch}
+        </span>
+
+        <span className="flex items-center gap-1 text-[9px] font-black text-blue-600 opacity-0 transition group-hover:opacity-100">
+          Open
+          <ArrowRight size={11} />
+        </span>
+      </div>
+    </button>
+  );
+}
+
+function ActivityItem({ item }) {
+  const Icon = item.icon;
+
+  const tone =
+    item.tone === "violet"
+      ? "bg-violet-50 text-violet-600"
+      : item.tone === "emerald"
+      ? "bg-emerald-50 text-emerald-600"
+      : item.tone === "orange"
+      ? "bg-orange-50 text-orange-600"
+      : "bg-blue-50 text-blue-600";
+
+  return (
+    <div className="group flex gap-3 rounded-2xl p-3 transition hover:bg-slate-50">
+      <div className="relative shrink-0">
+        <div
+          className={`flex h-9 w-9 items-center justify-center rounded-xl ${tone}`}
+        >
+          <Icon size={14} />
+        </div>
+
+        <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500" />
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <p className="text-[10px] font-black text-slate-800">
+          {item.title}
+        </p>
+
+        <p className="mt-0.5 truncate text-[9px] text-slate-400">
+          {item.description}
+        </p>
+
+        <div className="mt-1 flex items-center gap-1.5 text-[8px] text-slate-400">
+          <span>{item.user}</span>
+          <span>•</span>
+          <span>{item.time}</span>
+        </div>
+      </div>
     </div>
-  );
-}
-
-function ProgressBar({ value, accent = "blue" }) {
-  const gradient =
-    accent === "violet"
-      ? "from-violet-500 to-purple-500"
-      : accent === "emerald"
-        ? "from-emerald-500 to-teal-500"
-        : "from-blue-500 to-indigo-500";
-
-  return (
-    <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-      <div
-        className={`h-full rounded-full bg-gradient-to-r ${gradient} transition-all duration-700`}
-        style={{ width: `${value}%` }}
-      />
-    </div>
-  );
-}
-
-function PriorityBadge({ priority }) {
-  const styles = {
-    High: "bg-red-50 text-red-600 border-red-100",
-    Medium: "bg-amber-50 text-amber-600 border-amber-100",
-    Low: "bg-emerald-50 text-emerald-600 border-emerald-100",
-  };
-
-  return (
-    <span
-      className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-bold ${
-        styles[priority] || styles.Low
-      }`}
-    >
-      {priority}
-    </span>
-  );
-}
-
-function StatusBadge({ status }) {
-  const styles = {
-    "In Progress": "bg-blue-50 text-blue-600",
-    Review: "bg-violet-50 text-violet-600",
-    "To Do": "bg-slate-100 text-slate-600",
-    Done: "bg-emerald-50 text-emerald-600",
-  };
-
-  return (
-    <span
-      className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-bold ${
-        styles[status] || styles["To Do"]
-      }`}
-    >
-      {status}
-    </span>
   );
 }
 
 /* =========================================================
-   MAIN DEMO DASHBOARD
+   MAIN DASHBOARD
 ========================================================= */
 
 export default function DemoDashboard() {
   const navigate = useNavigate();
 
-  const [taskFilter, setTaskFilter] = useState("All");
-  const [showProjectMenu, setShowProjectMenu] = useState(null);
+  const [search, setSearch] = useState("");
 
-  const filteredTasks = useMemo(() => {
-    if (taskFilter === "All") {
-      return tasks;
-    }
+  const filteredProjects = useMemo(() => {
+    if (!search.trim()) return projects;
 
-    return tasks.filter((task) => task.status === taskFilter);
-  }, [taskFilter]);
+    const value = search.toLowerCase();
 
-  const openProject = (projectId) => {
-    navigate(`/demo/project/${projectId}`);
+    return projects.filter(
+      (project) =>
+        project.name.toLowerCase().includes(value) ||
+        project.description
+          .toLowerCase()
+          .includes(value) ||
+        project.stack.some((tech) =>
+          tech.toLowerCase().includes(value)
+        )
+    );
+  }, [search]);
+
+  const openProject = (id) => {
+    navigate(`/demo/project/${id}`);
   };
 
   return (
-    <div className="min-h-full bg-slate-50">
-      {/* =====================================================
-          PAGE HEADER
-      ===================================================== */}
+    <div className="min-h-screen bg-[#f7f9fc]">
+      {/* ===================================================
+          DASHBOARD CONTENT
+      =================================================== */}
 
-      <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-[1600px] px-5 py-7 sm:px-7 lg:px-8">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-blue-600">
-                <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
-                Interactive Demo
+      <div className="mx-auto max-w-[1500px] px-5 py-7 sm:px-7 lg:px-8 lg:py-8">
+        {/* =================================================
+            HERO / COMMAND CENTER
+        ================================================= */}
+
+        <section className="mb-7 overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_10px_40px_rgba(15,23,42,0.035)]">
+          <div className="relative p-6 sm:p-7 lg:p-8">
+            <div className="absolute right-[-100px] top-[-100px] h-72 w-72 rounded-full bg-blue-100/50 blur-3xl" />
+
+            <div className="relative flex flex-col justify-between gap-7 xl:flex-row xl:items-end">
+              <div>
+                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-[8px] font-black uppercase tracking-[0.18em] text-blue-600">
+                  <Sparkles size={11} />
+                  Developer command center
+                </div>
+
+                <h1 className="text-3xl font-black tracking-[-0.05em] text-slate-950 sm:text-4xl lg:text-[42px]">
+                  Good morning, Alex
+                  <span className="ml-2">👋</span>
+                </h1>
+
+                <p className="mt-2 max-w-2xl text-xs leading-6 text-slate-500 sm:text-sm">
+                  Code, projects, people and delivery — everything
+                  your team needs to keep software moving.
+                </p>
               </div>
 
-              <h1 className="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
-                Good morning, Developer 👋
-              </h1>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() =>
+                    navigate("/demo/workspace")
+                  }
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-[10px] font-black text-slate-700 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600"
+                >
+                  <Terminal size={14} />
+                  Open workspace
+                </button>
 
-              <p className="mt-1.5 text-sm text-slate-500">
-                Here's what's happening across your workspace.
+                <button
+                  onClick={() =>
+                    navigate("/demo/project/devsync")
+                  }
+                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-3 text-[10px] font-black text-white shadow-lg shadow-blue-600/20 transition hover:-translate-y-0.5"
+                >
+                  <Rocket size={14} />
+                  Open DevSync
+                  <ArrowRight size={12} />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* quick search inside dashboard */}
+          <div className="border-t border-slate-100 bg-slate-50/70 px-6 py-4 sm:px-7 lg:px-8">
+            <div className="flex items-center gap-3">
+              <div className="relative flex-1">
+                <SearchIcon />
+
+                <input
+                  value={search}
+                  onChange={(event) =>
+                    setSearch(event.target.value)
+                  }
+                  placeholder="Find a project, technology or workspace..."
+                  className="h-10 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-[10px] font-medium text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-300 focus:ring-4 focus:ring-blue-50"
+                />
+              </div>
+
+              <div className="hidden items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 sm:flex">
+                <CircleDot
+                  size={11}
+                  className="text-emerald-500"
+                />
+
+                <span className="text-[8px] font-black text-slate-500">
+                  Workspace healthy
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* =================================================
+            ENGINEERING PULSE
+        ================================================= */}
+
+        <section className="mb-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <StatCard
+            icon={FolderGit2}
+            label="Active projects"
+            value="08"
+            change="+2"
+            description="Compared with last month"
+            tone="blue"
+          />
+
+          <StatCard
+            icon={GitPullRequest}
+            label="Pull requests"
+            value="19"
+            change="+7"
+            description="Across your workspace"
+            tone="violet"
+          />
+
+          <StatCard
+            icon={GitCommit}
+            label="Commits this week"
+            value="148"
+            change="+18%"
+            description="Engineering activity"
+            tone="emerald"
+          />
+
+          <StatCard
+            icon={Zap}
+            label="Sprint health"
+            value="87%"
+            change="Healthy"
+            description="Delivery confidence"
+            tone="orange"
+          />
+        </section>
+
+        {/* =================================================
+            PROJECTS
+        ================================================= */}
+
+        <section className="mb-7">
+          <div className="mb-4 flex items-end justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-black tracking-tight text-slate-950">
+                  Active development
+                </h2>
+
+                <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[8px] font-black text-slate-500">
+                  {filteredProjects.length}
+                </span>
+              </div>
+
+              <p className="mt-1 text-[10px] text-slate-400">
+                See where your software is moving before opening
+                each project.
               </p>
             </div>
 
             <button
-              type="button"
-              onClick={() => navigate("/demo/project/devsync")}
-              className="group inline-flex items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-blue-200 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-200"
+              onClick={() =>
+                navigate("/demo/project/devsync")
+              }
+              className="hidden items-center gap-1 text-[10px] font-black text-blue-600 sm:flex"
             >
-              <FaPlus className="text-xs" />
-              New Project
-              <FaArrowRight className="text-xs transition-transform duration-300 group-hover:translate-x-1" />
+              View workspace
+              <ArrowRight size={12} />
             </button>
           </div>
-        </div>
-      </section>
 
-      {/* =====================================================
-          MAIN CONTENT
-      ===================================================== */}
-
-      <main className="mx-auto max-w-[1600px] px-5 py-7 sm:px-7 lg:px-8 lg:py-8">
-        {/* ===================================================
-            STATS
-        =================================================== */}
-
-        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <StatCard
-            icon={<FaFolderOpen />}
-            label="Active Projects"
-            value="8"
-            change="+2"
-            description="Compared with last month"
-            iconClass="bg-blue-50 text-blue-600"
-          />
-
-          <StatCard
-            icon={<FaCheckCircle />}
-            label="Tasks Completed"
-            value="124"
-            change="+12"
-            description="Completed this month"
-            iconClass="bg-emerald-50 text-emerald-600"
-          />
-
-          <StatCard
-            icon={<FaUsers />}
-            label="Team Members"
-            value="12"
-            change="+3"
-            description="Across all workspaces"
-            iconClass="bg-violet-50 text-violet-600"
-          />
-
-          <StatCard
-            icon={<FaGithub />}
-            label="GitHub Activity"
-            value="+18%"
-            change="↑ 18%"
-            description="Activity this week"
-            iconClass="bg-slate-100 text-slate-700"
-          />
-        </section>
-
-        {/* ===================================================
-            PROJECTS + QUICK ACTION
-        =================================================== */}
-
-        <section className="mt-8 grid gap-6 xl:grid-cols-[1.55fr_0.45fr]">
-          {/* PROJECTS */}
-
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.04)] sm:p-6">
-            <div className="mb-6 flex items-center justify-between gap-4">
-              <div>
-                <h2 className="text-lg font-black tracking-tight text-slate-900">
-                  Active Projects
-                </h2>
-
-                <p className="mt-1 text-xs text-slate-500">
-                  Monitor progress across your development workspaces.
-                </p>
-              </div>
-
-              <Link
-                to="/demo/project/devsync"
-                className="hidden items-center gap-1.5 text-xs font-bold text-blue-600 transition hover:text-blue-700 sm:inline-flex"
-              >
-                View all
-                <FaArrowRight className="text-[10px]" />
-              </Link>
-            </div>
-
-            <div className="grid gap-4 lg:grid-cols-3">
-              {projects.map((project) => (
-                <div
-                  key={project.id}
-                  className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50/70 p-4 transition-all duration-300 hover:-translate-y-1 hover:border-blue-200 hover:bg-white hover:shadow-[0_16px_40px_rgba(15,23,42,0.07)]"
-                >
-                  {/* TOP */}
-
-                  <div className="flex items-start justify-between gap-3">
-                    <button
-                      type="button"
-                      onClick={() => openProject(project.id)}
-                      className="flex min-w-0 items-center gap-3 text-left"
-                    >
-                      <div
-                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-                          project.accent === "violet"
-                            ? "bg-violet-100 text-violet-600"
-                            : project.accent === "emerald"
-                              ? "bg-emerald-100 text-emerald-600"
-                              : "bg-blue-100 text-blue-600"
-                        }`}
-                      >
-                        {project.id === "devsync" ? (
-                          <FaCode />
-                        ) : project.id === "skilltree" ? (
-                          <FaTasks />
-                        ) : (
-                          <FaRocket />
-                        )}
-                      </div>
-
-                      <div className="min-w-0">
-                        <h3 className="truncate text-sm font-black text-slate-900">
-                          {project.name}
-                        </h3>
-
-                        <p className="mt-0.5 truncate text-[11px] text-slate-500">
-                          {project.description}
-                        </p>
-                      </div>
-                    </button>
-
-                    <div className="relative">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setShowProjectMenu(
-                            showProjectMenu === project.id
-                              ? null
-                              : project.id,
-                          )
-                        }
-                        className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-white hover:text-slate-700"
-                      >
-                        <FaEllipsisH className="text-xs" />
-                      </button>
-
-                      {showProjectMenu === project.id && (
-                        <div className="absolute right-0 top-9 z-20 w-36 overflow-hidden rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl">
-                          <button
-                            type="button"
-                            onClick={() => openProject(project.id)}
-                            className="w-full rounded-lg px-3 py-2 text-left text-xs font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-blue-600"
-                          >
-                            Open project
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => setShowProjectMenu(null)}
-                            className="w-full rounded-lg px-3 py-2 text-left text-xs font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-blue-600"
-                          >
-                            View details
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* PROGRESS */}
-
-                  <div className="mt-5">
-                    <div className="mb-2 flex items-center justify-between">
-                      <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400">
-                        Progress
-                      </span>
-
-                      <span className="text-xs font-black text-slate-700">
-                        {project.progress}%
-                      </span>
-                    </div>
-
-                    <ProgressBar
-                      value={project.progress}
-                      accent={project.accent}
-                    />
-                  </div>
-
-                  {/* FOOTER */}
-
-                  <div className="mt-5 flex items-center justify-between border-t border-slate-200/80 pt-4">
-                    <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500">
-                      <FaUsers className="text-slate-400" />
-                      {project.members} members
-                    </div>
-
-                    <span
-                      className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${
-                        project.status === "Active"
-                          ? "bg-emerald-50 text-emerald-600"
-                          : "bg-amber-50 text-amber-600"
-                      }`}
-                    >
-                      {project.status}
-                    </span>
-                  </div>
-
-                  <p className="mt-3 truncate text-[10px] font-medium text-slate-400">
-                    {project.technology}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* QUICK ACTIONS */}
-
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.04)] sm:p-6">
-            <div>
-              <h2 className="text-lg font-black tracking-tight text-slate-900">
-                Quick Actions
-              </h2>
-
-              <p className="mt-1 text-xs text-slate-500">
-                Jump directly into your workflow.
-              </p>
-            </div>
-
-            <div className="mt-6 space-y-3">
-              <button
-                type="button"
-                onClick={() => navigate("/demo/workspace")}
-                className="group flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-left transition-all duration-300 hover:border-blue-200 hover:bg-blue-50"
-              >
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
-                  <FaCode />
-                </span>
-
-                <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-bold text-slate-800">
-                    Open Workspace
-                  </span>
-
-                  <span className="mt-0.5 block text-[11px] text-slate-400">
-                    Explore the developer environment
-                  </span>
-                </span>
-
-                <FaChevronRight className="text-xs text-slate-300 transition group-hover:translate-x-1 group-hover:text-blue-600" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() =>
-                  navigate("/demo/project/devsync/tasks")
-                }
-                className="group flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-left transition-all duration-300 hover:border-violet-200 hover:bg-violet-50"
-              >
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 text-violet-600">
-                  <FaTasks />
-                </span>
-
-                <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-bold text-slate-800">
-                    Manage Tasks
-                  </span>
-
-                  <span className="mt-0.5 block text-[11px] text-slate-400">
-                    Track the development workflow
-                  </span>
-                </span>
-
-                <FaChevronRight className="text-xs text-slate-300 transition group-hover:translate-x-1 group-hover:text-violet-600" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() =>
-                  navigate("/demo/project/devsync/team")
-                }
-                className="group flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-left transition-all duration-300 hover:border-emerald-200 hover:bg-emerald-50"
-              >
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
-                  <FaUsers />
-                </span>
-
-                <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-bold text-slate-800">
-                    Team Members
-                  </span>
-
-                  <span className="mt-0.5 block text-[11px] text-slate-400">
-                    Explore your development team
-                  </span>
-                </span>
-
-                <FaChevronRight className="text-xs text-slate-300 transition group-hover:translate-x-1 group-hover:text-emerald-600" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() =>
-                  navigate("/demo/project/devsync/chat")
-                }
-                className="group flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-left transition-all duration-300 hover:border-cyan-200 hover:bg-cyan-50"
-              >
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-100 text-cyan-600">
-                  <FaBolt />
-                </span>
-
-                <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-bold text-slate-800">
-                    Team Chat
-                  </span>
-
-                  <span className="mt-0.5 block text-[11px] text-slate-400">
-                    Continue the conversation
-                  </span>
-                </span>
-
-                <FaChevronRight className="text-xs text-slate-300 transition group-hover:translate-x-1 group-hover:text-cyan-600" />
-              </button>
-            </div>
-          </div>
-        </section>
-
-        {/* ===================================================
-            LOWER GRID
-        =================================================== */}
-
-        <section className="mt-8 grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-          {/* PROJECT PROGRESS */}
-
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.04)] sm:p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-black tracking-tight text-slate-900">
-                  Project Progress
-                </h2>
-
-                <p className="mt-1 text-xs text-slate-500">
-                  Current progress across your main initiatives.
-                </p>
-              </div>
-
-              <FaRocket className="text-blue-500" />
-            </div>
-
-            <div className="mt-7 space-y-6">
-              <div>
-                <div className="mb-2.5 flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-bold text-slate-800">
-                      DevSync Platform
-                    </p>
-
-                    <p className="mt-0.5 text-[10px] text-slate-400">
-                      Product development
-                    </p>
-                  </div>
-
-                  <span className="text-xs font-black text-slate-700">
-                    78%
-                  </span>
-                </div>
-
-                <ProgressBar value={78} accent="blue" />
-              </div>
-
-              <div>
-                <div className="mb-2.5 flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-bold text-slate-800">
-                      Mobile App
-                    </p>
-
-                    <p className="mt-0.5 text-[10px] text-slate-400">
-                      Cross-platform client
-                    </p>
-                  </div>
-
-                  <span className="text-xs font-black text-slate-700">
-                    61%
-                  </span>
-                </div>
-
-                <ProgressBar value={61} accent="violet" />
-              </div>
-
-              <div>
-                <div className="mb-2.5 flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-bold text-slate-800">
-                      AI Assistant
-                    </p>
-
-                    <p className="mt-0.5 text-[10px] text-slate-400">
-                      Intelligent workflow tools
-                    </p>
-                  </div>
-
-                  <span className="text-xs font-black text-slate-700">
-                    86%
-                  </span>
-                </div>
-
-                <ProgressBar value={86} accent="emerald" />
-              </div>
-            </div>
-          </div>
-
-          {/* RECENT ACTIVITY */}
-
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.04)] sm:p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-black tracking-tight text-slate-900">
-                  Recent Activity
-                </h2>
-
-                <p className="mt-1 text-xs text-slate-500">
-                  Latest changes across the workspace.
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() =>
-                  navigate("/demo/project/devsync/activity")
-                }
-                className="text-xs font-bold text-blue-600 transition hover:text-blue-700"
-              >
-                View activity
-              </button>
-            </div>
-
-            <div className="mt-6 divide-y divide-slate-100">
-              {activities.map((activity) => (
-                <div
-                  key={`${activity.user}-${activity.target}`}
-                  className="flex items-center gap-3 py-3.5 first:pt-0 last:pb-0"
-                >
-                  <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-xs font-black text-white">
-                    {activity.initials}
-
-                    <span
-                      className={`absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full border-2 border-white text-[7px] ${
-                        activity.type === "success"
-                          ? "bg-emerald-500"
-                          : activity.type === "violet"
-                            ? "bg-violet-500"
-                            : activity.type === "amber"
-                              ? "bg-amber-500"
-                              : "bg-blue-500"
-                      }`}
-                    >
-                      {activity.icon}
-                    </span>
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-xs font-semibold text-slate-700">
-                      <span className="font-black text-slate-900">
-                        {activity.user}
-                      </span>{" "}
-                      {activity.action}{" "}
-                      <span className="font-bold text-blue-600">
-                        {activity.target}
-                      </span>
-                    </p>
-
-                    <p className="mt-1 text-[10px] text-slate-400">
-                      {activity.time}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ===================================================
-            TASKS
-        =================================================== */}
-
-        <section className="mt-8 rounded-2xl border border-slate-200 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.04)]">
-          <div className="flex flex-col gap-4 border-b border-slate-200 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-            <div>
-              <h2 className="text-lg font-black tracking-tight text-slate-900">
-                Recent Tasks
-              </h2>
-
-              <p className="mt-1 text-xs text-slate-500">
-                Keep your development workflow moving.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className="flex rounded-xl bg-slate-100 p-1">
-                {["All", "In Progress", "Done"].map((filter) => (
-                  <button
-                    key={filter}
-                    type="button"
-                    onClick={() => setTaskFilter(filter)}
-                    className={`rounded-lg px-3 py-1.5 text-[10px] font-bold transition-all ${
-                      taskFilter === filter
-                        ? "bg-white text-blue-600 shadow-sm"
-                        : "text-slate-500 hover:text-slate-800"
-                    }`}
-                  >
-                    {filter}
-                  </button>
-                ))}
-              </div>
-
-              <button
-                type="button"
-                onClick={() =>
-                  navigate("/demo/project/devsync/tasks")
-                }
-                className="hidden items-center gap-1.5 text-xs font-bold text-blue-600 sm:inline-flex"
-              >
-                View tasks
-                <FaArrowRight className="text-[10px]" />
-              </button>
-            </div>
-          </div>
-
-          {/* DESKTOP TABLE */}
-
-          <div className="hidden overflow-x-auto md:block">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-slate-100 bg-slate-50/70">
-                  <th className="px-6 py-3 text-left text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">
-                    Task
-                  </th>
-
-                  <th className="px-6 py-3 text-left text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">
-                    Project
-                  </th>
-
-                  <th className="px-6 py-3 text-left text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">
-                    Priority
-                  </th>
-
-                  <th className="px-6 py-3 text-left text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">
-                    Status
-                  </th>
-
-                  <th className="px-6 py-3 text-right text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {filteredTasks.map((task) => (
-                  <tr
-                    key={task.title}
-                    className="group border-b border-slate-100 last:border-0 transition hover:bg-slate-50/70"
-                  >
-                    <td className="px-6 py-4">
-                      <span className="text-sm font-bold text-slate-800">
-                        {task.title}
-                      </span>
-                    </td>
-
-                    <td className="px-6 py-4">
-                      <span className="text-xs font-semibold text-slate-500">
-                        {task.project}
-                      </span>
-                    </td>
-
-                    <td className="px-6 py-4">
-                      <PriorityBadge priority={task.priority} />
-                    </td>
-
-                    <td className="px-6 py-4">
-                      <StatusBadge status={task.status} />
-                    </td>
-
-                    <td className="px-6 py-4 text-right">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          navigate("/demo/project/devsync/tasks")
-                        }
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-300 transition hover:bg-blue-50 hover:text-blue-600"
-                      >
-                        <FaEllipsisH className="text-xs" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* MOBILE TASK LIST */}
-
-          <div className="divide-y divide-slate-100 md:hidden">
-            {filteredTasks.map((task) => (
-              <button
-                key={task.title}
-                type="button"
-                onClick={() =>
-                  navigate("/demo/project/devsync/tasks")
-                }
-                className="flex w-full items-start gap-3 p-5 text-left transition hover:bg-slate-50"
-              >
-                <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                  <FaTasks className="text-xs" />
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-bold text-slate-800">
-                    {task.title}
-                  </p>
-
-                  <p className="mt-1 text-[11px] text-slate-400">
-                    {task.project}
-                  </p>
-
-                  <div className="mt-3 flex items-center gap-2">
-                    <PriorityBadge priority={task.priority} />
-                    <StatusBadge status={task.status} />
-                  </div>
-                </div>
-
-                <FaChevronRight className="mt-2 text-xs text-slate-300" />
-              </button>
+          <div className="grid gap-4 lg:grid-cols-3">
+            {filteredProjects.map((project) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                onOpen={() => openProject(project.id)}
+              />
             ))}
           </div>
         </section>
 
-        {/* ===================================================
-            FINAL DEMO CTA
-        =================================================== */}
+        {/* =================================================
+            AI + ACTIVITY
+        ================================================= */}
 
-        <section className="relative mt-8 overflow-hidden rounded-3xl bg-gradient-to-br from-[#0f172a] via-[#111c3a] to-[#172554] p-7 shadow-[0_20px_60px_rgba(15,23,42,0.18)] sm:p-9 lg:p-10">
-          {/* Decorative glow */}
+        <section className="mb-7 grid gap-5 xl:grid-cols-[1.35fr_0.65fr]">
+          {/* Activity */}
+          <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.035)] sm:p-6">
+            <div className="mb-5 flex items-start justify-between">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-base font-black text-slate-950">
+                    Development activity
+                  </h2>
 
-          <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-blue-500/20 blur-[80px]" />
+                  <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-[7px] font-black text-emerald-600">
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+                    LIVE
+                  </span>
+                </div>
 
-          <div className="pointer-events-none absolute bottom-0 left-1/3 h-40 w-80 rounded-full bg-violet-500/10 blur-[80px]" />
+                <p className="mt-1 text-[9px] text-slate-400">
+                  A single timeline for code, tasks, team and
+                  deployments.
+                </p>
+              </div>
 
-          <div className="relative z-10 max-w-3xl">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-500/30">
-              <FaRocket />
+              <button
+                onClick={() =>
+                  navigate("/demo/project/devsync/activity")
+                }
+                className="text-[9px] font-black text-blue-600"
+              >
+                View all
+              </button>
             </div>
 
-            <h2 className="mt-6 text-2xl font-black tracking-tight text-white sm:text-3xl">
-              Ready to build with your team?
-            </h2>
+            <div className="grid gap-1 md:grid-cols-2">
+              {activities.map((activity) => (
+                <ActivityItem
+                  key={`${activity.title}-${activity.time}`}
+                  item={activity}
+                />
+              ))}
+            </div>
+          </div>
 
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
-              This is an interactive DevSync demonstration using sample
-              project data. Explore the workspace, tasks, team, chat,
-              files, and activity without creating an account.
-            </p>
+          {/* AI */}
+          <div className="relative overflow-hidden rounded-[24px] border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-6 shadow-[0_15px_50px_rgba(37,99,235,0.07)]">
+            <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-blue-200/40 blur-3xl" />
 
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <Link
-                to="/register"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-slate-900 transition-all duration-300 hover:-translate-y-0.5 hover:bg-slate-100"
+            <div className="relative">
+              <div className="flex items-center justify-between">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-600/20">
+                  <Sparkles size={18} />
+                </div>
+
+                <span className="rounded-full border border-blue-100 bg-white px-2 py-1 text-[7px] font-black text-blue-600">
+                  AI INSIGHT
+                </span>
+              </div>
+
+              <p className="mt-5 text-[8px] font-black uppercase tracking-[0.18em] text-blue-600">
+                DevSync Intelligence
+              </p>
+
+              <h3 className="mt-2 text-xl font-black tracking-tight text-slate-950">
+                Your sprint has momentum.
+              </h3>
+
+              <p className="mt-3 text-[10px] leading-5 text-slate-500">
+                Development velocity is healthy, but two pull
+                requests are waiting for review.
+              </p>
+
+              <div className="mt-5 space-y-2">
+                <div className="flex items-center justify-between rounded-xl border border-white bg-white/80 px-3 py-3">
+                  <span className="text-[8px] font-bold text-slate-500">
+                    Sprint completion
+                  </span>
+
+                  <span className="text-[9px] font-black text-blue-600">
+                    78%
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between rounded-xl border border-white bg-white/80 px-3 py-3">
+                  <span className="text-[8px] font-bold text-slate-500">
+                    Reviews waiting
+                  </span>
+
+                  <span className="text-[9px] font-black text-orange-500">
+                    02
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between rounded-xl border border-white bg-white/80 px-3 py-3">
+                  <span className="text-[8px] font-bold text-slate-500">
+                    Deployment status
+                  </span>
+
+                  <span className="text-[9px] font-black text-emerald-600">
+                    Passing
+                  </span>
+                </div>
+              </div>
+
+              <button
+                onClick={() =>
+                  navigate("/demo/project/devsync/activity")
+                }
+                className="mt-5 flex items-center gap-1 text-[9px] font-black text-blue-600"
               >
-                Create your workspace
-                <FaArrowRight className="text-xs" />
-              </Link>
-
-              <Link
-                to="/demo/project/devsync"
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-bold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/10"
-              >
-                Explore DevSync
-              </Link>
+                Explore intelligence
+                <ArrowRight size={11} />
+              </button>
             </div>
           </div>
         </section>
-      </main>
+
+        {/* =================================================
+            WORK + ENGINEERING PULSE
+        ================================================= */}
+
+        <section className="grid gap-5 xl:grid-cols-[1fr_0.72fr]">
+          {/* Tasks */}
+          <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.035)] sm:p-6">
+            <div className="mb-5 flex items-start justify-between">
+              <div>
+                <h2 className="text-base font-black text-slate-950">
+                  Work requiring attention
+                </h2>
+
+                <p className="mt-1 text-[9px] text-slate-400">
+                  Prioritized engineering work across projects.
+                </p>
+              </div>
+
+              <button
+                onClick={() =>
+                  navigate("/demo/project/devsync/tasks")
+                }
+                className="text-[9px] font-black text-blue-600"
+              >
+                Task board
+              </button>
+            </div>
+
+            <div className="overflow-hidden rounded-2xl border border-slate-100">
+              <div className="hidden grid-cols-[1fr_100px_70px_80px] gap-4 bg-slate-50 px-4 py-3 text-[7px] font-black uppercase tracking-wider text-slate-400 sm:grid">
+                <span>Task</span>
+                <span>Status</span>
+                <span>Priority</span>
+                <span>Progress</span>
+              </div>
+
+              {tasks.map((task) => (
+                <div
+                  key={task.title}
+                  className="grid gap-3 border-t border-slate-100 px-4 py-4 sm:grid-cols-[1fr_100px_70px_80px] sm:items-center"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-[9px] font-black text-slate-800">
+                      {task.title}
+                    </p>
+
+                    <p className="mt-1 text-[7px] text-slate-400">
+                      {task.project}
+                    </p>
+                  </div>
+
+                  <div>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-1 text-[7px] font-black ${
+                        task.status === "Done"
+                          ? "bg-emerald-50 text-emerald-600"
+                          : task.status === "Review"
+                          ? "bg-violet-50 text-violet-600"
+                          : task.status === "In Progress"
+                          ? "bg-blue-50 text-blue-600"
+                          : "bg-slate-100 text-slate-500"
+                      }`}
+                    >
+                      {task.status}
+                    </span>
+                  </div>
+
+                  <div>
+                    <span
+                      className={`text-[7px] font-black ${
+                        task.priority === "High"
+                          ? "text-red-500"
+                          : task.priority === "Medium"
+                          ? "text-orange-500"
+                          : "text-slate-400"
+                      }`}
+                    >
+                      {task.priority}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100">
+                      <div
+                        className="h-full rounded-full bg-blue-600"
+                        style={{
+                          width: `${task.progress}%`,
+                        }}
+                      />
+                    </div>
+
+                    <span className="text-[7px] font-black text-slate-500">
+                      {task.progress}%
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Engineering pulse */}
+          <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.035)] sm:p-6">
+            <div className="flex items-start justify-between">
+              <div>
+                <h2 className="text-base font-black text-slate-950">
+                  Engineering pulse
+                </h2>
+
+                <p className="mt-1 text-[9px] text-slate-400">
+                  A quick view of development velocity.
+                </p>
+              </div>
+
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-950 text-white">
+                <GitBranch size={15} />
+              </div>
+            </div>
+
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                <GitCommit
+                  size={14}
+                  className="text-blue-600"
+                />
+
+                <p className="mt-3 text-2xl font-black text-slate-950">
+                  148
+                </p>
+
+                <p className="mt-1 text-[8px] font-semibold text-slate-400">
+                  Commits this week
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                <GitPullRequest
+                  size={14}
+                  className="text-violet-600"
+                />
+
+                <p className="mt-3 text-2xl font-black text-slate-950">
+                  19
+                </p>
+
+                <p className="mt-1 text-[8px] font-semibold text-slate-400">
+                  Pull requests
+                </p>
+              </div>
+            </div>
+
+            {/* Contribution graph */}
+            <div className="mt-6">
+              <div className="mb-3 flex items-center justify-between">
+                <span className="text-[8px] font-black text-slate-500">
+                  Development activity
+                </span>
+
+                <span className="text-[7px] text-slate-400">
+                  Last 30 days
+                </span>
+              </div>
+
+              <div className="grid grid-cols-10 gap-1">
+                {Array.from(
+                  { length: 50 },
+                  (_, index) => {
+                    const intensity =
+                      (index * 7) % 5;
+
+                    const classes = [
+                      "bg-slate-100",
+                      "bg-blue-100",
+                      "bg-blue-200",
+                      "bg-blue-400",
+                      "bg-blue-600",
+                    ];
+
+                    return (
+                      <span
+                        key={index}
+                        className={`aspect-square rounded-[3px] ${classes[intensity]}`}
+                      />
+                    );
+                  }
+                )}
+              </div>
+            </div>
+
+            {/* Deployment */}
+            <div className="mt-6 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500 text-white">
+                  <Rocket size={13} />
+                </div>
+
+                <div className="flex-1">
+                  <p className="text-[9px] font-black text-emerald-700">
+                    Production deployment
+                  </p>
+
+                  <p className="mt-0.5 text-[7px] text-emerald-600">
+                    devsync / production
+                  </p>
+                </div>
+
+                <span className="rounded-full bg-white px-2 py-1 text-[7px] font-black text-emerald-600">
+                  PASSED
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* =================================================
+            FOOTER ACTION STRIP
+        ================================================= */}
+
+        <section className="mt-7 grid gap-3 md:grid-cols-3">
+          <button
+            onClick={() =>
+              navigate("/demo/workspace")
+            }
+            className="group flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-lg"
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-50 text-cyan-600">
+              <Terminal size={17} />
+            </div>
+
+            <div className="flex-1">
+              <p className="text-[10px] font-black text-slate-900">
+                Code Workspace
+              </p>
+
+              <p className="mt-1 text-[8px] text-slate-400">
+                Open your development environment
+              </p>
+            </div>
+
+            <ChevronRight
+              size={14}
+              className="text-slate-300 transition group-hover:translate-x-1 group-hover:text-blue-600"
+            />
+          </button>
+
+          <button
+            onClick={() =>
+              navigate("/demo/project/devsync/team")
+            }
+            className="group flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-violet-200 hover:shadow-lg"
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
+              <Users size={17} />
+            </div>
+
+            <div className="flex-1">
+              <p className="text-[10px] font-black text-slate-900">
+                Developer team
+              </p>
+
+              <p className="mt-1 text-[8px] text-slate-400">
+                People, workload and collaboration
+              </p>
+            </div>
+
+            <ChevronRight
+              size={14}
+              className="text-slate-300 transition group-hover:translate-x-1 group-hover:text-violet-600"
+            />
+          </button>
+
+          <button
+            onClick={() =>
+              navigate("/demo/project/devsync/activity")
+            }
+            className="group flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-lg"
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+              <Activity size={17} />
+            </div>
+
+            <div className="flex-1">
+              <p className="text-[10px] font-black text-slate-900">
+                Project activity
+              </p>
+
+              <p className="mt-1 text-[8px] text-slate-400">
+                Everything changing across the workspace
+              </p>
+            </div>
+
+            <ChevronRight
+              size={14}
+              className="text-slate-300 transition group-hover:translate-x-1 group-hover:text-emerald-600"
+            />
+          </button>
+        </section>
+      </div>
     </div>
   );
 }
+
+/* =========================================================
+   SEARCH ICON
+========================================================= */
+
+function SearchIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+    >
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-3.5-3.5" />
+    </svg>
+  );
+}
+

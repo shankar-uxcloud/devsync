@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   FaArrowLeft,
   FaBug,
@@ -18,8 +18,8 @@ import {
   FaTimes,
   FaTrash,
   FaChevronDown,
-  FaChevronRight,
   FaLightbulb,
+  FaArrowDown,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
@@ -27,7 +27,6 @@ import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import { WebLinksAddon } from "@xterm/addon-web-links";
 import "@xterm/xterm/css/xterm.css";
-
 
 /*
   DevSync AI Workspace
@@ -116,11 +115,13 @@ function CodeWorkspace() {
   const terminalSocketsRef = useRef(new Map());
   const terminalOutputBuffersRef = useRef(new Map());
   const terminalFitsRef = useRef(new Map());
+  const terminalResizeObserversRef = useRef(new Map());
 
   const [terminalSessions, setTerminalSessions] = useState([
     {
       id: "terminal-1",
       name: "PowerShell 1",
+      status: "CONNECTING",
       connected: false,
       detectedUrl: null,
     },
@@ -161,6 +162,7 @@ function CodeWorkspace() {
       {
         id,
         name: `PowerShell ${nextNumber}`,
+        status: "CONNECTING",
         connected: false,
         detectedUrl: null,
       },
@@ -174,19 +176,37 @@ function CodeWorkspace() {
   const closeTerminalSession = (id) => {
     const socket = terminalSocketsRef.current.get(id);
     const terminal = terminalInstancesRef.current.get(id);
+    const resizeObserver = terminalResizeObserversRef.current.get(id);
+
+    try {
+      terminal?._devsyncCleanup?.();
+    } catch {
+      /* ignore */
+    }
+
+    try {
+      resizeObserver?.disconnect();
+    } catch {
+      /* ignore */
+    }
 
     try {
       socket?.disconnect();
-    } catch {}
+    } catch {
+      /* ignore */
+    }
 
     try {
       terminal?.dispose();
-    } catch {}
+    } catch {
+      /* ignore */
+    }
 
     terminalSocketsRef.current.delete(id);
     terminalInstancesRef.current.delete(id);
     terminalFitsRef.current.delete(id);
     terminalContainerRefs.current.delete(id);
+    terminalResizeObserversRef.current.delete(id);
 
     setTerminalSessions((current) => {
       if (current.length === 1) return current;
@@ -203,6 +223,18 @@ function CodeWorkspace() {
     });
   };
 
+  const clearActiveTerminal = () => {
+    const terminal = terminalInstancesRef.current.get(activeTerminalId);
+    terminal?.clear();
+    terminal?.focus();
+  };
+
+  const scrollToBottomActiveTerminal = () => {
+    const terminal = terminalInstancesRef.current.get(activeTerminalId);
+    terminal?.scrollToBottom();
+    terminal?.focus();
+  };
+
   useEffect(() => {
     terminalSessions.forEach((session) => {
       if (terminalInstancesRef.current.has(session.id)) return;
@@ -214,29 +246,33 @@ function CodeWorkspace() {
         cursorBlink: true,
         cursorStyle: "block",
         fontSize: 13,
-        lineHeight: 1.2,
+        lineHeight: 1.25,
         fontFamily:
-          '"Cascadia Code", "Cascadia Mono", Consolas, monospace',
-        scrollback: 5000,
+          '"Cascadia Code", "Cascadia Mono", "Fira Code", Consolas, monospace',
+        scrollback: 10000,
+        scrollOnUserInput: true,
+        smoothScrollDuration: 0,
         convertEol: true,
+        rightClickSelectsWord: false,
         theme: {
           background: "#080b0f",
           foreground: "#d4d4d4",
-          cursor: "#ffffff",
+          cursor: "#3b82f6",
           cursorAccent: "#080b0f",
-          selectionBackground: "#264f78",
+          selectionBackground: "rgba(59, 130, 246, 0.35)",
+          selectionForeground: "#ffffff",
           black: "#000000",
           brightBlack: "#666666",
           blue: "#569CD6",
-          brightBlue: "#569CD6",
+          brightBlue: "#9CDCFE",
           cyan: "#4EC9B0",
           brightCyan: "#4EC9B0",
           green: "#6A9955",
-          brightGreen: "#6A9955",
+          brightGreen: "#b5cea8",
           yellow: "#DCDCAA",
           brightYellow: "#DCDCAA",
           red: "#F44747",
-          brightRed: "#F44747",
+          brightRed: "#f87171",
           magenta: "#C586C0",
           brightMagenta: "#C586C0",
           white: "#D4D4D4",
@@ -247,43 +283,41 @@ function CodeWorkspace() {
       const fitAddon = new FitAddon();
       terminal.loadAddon(fitAddon);
 
-      // WebLinksAddon: makes http(s)://localhost and 127.0.0.1 URLs clickable
-      // directly inside the terminal, just like VS Code / Antigravity.
-const webLinksAddon = new WebLinksAddon(
-  (_event, url) => {
-    setTerminalLinkPopup(null);
+      const webLinksAddon = new WebLinksAddon(
+        (_event, url) => {
+          setTerminalLinkPopup(null);
+          window.open(url, "_blank", "noopener,noreferrer");
+        },
+        {
+          hover: (event, text, location) => {
+            if (!location) return;
+            setTerminalLinkPopup({
+              url: text,
+              x: event.clientX,
+              y: event.clientY,
+            });
+          },
+          leave: () => {
+            setTerminalLinkPopup(null);
+          },
+        }
+      );
 
-    window.open(
-      url,
-      "_blank",
-      "noopener,noreferrer"
-    );
-  },
-  {
-    hover: (event, text, location) => {
-      if (!location) return;
-
-      setTerminalLinkPopup({
-        url: text,
-        x: event.clientX,
-        y: event.clientY,
-      });
-    },
-
-    leave: () => {
-      setTerminalLinkPopup(null);
-    },
-  }
-);
-
-terminal.loadAddon(webLinksAddon);
+      terminal.loadAddon(webLinksAddon);
       terminal.open(container);
 
       terminalInstancesRef.current.set(session.id, terminal);
       terminalFitsRef.current.set(session.id, fitAddon);
 
       const socket = io("http://localhost:5000", {
-        transports: ["websocket"],
+        transports: ["polling", "websocket"],
+        upgrade: true,
+        reconnection: true,
+        reconnectionAttempts: Infinity,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+        timeout: 10000,
+        autoConnect: true,
       });
 
       terminalSocketsRef.current.set(session.id, socket);
@@ -291,63 +325,141 @@ terminal.loadAddon(webLinksAddon);
       const updateSession = (patch) => {
         setTerminalSessions((current) => {
           let changed = false;
-
           const next = current.map((item) => {
             if (item.id !== session.id) return item;
-
             const updated = { ...item, ...patch };
-
             if (
               updated.connected !== item.connected ||
+              updated.status !== item.status ||
               updated.detectedUrl !== item.detectedUrl
             ) {
               changed = true;
             }
-
             return updated;
           });
-
           return changed ? next : current;
         });
       };
 
+      updateSession({ status: "CONNECTING", connected: false });
+
       const fitTerminal = () => {
         requestAnimationFrame(() => {
           try {
+            if (
+              !container ||
+              container.clientWidth === 0 ||
+              container.clientHeight === 0
+            )
+              return;
             fitAddon.fit();
-            socket.emit("terminal:resize", {
-              cols: terminal.cols,
-              rows: terminal.rows,
-            });
-          } catch {}
+            const cols = Math.max(1, terminal.cols);
+            const rows = Math.max(1, terminal.rows);
+            if (cols > 0 && rows > 0 && socket.connected) {
+              socket.emit("terminal:resize", { cols, rows });
+            }
+          } catch {
+            /* ignore */
+          }
         });
       };
 
+      // Custom key event handler for Ctrl+C, Ctrl+Shift+C, Ctrl+V, Ctrl+Shift+V, Ctrl+L
+      terminal.attachCustomKeyEventHandler((arg) => {
+        if (arg.type !== "keydown") return true;
+
+        const isCtrlOrCmd = arg.ctrlKey || arg.metaKey;
+        const key = arg.key.toLowerCase();
+
+        // Ctrl+C: copy if text selected; if no selection, let xterm send ^C (\x03) to PTY
+        if (isCtrlOrCmd && !arg.shiftKey && key === "c") {
+          if (terminal.hasSelection()) {
+            const selected = terminal.getSelection();
+            navigator.clipboard.writeText(selected).catch(() => {});
+            return false;
+          }
+          return true;
+        }
+
+        // Ctrl+Shift+C: copy selected text
+        if (isCtrlOrCmd && arg.shiftKey && key === "c") {
+          if (terminal.hasSelection()) {
+            const selected = terminal.getSelection();
+            navigator.clipboard.writeText(selected).catch(() => {});
+          }
+          return false;
+        }
+
+        // Ctrl+V or Ctrl+Shift+V: paste clipboard content
+        if (isCtrlOrCmd && key === "v") {
+          navigator.clipboard
+            .readText()
+            .then((text) => {
+              if (text) {
+                terminal.paste(text);
+              }
+            })
+            .catch(() => {});
+          return false;
+        }
+
+        // Ctrl+L: Clear terminal screen
+        if (isCtrlOrCmd && !arg.shiftKey && key === "l") {
+          terminal.clear();
+          return false;
+        }
+
+        return true;
+      });
+
+      // Right-click contextmenu handler: Paste clipboard text into terminal without browser context menu
+      const handleContextMenu = (e) => {
+        e.preventDefault();
+        if (terminal.hasSelection()) {
+          const selected = terminal.getSelection();
+          navigator.clipboard.writeText(selected).catch(() => {});
+        } else {
+          navigator.clipboard
+            .readText()
+            .then((text) => {
+              if (text) {
+                terminal.paste(text);
+              }
+            })
+            .catch(() => {});
+        }
+      };
+      container.addEventListener("contextmenu", handleContextMenu);
+
+      const handleMouseDown = () => {
+        terminal.focus();
+      };
+      container.addEventListener("mousedown", handleMouseDown);
+
+      // ResizeObserver for modern terminal container responsiveness
+      const resizeObserver = new ResizeObserver(() => {
+        fitTerminal();
+      });
+      resizeObserver.observe(container);
+      terminalResizeObserversRef.current.set(session.id, resizeObserver);
+
       socket.on("connect", () => {
-        updateSession({ connected: true });
-        terminal.writeln("\x1b[32mDevSync Terminal\x1b[0m");
-        terminal.writeln("\x1b[90mConnected to PowerShell workspace.\x1b[0m");
-        terminal.writeln("");
+        updateSession({ connected: true, status: "CONNECTED" });
         fitTerminal();
       });
 
       socket.on("disconnect", () => {
-        updateSession({ connected: false });
-        terminal.writeln("");
-        terminal.writeln("\x1b[31m[Terminal disconnected]\x1b[0m");
+        updateSession({ connected: false, status: "DISCONNECTED" });
       });
 
-            socket.on("connect_error", (error) => {
-        updateSession({ connected: false });
-        terminal.writeln("");
-        terminal.writeln(
-          `\x1b[31m[Connection error: ${error.message}]\x1b[0m`
-        );
+      socket.on("connect_error", () => {
+        updateSession({ connected: false, status: "ERROR" });
       });
 
       const detectLocalServerUrl = (source) => {
         const clean = String(source || "")
-          .replace(/\x1B(?:[@-_]|\[[0-?]*[ -/]*[@-~])/g, "")
+          // eslint-disable-next-line no-control-regex
+          .replace(/\u001b(?:[@-_]|\[[0-?]*[ -/]*[@-~])/g, "")
           .replace(/\r/g, "");
 
         const match = clean.match(
@@ -373,8 +485,6 @@ terminal.loadAddon(webLinksAddon);
         return null;
       };
 
-      // Also scan xterm's visible buffer. This makes URL detection reliable
-      // even when the PTY sends ANSI-formatted output in unusual chunks.
       const urlScanner = window.setInterval(() => {
         try {
           const activeBuffer = terminal.buffer.active;
@@ -389,62 +499,64 @@ terminal.loadAddon(webLinksAddon);
 
           detectLocalServerUrl(lines.join("\n"));
         } catch {
-          // Terminal may be disposing.
+          /* ignore */
         }
       }, 500);
 
-      // Receive PTY output. Keep exactly ONE terminal:data listener.
       socket.on("terminal:data", (data) => {
         const text = String(data);
 
-        // PowerShell/PTY is responsible for echoing typed characters.
-        // Do not manually echo terminal input here.
-        terminal.write(text);
+        // Smart auto-scroll: scroll to bottom ONLY if user is already near bottom
+        const buffer = terminal.buffer.active;
+        const isAtBottom = buffer.viewportY >= buffer.baseY - 3;
 
-        // Detect localhost URLs from the current PTY chunk.
+        terminal.write(text, () => {
+          if (isAtBottom) {
+            terminal.scrollToBottom();
+          }
+        });
+
         detectLocalServerUrl(text);
 
-        // Keep recent output so URLs split across PTY chunks can be detected.
-        let buffer =
+        let bufferText =
           terminalOutputBuffersRef.current.get(session.id) || "";
-
-        buffer += text;
-
-        if (buffer.length > 20000) {
-          buffer = buffer.slice(-20000);
+        bufferText += text;
+        if (bufferText.length > 20000) {
+          bufferText = bufferText.slice(-20000);
         }
-
-        terminalOutputBuffersRef.current.set(
-          session.id,
-          buffer
-        );
-
-        // Also scan the rolling buffer for URLs that were split across chunks.
-        detectLocalServerUrl(buffer);
+        terminalOutputBuffersRef.current.set(session.id, bufferText);
+        detectLocalServerUrl(bufferText);
       });
 
       terminal.onData((data) => {
         socket.emit("terminal:input", data);
       });
+
       terminal.onResize(({ cols, rows }) => {
-        socket.emit("terminal:resize", { cols, rows });
+        if (cols > 0 && rows > 0 && socket.connected) {
+          socket.emit("terminal:resize", { cols, rows });
+        }
       });
 
       const handleWindowResize = () => fitTerminal();
       window.addEventListener("resize", handleWindowResize);
 
       const timer = setTimeout(fitTerminal, 100);
+
       terminal._devsyncCleanup = () => {
         clearTimeout(timer);
         clearInterval(urlScanner);
         window.removeEventListener("resize", handleWindowResize);
+        container.removeEventListener("contextmenu", handleContextMenu);
+        container.removeEventListener("mousedown", handleMouseDown);
+        resizeObserver.disconnect();
       };
     });
   }, [terminalSessions]);
 
   useEffect(() => {
     const fitActiveTerminal = () => {
-      if (terminalTab !== "TERMINAL") return;
+      if (terminalTab !== "TERMINAL" || !showTerminal) return;
 
       const terminal = terminalInstancesRef.current.get(activeTerminalId);
       const fitAddon = terminalFitsRef.current.get(activeTerminalId);
@@ -455,31 +567,50 @@ terminal.loadAddon(webLinksAddon);
       requestAnimationFrame(() => {
         try {
           fitAddon.fit();
-          socket?.emit("terminal:resize", {
-            cols: terminal.cols,
-            rows: terminal.rows,
-          });
+          const cols = Math.max(1, terminal.cols);
+          const rows = Math.max(1, terminal.rows);
+          if (cols > 0 && rows > 0 && socket?.connected) {
+            socket.emit("terminal:resize", { cols, rows });
+          }
           terminal.focus();
-        } catch {}
+        } catch {
+          /* ignore */
+        }
       });
     };
 
     fitActiveTerminal();
-  }, [activeTerminalId, terminalHeight, terminalTab, showTerminal]);
+  }, [activeTerminalId, terminalHeight, terminalTab, showTerminal, showAI, showExplorer]);
 
   useEffect(() => {
+    const instancesMap = terminalInstancesRef.current;
+    const observersMap = terminalResizeObserversRef.current;
+    const socketsMap = terminalSocketsRef.current;
+
     return () => {
-      terminalInstancesRef.current.forEach((terminal) => {
+      instancesMap.forEach((terminal) => {
         try {
           terminal._devsyncCleanup?.();
           terminal.dispose();
-        } catch {}
+        } catch {
+          /* ignore */
+        }
       });
 
-      terminalSocketsRef.current.forEach((socket) => {
+      observersMap.forEach((observer) => {
+        try {
+          observer.disconnect();
+        } catch {
+          /* ignore */
+        }
+      });
+
+      socketsMap.forEach((socket) => {
         try {
           socket.disconnect();
-        } catch {}
+        } catch {
+          /* ignore */
+        }
       });
     };
   }, []);
@@ -1125,19 +1256,23 @@ terminal.loadAddon(webLinksAddon);
                         }`}
                       >
                         <span
-                          className={`h-1.5 w-1.5 rounded-full ${
-                            session.connected ? "bg-green-500" : "bg-slate-600"
+                          className={`h-2 w-2 rounded-full ${
+                            session.status === "CONNECTED"
+                              ? "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.8)]"
+                              : session.status === "CONNECTING"
+                              ? "bg-amber-400 animate-pulse"
+                              : "bg-red-500"
                           }`}
                         />
-                        {session.name}
+                        <span>{session.name}</span>
                         {terminalSessions.length > 1 && (
                           <span
                             onClick={(event) => {
                               event.stopPropagation();
                               closeTerminalSession(session.id);
                             }}
-                            className="ml-1 rounded px-1 text-slate-600 hover:bg-slate-700 hover:text-white"
-                            title="Close terminal"
+                            className="ml-1 rounded px-1 text-slate-500 transition hover:bg-slate-700 hover:text-white"
+                            title="Close terminal session"
                           >
                             ×
                           </span>
@@ -1148,27 +1283,27 @@ terminal.loadAddon(webLinksAddon);
                     {/* NEW TERMINAL */}
                     <button
                       onClick={createTerminalSession}
-                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-slate-500 transition hover:bg-slate-800 hover:text-white"
-                      title="New terminal"
+                      className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-slate-500 transition hover:bg-slate-800 hover:text-white"
+                      title="New terminal session"
                     >
                       <FaPlus className="text-[10px]" />
                     </button>
                   </div>
 
-                  <div className="ml-2 flex h-full items-center gap-4">
+                  <div className="ml-3 flex h-full items-center gap-4">
                     {["TERMINAL", "PROBLEMS", "OUTPUT"].map((tab) => (
                       <button
                         key={tab}
                         onClick={() => setTerminalTab(tab)}
-                        className={`h-full text-[9px] font-black ${
+                        className={`h-full text-[9px] font-black tracking-wider transition ${
                           terminalTab === tab
-                            ? "border-b border-blue-500 text-slate-200"
+                            ? "border-b-2 border-blue-500 text-slate-200"
                             : "text-slate-600 hover:text-slate-400"
                         }`}
                       >
                         {tab}
                         {tab === "PROBLEMS" && analysis && (
-                          <span className="ml-1 rounded-full bg-red-500/10 px-1.5 py-0.5 text-red-400">
+                          <span className="ml-1.5 rounded-full bg-red-500/20 px-1.5 py-0.5 text-[8px] font-bold text-red-400">
                             {analysis.filter((item) => item.type !== "success").length}
                           </span>
                         )}
@@ -1177,24 +1312,50 @@ terminal.loadAddon(webLinksAddon);
                   </div>
                 </div>
 
-                <div className="ml-2 flex shrink-0 items-center gap-3">
-                  <div className="flex items-center gap-1.5 text-[9px] text-slate-600">
+                <div className="ml-2 flex shrink-0 items-center gap-2">
+                  {/* CLEAR TERMINAL BUTTON */}
+                  <button
+                    onClick={clearActiveTerminal}
+                    className="flex h-6 items-center gap-1.5 rounded px-2 text-[9px] text-slate-400 transition hover:bg-slate-800 hover:text-white"
+                    title="Clear active terminal output (Ctrl+L)"
+                  >
+                    <FaTrash className="text-[9px]" />
+                    <span className="hidden sm:inline">Clear</span>
+                  </button>
+
+                  {/* SCROLL TO BOTTOM BUTTON */}
+                  <button
+                    onClick={scrollToBottomActiveTerminal}
+                    className="flex h-6 items-center gap-1.5 rounded px-2 text-[9px] text-slate-400 transition hover:bg-slate-800 hover:text-white"
+                    title="Scroll to bottom"
+                  >
+                    <FaArrowDown className="text-[9px]" />
+                    <span className="hidden sm:inline">Bottom</span>
+                  </button>
+
+                  {/* CONNECTION STATUS BADGE */}
+                  <div className="flex items-center gap-1.5 rounded-md border border-slate-800 bg-[#090d14] px-2 py-0.5 text-[9px] font-medium text-slate-400">
                     <span
                       className={`h-1.5 w-1.5 rounded-full ${
-                        activeTerminal?.connected
-                          ? "bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.8)]"
+                        activeTerminal?.status === "CONNECTED"
+                          ? "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.8)]"
+                          : activeTerminal?.status === "CONNECTING"
+                          ? "bg-amber-400 animate-pulse"
                           : "bg-red-500"
                       }`}
                     />
-                    {activeTerminal?.connected ? "Connected" : "Disconnected"}
+                    <span className="font-semibold text-slate-300">
+                      {activeTerminal?.status || (activeTerminal?.connected ? "CONNECTED" : "DISCONNECTED")}
+                    </span>
                   </div>
 
+                  {/* CLOSE TERMINAL PANEL */}
                   <button
                     onClick={() => setShowTerminal(false)}
-                    className="text-slate-600 hover:text-white"
+                    className="flex h-6 w-6 items-center justify-center rounded text-slate-500 transition hover:bg-slate-800 hover:text-white"
                     title="Close terminal panel"
                   >
-                    <FaTimes />
+                    <FaTimes className="text-[10px]" />
                   </button>
                 </div>
               </div>
@@ -1537,6 +1698,5 @@ function AIAction({ icon, label, onClick }) {
 }
 
 export default CodeWorkspace;
-
 
 

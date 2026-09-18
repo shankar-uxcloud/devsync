@@ -1873,3 +1873,38 @@ a {
       0.01ms !important;
   }
 }
+
+/* =========================================================
+   DEVSYNC REAL IDE TERMINAL STYLES
+   ========================================================= */
+
+.xterm {
+  padding: 4px 8px;
+  height: 100%;
+}
+
+.xterm-viewport {
+  background-color: #080b0f !important;
+  overflow-y: auto !important;
+}
+
+.xterm-viewport::-webkit-scrollbar {
+  width: 10px;
+}
+
+.xterm-viewport::-webkit-scrollbar-track {
+  background: #0d1218;
+}
+
+.xterm-viewport::-webkit-scrollbar-thumb {
+  background: #222d3d;
+  border-radius: 4px;
+}
+
+.xterm-viewport::-webkit-scrollbar-thumb:hover {
+  background: #33435b;
+}
+
+.xterm-screen {
+  padding: 0 !important;
+}
