@@ -2,83 +2,74 @@ import mongoose from "mongoose";
 
 const taskSchema = new mongoose.Schema(
   {
-    // ============================================
-    // TASK BASIC DETAILS
-    // ============================================
-
     title: {
       type: String,
       required: true,
       trim: true,
+      minlength: 1,
+      maxlength: 200,
     },
 
     description: {
       type: String,
       default: "",
       trim: true,
+      maxlength: 5000,
     },
-
-    // ============================================
-    // PROJECT
-    // ============================================
 
     project: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Project",
       required: true,
+      index: true,
     },
-
-    // ============================================
-    // TASK STATUS
-    // ============================================
 
     status: {
       type: String,
-      enum: ["todo", "progress", "review", "done"],
+      enum: [
+        "todo",
+        "progress",
+        "review",
+        "done",
+      ],
       default: "todo",
+      index: true,
     },
-
-    // ============================================
-    // PRIORITY
-    // ============================================
 
     priority: {
       type: String,
-      enum: ["Low", "Medium", "High"],
+      enum: [
+        "Low",
+        "Medium",
+        "High",
+      ],
       default: "Medium",
     },
-
-    // ============================================
-    // ASSIGNED DEVELOPER
-    // ============================================
 
     assignee: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       default: null,
+      index: true,
     },
-
-    // ============================================
-    // TECHNOLOGY / TAGS
-    // ============================================
 
     tags: {
       type: [String],
       default: [],
+      set: (values) =>
+        Array.isArray(values)
+          ? values
+              .map((value) =>
+                String(value).trim()
+              )
+              .filter(Boolean)
+          : [],
     },
-
-    // ============================================
-    // DUE DATE
-    // ============================================
 
     dueDate: {
       type: Date,
       default: null,
     },
-
-    // ============================================
-    // CREATED BY
-    // ============================================
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
@@ -91,4 +82,22 @@ const taskSchema = new mongoose.Schema(
   }
 );
 
-export default mongoose.model("Task", taskSchema);
+/* =========================================================
+   INDEXES
+========================================================= */
+
+taskSchema.index({
+  project: 1,
+  status: 1,
+  createdAt: -1,
+});
+
+taskSchema.index({
+  project: 1,
+  assignee: 1,
+});
+
+export default mongoose.model(
+  "Task",
+  taskSchema
+);
