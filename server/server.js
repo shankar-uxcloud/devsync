@@ -64,11 +64,15 @@ app.use("/api/tasks", taskRoutes);
    404 API HANDLER
 ========================================================= */
 
-app.use("/api/*", (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: `API route not found: ${req.method} ${req.originalUrl}`,
-  });
+app.use((req, res, next) => {
+  if (req.originalUrl.startsWith("/api/")) {
+    return res.status(404).json({
+      success: false,
+      message: `API route not found: ${req.method} ${req.originalUrl}`,
+    });
+  }
+
+  next();
 });
 
 /* =========================================================
