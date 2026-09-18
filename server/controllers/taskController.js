@@ -1,58 +1,101 @@
-﻿import Task from "../models/Task.js";
+import mongoose from "mongoose";
+
+import Task from "../models/Task.js";
 import Project from "../models/Project.js";
 
-// =====================================================
-// HELPER — CHECK PROJECT MEMBERSHIP
-// =====================================================
+/* =========================================================
+   HELPERS
+========================================================= */
 
-const isProjectMember = (project, userId) => {
+const ALLOWED_STATUSES = [
+  "todo",
+  "progress",
+  "review",
+  "done",
+];
+
+const ALLOWED_PRIORITIES = [
+  "Low",
+  "Medium",
+  "High",
+];
+
+const isProjectMember = (
+  project,
+  userId
+) => {
+  const id =
+    userId.toString();
+
   return (
-    project.owner.toString() === userId.toString() ||
+    project.owner.toString() ===
+      id ||
     project.members.some(
-      (member) => member.toString() === userId.toString()
+      (member) =>
+        member.toString() === id
     )
   );
 };
 
+const recalculateProjectStats =
+  async (projectId) => {
+    const totalTasks =
+      await Task.countDocuments({
+        project: projectId,
+      });
 
-// =====================================================
-// HELPER — RECALCULATE PROJECT STATS
-// =====================================================
+    const completedTasks =
+      await Task.countDocuments({
+        project: projectId,
+        status: "done",
+      });
 
-const recalculateProjectStats = async (projectId) => {
-  const totalTasks = await Task.countDocuments({
-    project: projectId,
-  });
+    const progress =
+      totalTasks > 0
+        ? Math.round(
+            (completedTasks /
+              totalTasks) *
+              100
+          )
+        : 0;
 
-  const completedTasks = await Task.countDocuments({
-    project: projectId,
-    status: "done",
-  });
+    await Project.findByIdAndUpdate(
+      projectId,
+      {
+        totalTasks,
+        completedTasks,
+        progress,
+      }
+    );
 
-  const progress =
-    totalTasks > 0
-      ? Math.round((completedTasks / totalTasks) * 100)
-      : 0;
-
-  await Project.findByIdAndUpdate(projectId, {
-    totalTasks,
-    completedTasks,
-    progress,
-  });
-
-  return {
-    totalTasks,
-    completedTasks,
-    progress,
+    return {
+      totalTasks,
+      completedTasks,
+      progress,
+    };
   };
-};
 
+const populateTask = (
+  query
+) =>
+  query
+    .populate(
+      "assignee",
+      "name email avatar role"
+    )
+    .populate(
+      "createdBy",
+      "name email avatar role"
+    );
 
-// =====================================================
-// CREATE TASK
-// =====================================================
+/* =========================================================
+   CREATE TASK
+========================================================= */
 
-export const createTask = async (req, res) => {
+export const createTask = async (
+  req,
+  res
+) => {
   try {
     const {
       title,
@@ -65,45 +108,104 @@ export const createTask = async (req, res) => {
       dueDate,
     } = req.body;
 
-    if (!title || !title.trim()) {
+    if (!title?.trim()) {
       return res.status(400).json({
         success: false,
-        message: "Task title is required",
+        message:
+          "Task title is required",
       });
     }
 
-    if (!project) {
+    if (
+      !project ||
+      !mongoose.Types.ObjectId.isValid(
+        project
+      )
+    ) {
       return res.status(400).json({
         success: false,
-        message: "Project is required",
+        message:
+          "Valid project is required",
       });
     }
 
-    const existingProject = await Project.findById(project);
+    const existingProject =
+      await Project.findById(
+        project
+      );
 
     if (!existingProject) {
       return res.status(404).json({
         success: false,
-        message: "Project not found",
+        message:
+          "Project not found",
       });
     }
 
-    if (!isProjectMember(existingProject, req.user._id)) {
+    if (
+      !isProjectMember(
+        existingProject,
+        req.user._id
+      )
+    ) {
       return res.status(403).json({
         success: false,
-        message: "You are not a member of this project",
+        message:
+          "You are not a member of this project",
+      });
+    }
+
+    const taskStatus =
+      status || "todo";
+
+    if (
+      !ALLOWED_STATUSES.includes(
+        taskStatus
+      )
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Invalid task status",
+      });
+    }
+
+    const taskPriority =
+      priority || "Medium";
+
+    if (
+      !ALLOWED_PRIORITIES.includes(
+        taskPriority
+      )
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Invalid task priority",
       });
     }
 
     let validAssignee = null;
 
     if (assignee) {
-      const isAssigneeMember = isProjectMember(
-        existingProject,
-        assignee
-      );
+      if (
+        !mongoose.Types.ObjectId.isValid(
+          assignee
+        )
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Invalid assignee",
+        });
+      }
 
-      if (!isAssigneeMember) {
+      if (
+        !isProjectMember(
+          existingProject,
+          assignee
+        )
+      ) {
         return res.status(400).json({
           success: false,
           message:
@@ -111,179 +213,55 @@ export const createTask = async (req, res) => {
         });
       }
 
-      validAssignee = assignee;
+      validAssignee =
+        assignee;
     }
 
-    const allowedStatuses = [
-      "todo",
-      "progress",
-      "review",
-      "done",
-    ];
-
-    const taskStatus = status || "todo";
-
-    if (!allowedStatuses.includes(taskStatus)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid task status",
+    const task =
+      await Task.create({
+        title:
+          title.trim(),
+        description:
+          description?.trim() ||
+          "",
+        project,
+        status:
+          taskStatus,
+        priority:
+          taskPriority,
+        assignee:
+          validAssignee,
+        tags:
+          Array.isArray(tags)
+            ? tags
+            : [],
+        dueDate:
+          dueDate || null,
+        createdBy:
+          req.user._id,
       });
-    }
 
-    const task = await Task.create({
-      title: title.trim(),
-      description: description?.trim() || "",
-      project,
-      priority: priority || "Medium",
-      status: taskStatus,
-      assignee: validAssignee,
-      tags: Array.isArray(tags) ? tags : [],
-      dueDate: dueDate || null,
-      createdBy: req.user._id,
-    });
+    await recalculateProjectStats(
+      project
+    );
 
-    await recalculateProjectStats(project);
-
-    const populatedTask = await Task.findById(task._id)
-      .populate("assignee", "name email avatar role")
-      .populate("createdBy", "name email avatar");
+    const populatedTask =
+      await populateTask(
+        Task.findById(
+          task._id
+        )
+      );
 
     return res.status(201).json({
       success: true,
-      message: "Task created successfully",
-      task: populatedTask,
-    });
-
-  } catch (error) {
-    console.error("CREATE TASK ERROR:", error);
-
-    return res.status(500).json({
-      success: false,
       message:
-        error.message || "Failed to create task",
+        "Task created successfully",
+      task:
+        populatedTask,
     });
-  }
-};
-
-
-// =====================================================
-// GET PROJECT TASKS
-// =====================================================
-
-export const getProjectTasks = async (req, res) => {
-  try {
-    const { projectId } = req.params;
-
-    const project = await Project.findById(projectId);
-
-    if (!project) {
-      return res.status(404).json({
-        success: false,
-        message: "Project not found",
-      });
-    }
-
-    if (!isProjectMember(project, req.user._id)) {
-      return res.status(403).json({
-        success: false,
-        message: "You are not a member of this project",
-      });
-    }
-
-    const tasks = await Task.find({
-      project: projectId,
-    })
-      .sort({ createdAt: -1 })
-      .populate("assignee", "name email avatar role")
-      .populate("createdBy", "name email avatar");
-
-    return res.status(200).json({
-      success: true,
-      tasks,
-    });
-
-  } catch (error) {
-    console.error("GET PROJECT TASKS ERROR:", error);
-
-    return res.status(500).json({
-      success: false,
-      message:
-        error.message || "Failed to load tasks",
-    });
-  }
-};
-
-
-// =====================================================
-// UPDATE TASK STATUS
-// =====================================================
-
-export const updateTaskStatus = async (req, res) => {
-  try {
-    const { taskId } = req.params;
-    const { status } = req.body;
-
-    const allowedStatuses = [
-      "todo",
-      "progress",
-      "review",
-      "done",
-    ];
-
-    if (!allowedStatuses.includes(status)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid task status",
-      });
-    }
-
-    const task = await Task.findById(taskId);
-
-    if (!task) {
-      return res.status(404).json({
-        success: false,
-        message: "Task not found",
-      });
-    }
-
-    const project = await Project.findById(task.project);
-
-    if (!project) {
-      return res.status(404).json({
-        success: false,
-        message: "Project not found",
-      });
-    }
-
-    if (!isProjectMember(project, req.user._id)) {
-      return res.status(403).json({
-        success: false,
-        message: "You are not a member of this project",
-      });
-    }
-
-    task.status = status;
-
-    await task.save();
-
-    const stats = await recalculateProjectStats(
-      project._id
-    );
-
-    const updatedTask = await Task.findById(task._id)
-      .populate("assignee", "name email avatar role")
-      .populate("createdBy", "name email avatar");
-
-    return res.status(200).json({
-      success: true,
-      message: "Task status updated successfully",
-      task: updatedTask,
-      projectProgress: stats.progress,
-    });
-
   } catch (error) {
     console.error(
-      "UPDATE TASK STATUS ERROR:",
+      "CREATE TASK ERROR:",
       error
     );
 
@@ -291,203 +269,476 @@ export const updateTaskStatus = async (req, res) => {
       success: false,
       message:
         error.message ||
-        "Failed to update task status",
+        "Failed to create task",
     });
   }
 };
 
+/* =========================================================
+   GET PROJECT TASKS
+========================================================= */
 
-// =====================================================
-// UPDATE TASK
-// =====================================================
+export const getProjectTasks =
+  async (req, res) => {
+    try {
+      const {
+        projectId,
+      } = req.params;
 
-export const updateTask = async (req, res) => {
-  try {
-    const { taskId } = req.params;
+      const project =
+        await Project.findById(
+          projectId
+        );
 
-    const {
-      title,
-      description,
-      priority,
-      status,
-      assignee,
-      tags,
-      dueDate,
-    } = req.body;
-
-    const task = await Task.findById(taskId);
-
-    if (!task) {
-      return res.status(404).json({
-        success: false,
-        message: "Task not found",
-      });
-    }
-
-    const project = await Project.findById(task.project);
-
-    if (!project) {
-      return res.status(404).json({
-        success: false,
-        message: "Project not found",
-      });
-    }
-
-    if (!isProjectMember(project, req.user._id)) {
-      return res.status(403).json({
-        success: false,
-        message: "You are not a member of this project",
-      });
-    }
-
-    if (title !== undefined) {
-      if (!title.trim()) {
-        return res.status(400).json({
+      if (!project) {
+        return res.status(404).json({
           success: false,
-          message: "Task title is required",
+          message:
+            "Project not found",
         });
       }
 
-      task.title = title.trim();
-    }
-
-    if (description !== undefined) {
-      task.description = description.trim();
-    }
-
-    if (priority !== undefined) {
-      if (!["Low", "Medium", "High"].includes(priority)) {
-        return res.status(400).json({
-          success: false,
-          message: "Invalid priority",
-        });
-      }
-
-      task.priority = priority;
-    }
-
-    if (status !== undefined) {
       if (
-        !["todo", "progress", "review", "done"].includes(
+        !isProjectMember(
+          project,
+          req.user._id
+        )
+      ) {
+        return res.status(403).json({
+          success: false,
+          message:
+            "You are not a member of this project",
+        });
+      }
+
+      const tasks =
+        await populateTask(
+          Task.find({
+            project: projectId,
+          }).sort({
+            createdAt: -1,
+          })
+        );
+
+      return res.json({
+        success: true,
+        tasks,
+      });
+    } catch (error) {
+      console.error(
+        "GET PROJECT TASKS ERROR:",
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message:
+          error.message ||
+          "Failed to load tasks",
+      });
+    }
+  };
+
+/* =========================================================
+   UPDATE TASK STATUS
+========================================================= */
+
+export const updateTaskStatus =
+  async (req, res) => {
+    try {
+      const {
+        taskId,
+      } = req.params;
+
+      const {
+        status,
+      } = req.body;
+
+      if (
+        !ALLOWED_STATUSES.includes(
           status
         )
       ) {
         return res.status(400).json({
           success: false,
-          message: "Invalid task status",
+          message:
+            "Invalid task status",
         });
       }
 
-      task.status = status;
-    }
+      const task =
+        await Task.findById(
+          taskId
+        );
 
-    if (assignee !== undefined) {
-      if (!assignee) {
-        task.assignee = null;
-      } else {
-        if (!isProjectMember(project, assignee)) {
+      if (!task) {
+        return res.status(404).json({
+          success: false,
+          message:
+            "Task not found",
+        });
+      }
+
+      const project =
+        await Project.findById(
+          task.project
+        );
+
+      if (!project) {
+        return res.status(404).json({
+          success: false,
+          message:
+            "Project not found",
+        });
+      }
+
+      if (
+        !isProjectMember(
+          project,
+          req.user._id
+        )
+      ) {
+        return res.status(403).json({
+          success: false,
+          message:
+            "You are not a project member",
+        });
+      }
+
+      task.status =
+        status;
+
+      await task.save();
+
+      const stats =
+        await recalculateProjectStats(
+          project._id
+        );
+
+      const populatedTask =
+        await populateTask(
+          Task.findById(
+            task._id
+          )
+        );
+
+      return res.json({
+        success: true,
+        message:
+          "Task status updated",
+        task:
+          populatedTask,
+        stats,
+      });
+    } catch (error) {
+      console.error(
+        "UPDATE TASK STATUS ERROR:",
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message:
+          error.message ||
+          "Failed to update task status",
+      });
+    }
+  };
+
+/* =========================================================
+   UPDATE TASK
+========================================================= */
+
+export const updateTask =
+  async (req, res) => {
+    try {
+      const {
+        taskId,
+      } = req.params;
+
+      const task =
+        await Task.findById(
+          taskId
+        );
+
+      if (!task) {
+        return res.status(404).json({
+          success: false,
+          message:
+            "Task not found",
+        });
+      }
+
+      const project =
+        await Project.findById(
+          task.project
+        );
+
+      if (!project) {
+        return res.status(404).json({
+          success: false,
+          message:
+            "Project not found",
+        });
+      }
+
+      if (
+        !isProjectMember(
+          project,
+          req.user._id
+        )
+      ) {
+        return res.status(403).json({
+          success: false,
+          message:
+            "You are not a project member",
+        });
+      }
+
+      const {
+        title,
+        description,
+        status,
+        priority,
+        assignee,
+        tags,
+        dueDate,
+      } = req.body;
+
+      if (
+        title !== undefined
+      ) {
+        if (!title?.trim()) {
           return res.status(400).json({
             success: false,
             message:
-              "Task can only be assigned to a project member",
+              "Task title cannot be empty",
           });
         }
 
-        task.assignee = assignee;
+        task.title =
+          title.trim();
       }
-    }
 
-    if (tags !== undefined) {
-      task.tags = Array.isArray(tags) ? tags : [];
-    }
+      if (
+        description !==
+        undefined
+      ) {
+        task.description =
+          String(
+            description || ""
+          ).trim();
+      }
 
-    if (dueDate !== undefined) {
-      task.dueDate = dueDate || null;
-    }
+      if (
+        status !== undefined
+      ) {
+        if (
+          !ALLOWED_STATUSES.includes(
+            status
+          )
+        ) {
+          return res.status(400).json({
+            success: false,
+            message:
+              "Invalid task status",
+          });
+        }
 
-    await task.save();
+        task.status =
+          status;
+      }
 
-    const stats = await recalculateProjectStats(
-      project._id
-    );
+      if (
+        priority !== undefined
+      ) {
+        if (
+          !ALLOWED_PRIORITIES.includes(
+            priority
+          )
+        ) {
+          return res.status(400).json({
+            success: false,
+            message:
+              "Invalid task priority",
+          });
+        }
 
-    const updatedTask = await Task.findById(task._id)
-      .populate("assignee", "name email avatar role")
-      .populate("createdBy", "name email avatar");
+        task.priority =
+          priority;
+      }
 
-    return res.status(200).json({
-      success: true,
-      message: "Task updated successfully",
-      task: updatedTask,
-      projectProgress: stats.progress,
-    });
+      if (
+        assignee !==
+        undefined
+      ) {
+        if (
+          assignee ===
+          null
+        ) {
+          task.assignee =
+            null;
+        } else {
+          if (
+            !mongoose.Types.ObjectId.isValid(
+              assignee
+            )
+          ) {
+            return res.status(400).json({
+              success: false,
+              message:
+                "Invalid assignee",
+            });
+          }
 
-  } catch (error) {
-    console.error("UPDATE TASK ERROR:", error);
+          if (
+            !isProjectMember(
+              project,
+              assignee
+            )
+          ) {
+            return res.status(400).json({
+              success: false,
+              message:
+                "Assignee must be a project member",
+            });
+          }
 
-    return res.status(500).json({
-      success: false,
-      message:
-        error.message || "Failed to update task",
-    });
-  }
-};
+          task.assignee =
+            assignee;
+        }
+      }
 
+      if (
+        tags !== undefined
+      ) {
+        task.tags =
+          Array.isArray(tags)
+            ? tags
+            : [];
+      }
 
-// =====================================================
-// DELETE TASK
-// =====================================================
+      if (
+        dueDate !==
+        undefined
+      ) {
+        task.dueDate =
+          dueDate || null;
+      }
 
-export const deleteTask = async (req, res) => {
-  try {
-    const { taskId } = req.params;
+      await task.save();
 
-    const task = await Task.findById(taskId);
+      const stats =
+        await recalculateProjectStats(
+          project._id
+        );
 
-    if (!task) {
-      return res.status(404).json({
+      const populatedTask =
+        await populateTask(
+          Task.findById(
+            task._id
+          )
+        );
+
+      return res.json({
+        success: true,
+        message:
+          "Task updated successfully",
+        task:
+          populatedTask,
+        stats,
+      });
+    } catch (error) {
+      console.error(
+        "UPDATE TASK ERROR:",
+        error
+      );
+
+      return res.status(500).json({
         success: false,
-        message: "Task not found",
+        message:
+          error.message ||
+          "Failed to update task",
       });
     }
+  };
 
-    const project = await Project.findById(task.project);
+/* =========================================================
+   DELETE TASK
+========================================================= */
 
-    if (!project) {
-      return res.status(404).json({
+export const deleteTask =
+  async (req, res) => {
+    try {
+      const {
+        taskId,
+      } = req.params;
+
+      const task =
+        await Task.findById(
+          taskId
+        );
+
+      if (!task) {
+        return res.status(404).json({
+          success: false,
+          message:
+            "Task not found",
+        });
+      }
+
+      const project =
+        await Project.findById(
+          task.project
+        );
+
+      if (!project) {
+        return res.status(404).json({
+          success: false,
+          message:
+            "Project not found",
+        });
+      }
+
+      if (
+        !isProjectMember(
+          project,
+          req.user._id
+        )
+      ) {
+        return res.status(403).json({
+          success: false,
+          message:
+            "You are not a project member",
+        });
+      }
+
+      await Task.deleteOne({
+        _id: taskId,
+      });
+
+      const stats =
+        await recalculateProjectStats(
+          project._id
+        );
+
+      return res.json({
+        success: true,
+        message:
+          "Task deleted successfully",
+        stats,
+      });
+    } catch (error) {
+      console.error(
+        "DELETE TASK ERROR:",
+        error
+      );
+
+      return res.status(500).json({
         success: false,
-        message: "Project not found",
+        message:
+          error.message ||
+          "Failed to delete task",
       });
     }
-
-    if (!isProjectMember(project, req.user._id)) {
-      return res.status(403).json({
-        success: false,
-        message: "You are not a member of this project",
-      });
-    }
-
-    await Task.findByIdAndDelete(taskId);
-
-    const stats = await recalculateProjectStats(
-      project._id
-    );
-
-    return res.status(200).json({
-      success: true,
-      message: "Task deleted successfully",
-      projectProgress: stats.progress,
-      totalTasks: stats.totalTasks,
-      completedTasks: stats.completedTasks,
-    });
-
-  } catch (error) {
-    console.error("DELETE TASK ERROR:", error);
-
-    return res.status(500).json({
-      success: false,
-      message:
-        error.message || "Failed to delete task",
-    });
-  }
-};
+  };
