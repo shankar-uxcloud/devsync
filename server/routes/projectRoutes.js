@@ -4,17 +4,20 @@ import {
   createProject,
   getProjects,
   getProjectById,
+  updateProject,
+  deleteProject,
   addProjectMember,
   removeProjectMember,
 } from "../controllers/projectcontroller.js";
 
 import protect from "../middleware/authMiddleware.js";
 
-const router = express.Router();
+const router =
+  express.Router();
 
-// =====================================================
-// PROJECT ROUTES
-// =====================================================
+/* =========================================================
+   PROJECTS
+========================================================= */
 
 router.get(
   "/",
@@ -34,19 +37,28 @@ router.get(
   getProjectById
 );
 
+router.put(
+  "/:projectId",
+  protect,
+  updateProject
+);
 
-// =====================================================
-// TEAM MEMBER ROUTES
-// =====================================================
+router.delete(
+  "/:projectId",
+  protect,
+  deleteProject
+);
 
-// Add member by email
+/* =========================================================
+   MEMBERS
+========================================================= */
+
 router.post(
   "/:projectId/members",
   protect,
   addProjectMember
 );
 
-// Remove member
 router.delete(
   "/:projectId/members/:userId",
   protect,
