@@ -802,17 +802,13 @@ io.on(
         os.platform() ===
         "win32";
 
-      const shellPath =
-        isWindows
-          ? process.env.ComSpec ||
-            "powershell.exe"
-          : process.env.SHELL ||
-            "/bin/bash";
+     const shellPath = isWindows
+  ? "powershell.exe"
+  : process.env.SHELL || "/bin/bash";
 
-      const shellArgs =
-        isWindows
-          ? ["-NoLogo"]
-          : [];
+const shellArgs = isWindows
+  ? ["-NoLogo"]
+  : [];
 
       shell =
         pty.spawn(
