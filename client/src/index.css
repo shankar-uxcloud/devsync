@@ -1,322 +1,123 @@
 /* ============================================================
-   DEVSYNC — GLOBAL DESIGN SYSTEM
-   ============================================================
-
-   Supported themes:
-
-   data-theme="dark"
-   data-theme="light"
-   data-theme="neon"
-   data-theme="high-contrast"
-
-   Also supports:
-   .theme-dark
-   .theme-light
-   .theme-neon
-   .theme-high-contrast
-
-   Recommended:
-   <html data-theme="dark">
+   DEVSYNC GLOBAL CSS
+   IMPORTANT:
+   DO NOT REMOVE THIS IMPORT.
+   Your entire DevSync UI uses Tailwind classes.
    ============================================================ */
+
+@import "tailwindcss";
 
 
 /* ============================================================
-   1. ROOT VARIABLES — DARK DEFAULT
+   GLOBAL THEME VARIABLES
    ============================================================ */
 
 :root {
-  /* ---------- Core ---------- */
-  --font-family:
-    Inter,
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
+  --ds-brand: #2563eb;
+  --ds-brand-hover: #1d4ed8;
+  --ds-accent: #7c3aed;
 
-  --font-mono:
-    "JetBrains Mono",
-    "Fira Code",
-    Consolas,
-    "Courier New",
-    monospace;
+  --ds-bg: #f8fafc;
+  --ds-surface: #ffffff;
+  --ds-surface-2: #f1f5f9;
 
-  /* ---------- Brand ---------- */
-  --brand: #6366f1;
-  --brand-hover: #818cf8;
-  --brand-active: #4f46e5;
+  --ds-text: #0f172a;
+  --ds-text-secondary: #475569;
+  --ds-text-muted: #64748b;
 
-  --accent: #8b5cf6;
-  --accent-hover: #a78bfa;
+  --ds-border: #e2e8f0;
+  --ds-border-light: #f1f5f9;
 
-  --success: #22c55e;
-  --warning: #f59e0b;
-  --danger: #ef4444;
-  --info: #38bdf8;
+  --ds-success: #16a34a;
+  --ds-warning: #d97706;
+  --ds-danger: #dc2626;
+  --ds-info: #0284c7;
 
-  /* ---------- Background ---------- */
-  --bg-primary: #09090b;
-  --bg-secondary: #111113;
-  --bg-tertiary: #18181b;
+  --ds-radius: 14px;
 
-  --bg-elevated: #1c1c20;
-  --bg-hover: #232329;
-  --bg-active: #292930;
-
-  --surface: #111113;
-  --surface-hover: #18181b;
-  --surface-active: #202024;
-
-  /* ---------- Text ---------- */
-  --text-primary: #f4f4f5;
-  --text-secondary: #d4d4d8;
-  --text-muted: #a1a1aa;
-  --text-disabled: #71717a;
-  --text-inverse: #09090b;
-
-  /* ---------- Borders ---------- */
-  --border: rgba(255, 255, 255, 0.09);
-  --border-light: rgba(255, 255, 255, 0.14);
-  --border-strong: rgba(255, 255, 255, 0.22);
-
-  /* ---------- Shadows ---------- */
-  --shadow-xs:
-    0 1px 2px rgba(0, 0, 0, 0.25);
-
-  --shadow-sm:
-    0 2px 8px rgba(0, 0, 0, 0.3);
-
-  --shadow-md:
-    0 8px 24px rgba(0, 0, 0, 0.35);
-
-  --shadow-lg:
-    0 16px 48px rgba(0, 0, 0, 0.45);
-
-  --shadow-xl:
-    0 24px 80px rgba(0, 0, 0, 0.55);
-
-  --glow:
-    0 0 20px rgba(99, 102, 241, 0.25);
-
-  /* ---------- Radius ---------- */
-  --radius-xs: 4px;
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --radius-2xl: 20px;
-  --radius-full: 9999px;
-
-  /* ---------- Spacing ---------- */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --space-8: 32px;
-  --space-10: 40px;
-  --space-12: 48px;
-  --space-16: 64px;
-
-  /* ---------- Layout ---------- */
-  --navbar-height: 64px;
-  --sidebar-width: 260px;
-  --sidebar-collapsed: 72px;
-  --max-content-width: 1440px;
-
-  /* ---------- Animation ---------- */
-  --transition-fast: 120ms ease;
-  --transition-normal: 220ms ease;
-  --transition-slow: 350ms ease;
-
-  /* ---------- Theme ---------- */
-  color-scheme: dark;
-}
-
-
-/* ============================================================
-   2. LIGHT MODE
-   ============================================================ */
-
-html[data-theme="light"],
-body[data-theme="light"],
-.theme-light {
-  --brand: #4f46e5;
-  --brand-hover: #4338ca;
-  --brand-active: #3730a3;
-
-  --accent: #7c3aed;
-  --accent-hover: #6d28d9;
-
-  --success: #16a34a;
-  --warning: #d97706;
-  --danger: #dc2626;
-  --info: #0284c7;
-
-  --bg-primary: #f8fafc;
-  --bg-secondary: #f1f5f9;
-  --bg-tertiary: #e2e8f0;
-
-  --bg-elevated: #ffffff;
-  --bg-hover: #f1f5f9;
-  --bg-active: #e2e8f0;
-
-  --surface: #ffffff;
-  --surface-hover: #f8fafc;
-  --surface-active: #f1f5f9;
-
-  --text-primary: #0f172a;
-  --text-secondary: #334155;
-  --text-muted: #64748b;
-  --text-disabled: #94a3b8;
-  --text-inverse: #ffffff;
-
-  --border: rgba(15, 23, 42, 0.09);
-  --border-light: rgba(15, 23, 42, 0.14);
-  --border-strong: rgba(15, 23, 42, 0.22);
-
-  --shadow-xs:
-    0 1px 2px rgba(15, 23, 42, 0.05);
-
-  --shadow-sm:
-    0 2px 8px rgba(15, 23, 42, 0.08);
-
-  --shadow-md:
-    0 8px 24px rgba(15, 23, 42, 0.1);
-
-  --shadow-lg:
-    0 16px 48px rgba(15, 23, 42, 0.12);
-
-  --shadow-xl:
-    0 24px 80px rgba(15, 23, 42, 0.16);
-
-  --glow:
-    0 0 20px rgba(79, 70, 229, 0.15);
+  --ds-transition: 180ms ease;
 
   color-scheme: light;
 }
 
 
 /* ============================================================
-   3. NEON MODE
+   DARK MODE
+   ============================================================ */
+
+html[data-theme="dark"],
+body[data-theme="dark"] {
+  --ds-brand: #6366f1;
+  --ds-brand-hover: #818cf8;
+  --ds-accent: #8b5cf6;
+
+  --ds-bg: #09090b;
+  --ds-surface: #111113;
+  --ds-surface-2: #18181b;
+
+  --ds-text: #f8fafc;
+  --ds-text-secondary: #cbd5e1;
+  --ds-text-muted: #94a3b8;
+
+  --ds-border: rgba(255, 255, 255, 0.1);
+  --ds-border-light: rgba(255, 255, 255, 0.06);
+
+  color-scheme: dark;
+}
+
+
+/* ============================================================
+   NEON MODE
    ============================================================ */
 
 html[data-theme="neon"],
-body[data-theme="neon"],
-.theme-neon {
-  --brand: #00f5ff;
-  --brand-hover: #67f9ff;
-  --brand-active: #00c8d4;
+body[data-theme="neon"] {
+  --ds-brand: #00f5ff;
+  --ds-brand-hover: #67f9ff;
+  --ds-accent: #ff00e5;
 
-  --accent: #ff00e5;
-  --accent-hover: #ff4deb;
+  --ds-bg: #03030a;
+  --ds-surface: #080816;
+  --ds-surface-2: #10102a;
 
-  --success: #00ff88;
-  --warning: #ffe600;
-  --danger: #ff3864;
-  --info: #00d9ff;
+  --ds-text: #f5ffff;
+  --ds-text-secondary: #c9faff;
+  --ds-text-muted: #82b9c2;
 
-  --bg-primary: #03030a;
-  --bg-secondary: #070713;
-  --bg-tertiary: #0b0b1d;
-
-  --bg-elevated: #10102a;
-  --bg-hover: #15153a;
-  --bg-active: #1c1c48;
-
-  --surface: #080816;
-  --surface-hover: #10102a;
-  --surface-active: #18183b;
-
-  --text-primary: #f5ffff;
-  --text-secondary: #c9faff;
-  --text-muted: #82b9c2;
-  --text-disabled: #47727b;
-  --text-inverse: #020307;
-
-  --border: rgba(0, 245, 255, 0.18);
-  --border-light: rgba(0, 245, 255, 0.3);
-  --border-strong: rgba(255, 0, 229, 0.45);
-
-  --shadow-xs:
-    0 0 5px rgba(0, 245, 255, 0.08);
-
-  --shadow-sm:
-    0 0 12px rgba(0, 245, 255, 0.12);
-
-  --shadow-md:
-    0 0 24px rgba(0, 245, 255, 0.16);
-
-  --shadow-lg:
-    0 0 40px rgba(0, 245, 255, 0.18);
-
-  --shadow-xl:
-    0 0 70px rgba(255, 0, 229, 0.2);
-
-  --glow:
-    0 0 25px rgba(0, 245, 255, 0.35);
+  --ds-border: rgba(0, 245, 255, 0.18);
+  --ds-border-light: rgba(255, 0, 229, 0.12);
 
   color-scheme: dark;
 }
 
 
 /* ============================================================
-   4. HIGH CONTRAST MODE
+   HIGH CONTRAST MODE
    ============================================================ */
 
 html[data-theme="high-contrast"],
-body[data-theme="high-contrast"],
-.theme-high-contrast {
-  --brand: #ffff00;
-  --brand-hover: #ffffff;
-  --brand-active: #ffff00;
+body[data-theme="high-contrast"] {
+  --ds-brand: #ffff00;
+  --ds-brand-hover: #ffffff;
+  --ds-accent: #00ffff;
 
-  --accent: #00ffff;
-  --accent-hover: #ffffff;
+  --ds-bg: #000000;
+  --ds-surface: #000000;
+  --ds-surface-2: #111111;
 
-  --success: #00ff00;
-  --warning: #ffff00;
-  --danger: #ff3333;
-  --info: #00ffff;
+  --ds-text: #ffffff;
+  --ds-text-secondary: #ffffff;
+  --ds-text-muted: #eeeeee;
 
-  --bg-primary: #000000;
-  --bg-secondary: #000000;
-  --bg-tertiary: #111111;
-
-  --bg-elevated: #000000;
-  --bg-hover: #202020;
-  --bg-active: #303030;
-
-  --surface: #000000;
-  --surface-hover: #111111;
-  --surface-active: #222222;
-
-  --text-primary: #ffffff;
-  --text-secondary: #ffffff;
-  --text-muted: #eeeeee;
-  --text-disabled: #cccccc;
-  --text-inverse: #000000;
-
-  --border: #ffffff;
-  --border-light: #ffffff;
-  --border-strong: #ffff00;
-
-  --shadow-xs: none;
-  --shadow-sm: none;
-  --shadow-md: none;
-  --shadow-lg: none;
-  --shadow-xl: none;
-
-  --glow: none;
+  --ds-border: #ffffff;
+  --ds-border-light: #ffffff;
 
   color-scheme: dark;
 }
 
 
 /* ============================================================
-   5. GLOBAL RESET
+   GLOBAL RESET
    ============================================================ */
 
 *,
@@ -330,53 +131,75 @@ html {
   min-height: 100%;
   margin: 0;
   padding: 0;
+
+  background: var(--ds-bg);
+
   scroll-behavior: smooth;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  transition:
-    background-color var(--transition-normal),
-    color var(--transition-normal);
 }
 
 body {
   width: 100%;
   min-width: 320px;
   min-height: 100vh;
+
   margin: 0;
   padding: 0;
 
-  font-family: var(--font-family);
-  font-size: 14px;
-  line-height: 1.6;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
 
-  background:
-    radial-gradient(
-      circle at top right,
-      color-mix(in srgb, var(--brand) 6%, transparent),
-      transparent 30%
-    ),
-    var(--bg-primary);
+  color: var(--ds-text);
 
-  color: var(--text-primary);
+  background: var(--ds-bg);
 
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
   transition:
-    background-color var(--transition-normal),
-    color var(--transition-normal);
-}
-
-#root {
-  width: 100%;
-  min-height: 100vh;
-  background: transparent;
+    background-color 180ms ease,
+    color 180ms ease;
 }
 
 
 /* ============================================================
-   6. GLOBAL ELEMENTS
+   ROOT
    ============================================================ */
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+
+/* ============================================================
+   IMPORTANT:
+   DO NOT STYLE GENERIC main/header/aside/nav WITH LAYOUT RULES.
+   
+   Your React pages already use Tailwind classes such as:
+   fixed
+   flex
+   hidden
+   lg:flex
+   lg:ml-64
+   etc.
+
+   Styling those elements globally can break the layout.
+   ============================================================ */
+
+
+/* ============================================================
+   LINKS
+   ============================================================ */
+
+a {
+  color: inherit;
+}
 
 button,
 input,
@@ -385,1672 +208,76 @@ select {
   font: inherit;
 }
 
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
 button {
   cursor: pointer;
 }
 
 button:disabled {
   cursor: not-allowed;
-  opacity: 0.55;
 }
 
-a {
-  color: var(--brand);
-  text-decoration: none;
-  transition:
-    color var(--transition-fast),
-    opacity var(--transition-fast);
-}
 
-a:hover {
-  color: var(--brand-hover);
-}
-
-img,
-svg,
-video,
-canvas {
-  max-width: 100%;
-}
+/* ============================================================
+   IMAGES
+   ============================================================ */
 
 img {
-  display: block;
-}
-
-hr {
-  height: 1px;
-  margin: var(--space-6) 0;
-  border: 0;
-  background: var(--border);
+  max-width: 100%;
+  height: auto;
 }
 
 
 /* ============================================================
-   7. TEXT SYSTEM
+   SVG
+   IMPORTANT:
+   Don't set width/height globally.
+   React Icons and Tailwind control their own dimensions.
    ============================================================ */
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  margin: 0;
-  color: var(--text-primary);
-  font-weight: 700;
-  line-height: 1.25;
-  letter-spacing: -0.02em;
-}
-
-h1 {
-  font-size: clamp(28px, 4vw, 42px);
-}
-
-h2 {
-  font-size: clamp(24px, 3vw, 34px);
-}
-
-h3 {
-  font-size: 22px;
-}
-
-h4 {
-  font-size: 18px;
-}
-
-h5 {
-  font-size: 16px;
-}
-
-h6 {
-  font-size: 14px;
-}
-
-p {
-  color: var(--text-secondary);
-}
-
-.text-primary {
-  color: var(--text-primary) !important;
-}
-
-.text-secondary {
-  color: var(--text-secondary) !important;
-}
-
-.text-muted {
-  color: var(--text-muted) !important;
-}
-
-.text-disabled {
-  color: var(--text-disabled) !important;
-}
-
-.text-brand {
-  color: var(--brand) !important;
-}
-
-.text-success {
-  color: var(--success) !important;
-}
-
-.text-warning {
-  color: var(--warning) !important;
-}
-
-.text-danger {
-  color: var(--danger) !important;
+svg {
+  flex-shrink: 0;
 }
 
 
 /* ============================================================
-   8. PAGE / APP CONTAINERS
-   ============================================================ */
-
-.app,
-.app-container,
-.page,
-.page-container,
-.page-content,
-.main-content,
-.content,
-.dashboard,
-.dashboard-page,
-.workspace-page {
-  color: var(--text-primary);
-  background: transparent;
-}
-
-.page,
-.page-container,
-.page-content {
-  width: 100%;
-  min-height: 100vh;
-}
-
-.page-container {
-  padding: var(--space-6);
-}
-
-.container {
-  width: min(100% - 32px, var(--max-content-width));
-  margin-inline: auto;
-}
-
-
-/* ============================================================
-   9. HEADER / NAVBAR
-   ============================================================ */
-
-header,
-nav,
-.navbar,
-.nav-bar,
-.top-navbar,
-.topbar,
-.app-navbar {
-  color: var(--text-primary);
-}
-
-.navbar,
-.top-navbar,
-.topbar,
-.app-navbar {
-  min-height: var(--navbar-height);
-
-  background:
-    color-mix(
-      in srgb,
-      var(--bg-secondary) 92%,
-      transparent
-    );
-
-  border-bottom: 1px solid var(--border);
-
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-
-  transition:
-    background var(--transition-normal),
-    border-color var(--transition-normal);
-}
-
-.navbar a,
-.top-navbar a,
-.topbar a {
-  color: var(--text-secondary);
-}
-
-.navbar a:hover,
-.top-navbar a:hover,
-.topbar a:hover {
-  color: var(--text-primary);
-}
-
-
-/* ============================================================
-   10. SIDEBAR
-   ============================================================ */
-
-.sidebar,
-.side-bar,
-.app-sidebar,
-.dashboard-sidebar,
-aside {
-  color: var(--text-primary);
-  background: var(--bg-secondary);
-  border-color: var(--border);
-}
-
-.sidebar {
-  border-right: 1px solid var(--border);
-}
-
-.sidebar-item,
-.nav-item,
-.menu-item {
-  color: var(--text-secondary);
-
-  border-radius: var(--radius-md);
-
-  transition:
-    background var(--transition-fast),
-    color var(--transition-fast);
-}
-
-.sidebar-item:hover,
-.nav-item:hover,
-.menu-item:hover {
-  color: var(--text-primary);
-  background: var(--bg-hover);
-}
-
-.sidebar-item.active,
-.nav-item.active,
-.menu-item.active,
-[aria-current="page"] {
-  color: var(--brand);
-  background:
-    color-mix(
-      in srgb,
-      var(--brand) 12%,
-      transparent
-    );
-}
-
-
-/* ============================================================
-   11. CARDS
-   ============================================================ */
-
-.card,
-.panel,
-.surface,
-.widget,
-.stat-card,
-.project-card,
-.task-card,
-.team-card,
-.activity-card,
-.chart-card,
-.settings-card,
-.profile-card,
-.modal-card {
-  color: var(--text-primary);
-
-  background:
-    linear-gradient(
-      145deg,
-      color-mix(
-        in srgb,
-        var(--surface) 98%,
-        var(--brand) 2%
-      ),
-      var(--surface)
-    );
-
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-
-  box-shadow: var(--shadow-sm);
-
-  transition:
-    background var(--transition-normal),
-    border-color var(--transition-normal),
-    box-shadow var(--transition-normal),
-    transform var(--transition-normal);
-}
-
-.card:hover,
-.panel:hover,
-.widget:hover,
-.stat-card:hover,
-.project-card:hover,
-.task-card:hover,
-.team-card:hover,
-.chart-card:hover {
-  border-color: var(--border-light);
-  box-shadow: var(--shadow-md);
-}
-
-.theme-neon .card:hover,
-.theme-neon .panel:hover,
-html[data-theme="neon"] .card:hover,
-html[data-theme="neon"] .panel:hover {
-  box-shadow:
-    0 0 20px rgba(0, 245, 255, 0.15),
-    0 0 40px rgba(255, 0, 229, 0.08);
-}
-
-
-/* ============================================================
-   12. BUTTON SYSTEM
-   ============================================================ */
-
-button,
-.btn,
-.button {
-  min-height: 38px;
-
-  border: 1px solid var(--border);
-
-  border-radius: var(--radius-md);
-
-  padding: 8px 14px;
-
-  color: var(--text-primary);
-  background: var(--bg-tertiary);
-
-  transition:
-    background var(--transition-fast),
-    border-color var(--transition-fast),
-    color var(--transition-fast),
-    transform var(--transition-fast),
-    box-shadow var(--transition-fast);
-}
-
-button:hover,
-.btn:hover,
-.button:hover {
-  background: var(--bg-hover);
-  border-color: var(--border-light);
-}
-
-button:active,
-.btn:active,
-.button:active {
-  transform: translateY(1px);
-}
-
-button:focus-visible,
-.btn:focus-visible,
-.button:focus-visible {
-  outline: 2px solid var(--brand);
-  outline-offset: 2px;
-}
-
-
-/* Primary */
-
-.btn-primary,
-.button-primary,
-button.primary,
-button[type="submit"] {
-  color: var(--text-inverse);
-  background: var(--brand);
-  border-color: var(--brand);
-}
-
-.btn-primary:hover,
-.button-primary:hover,
-button.primary:hover,
-button[type="submit"]:hover {
-  color: var(--text-inverse);
-  background: var(--brand-hover);
-  border-color: var(--brand-hover);
-  box-shadow: var(--glow);
-}
-
-
-/* Secondary */
-
-.btn-secondary,
-.button-secondary {
-  color: var(--text-primary);
-  background: var(--bg-tertiary);
-}
-
-
-/* Ghost */
-
-.btn-ghost,
-.button-ghost,
-button.ghost {
-  color: var(--text-secondary);
-  background: transparent;
-  border-color: transparent;
-}
-
-.btn-ghost:hover,
-.button-ghost:hover,
-button.ghost:hover {
-  color: var(--text-primary);
-  background: var(--bg-hover);
-}
-
-
-/* Danger */
-
-.btn-danger,
-.button-danger,
-button.danger {
-  color: #fff;
-  background: var(--danger);
-  border-color: var(--danger);
-}
-
-
-/* Success */
-
-.btn-success,
-.button-success,
-button.success {
-  color: #fff;
-  background: var(--success);
-  border-color: var(--success);
-}
-
-
-/* ============================================================
-   13. INPUTS / FORMS
+   INPUTS
    ============================================================ */
 
 input,
 textarea,
 select {
-  width: 100%;
-
-  min-height: 40px;
-
-  padding: 9px 12px;
-
-  color: var(--text-primary);
-  background: var(--bg-secondary);
-
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-
   outline: none;
-
-  transition:
-    border-color var(--transition-fast),
-    background var(--transition-fast),
-    box-shadow var(--transition-fast);
-}
-
-textarea {
-  min-height: 100px;
-  resize: vertical;
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: var(--text-muted);
-}
-
-input:hover,
-textarea:hover,
-select:hover {
-  border-color: var(--border-light);
-}
-
-input:focus,
-textarea:focus,
-select:focus {
-  border-color: var(--brand);
-
-  box-shadow:
-    0 0 0 3px
-    color-mix(
-      in srgb,
-      var(--brand) 15%,
-      transparent
-    );
-}
-
-input:disabled,
-textarea:disabled,
-select:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-label {
-  display: block;
-
-  margin-bottom: 6px;
-
-  color: var(--text-secondary);
-
-  font-size: 13px;
-  font-weight: 600;
+  color: #94a3b8;
 }
 
 
 /* ============================================================
-   14. SELECT OPTIONS
+   TEXT SELECTION
    ============================================================ */
 
-select option {
-  color: var(--text-primary);
-  background: var(--bg-secondary);
+::selection {
+  background: var(--ds-brand);
+  color: white;
 }
 
 
 /* ============================================================
-   15. CHECKBOX / RADIO
-   ============================================================ */
-
-input[type="checkbox"],
-input[type="radio"] {
-  width: 17px;
-  height: 17px;
-  min-height: 17px;
-  padding: 0;
-
-  accent-color: var(--brand);
-}
-
-
-/* ============================================================
-   16. BADGES / TAGS
-   ============================================================ */
-
-.badge,
-.tag,
-.chip,
-.status-badge,
-.label {
-  display: inline-flex;
-
-  align-items: center;
-  justify-content: center;
-
-  min-height: 24px;
-
-  padding: 3px 9px;
-
-  border-radius: var(--radius-full);
-
-  color: var(--text-secondary);
-  background: var(--bg-tertiary);
-
-  border: 1px solid var(--border);
-
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.badge-primary,
-.tag-primary {
-  color: var(--brand);
-  background:
-    color-mix(
-      in srgb,
-      var(--brand) 12%,
-      transparent
-    );
-
-  border-color:
-    color-mix(
-      in srgb,
-      var(--brand) 30%,
-      transparent
-    );
-}
-
-.badge-success {
-  color: var(--success);
-}
-
-.badge-warning {
-  color: var(--warning);
-}
-
-.badge-danger {
-  color: var(--danger);
-}
-
-
-/* ============================================================
-   17. TABLES
-   ============================================================ */
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-
-  color: var(--text-primary);
-
-  background: var(--surface);
-
-  border: 1px solid var(--border);
-
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-
-thead {
-  background: var(--bg-tertiary);
-}
-
-th {
-  color: var(--text-secondary);
-
-  font-size: 12px;
-  font-weight: 700;
-
-  text-align: left;
-
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-th,
-td {
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--border);
-}
-
-tbody tr {
-  transition: background var(--transition-fast);
-}
-
-tbody tr:hover {
-  background: var(--bg-hover);
-}
-
-tbody tr:last-child td {
-  border-bottom: 0;
-}
-
-
-/* ============================================================
-   18. MODALS / DIALOGS
-   ============================================================ */
-
-.modal,
-.dialog,
-[role="dialog"] {
-  color: var(--text-primary);
-}
-
-.modal-overlay,
-.dialog-overlay {
-  position: fixed;
-  inset: 0;
-
-  z-index: 9999;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 20px;
-
-  background: rgba(0, 0, 0, 0.65);
-
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
-.modal-content,
-.dialog-content {
-  width: min(100%, 720px);
-  max-height: calc(100vh - 40px);
-
-  overflow: auto;
-
-  padding: 24px;
-
-  color: var(--text-primary);
-  background: var(--bg-elevated);
-
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-xl);
-
-  box-shadow: var(--shadow-xl);
-}
-
-
-/* ============================================================
-   19. DROPDOWNS / POPOVERS
-   ============================================================ */
-
-.dropdown,
-.dropdown-menu,
-.popover,
-.menu,
-.context-menu {
-  color: var(--text-primary);
-
-  background: var(--bg-elevated);
-
-  border: 1px solid var(--border);
-
-  border-radius: var(--radius-md);
-
-  box-shadow: var(--shadow-lg);
-
-  backdrop-filter: blur(16px);
-}
-
-.dropdown-item,
-.menu-item,
-.context-menu-item {
-  color: var(--text-secondary);
-
-  padding: 8px 12px;
-
-  border-radius: var(--radius-sm);
-
-  transition:
-    background var(--transition-fast),
-    color var(--transition-fast);
-}
-
-.dropdown-item:hover,
-.menu-item:hover,
-.context-menu-item:hover {
-  color: var(--text-primary);
-  background: var(--bg-hover);
-}
-
-
-/* ============================================================
-   20. TOOLTIP
-   ============================================================ */
-
-.tooltip {
-  z-index: 10000;
-
-  padding: 6px 9px;
-
-  color: var(--text-primary);
-  background: var(--bg-elevated);
-
-  border: 1px solid var(--border);
-
-  border-radius: var(--radius-sm);
-
-  box-shadow: var(--shadow-md);
-
-  font-size: 12px;
-}
-
-
-/* ============================================================
-   21. ALERTS
-   ============================================================ */
-
-.alert,
-.notification,
-.toast {
-  padding: 12px 14px;
-
-  color: var(--text-secondary);
-
-  background: var(--surface);
-
-  border: 1px solid var(--border);
-
-  border-radius: var(--radius-md);
-
-  box-shadow: var(--shadow-md);
-}
-
-.alert-success {
-  border-color:
-    color-mix(
-      in srgb,
-      var(--success) 40%,
-      transparent
-    );
-}
-
-.alert-warning {
-  border-color:
-    color-mix(
-      in srgb,
-      var(--warning) 40%,
-      transparent
-    );
-}
-
-.alert-danger {
-  border-color:
-    color-mix(
-      in srgb,
-      var(--danger) 40%,
-      transparent
-    );
-}
-
-
-/* ============================================================
-   22. LOADING
-   ============================================================ */
-
-.loader,
-.spinner {
-  width: 28px;
-  height: 28px;
-
-  border: 3px solid var(--border);
-
-  border-top-color: var(--brand);
-
-  border-radius: 50%;
-
-  animation: devsync-spin 0.8s linear infinite;
-}
-
-@keyframes devsync-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-
-/* ============================================================
-   23. PROGRESS
-   ============================================================ */
-
-.progress {
-  width: 100%;
-  height: 8px;
-
-  overflow: hidden;
-
-  background: var(--bg-tertiary);
-
-  border-radius: var(--radius-full);
-}
-
-.progress-bar {
-  height: 100%;
-
-  background: var(--brand);
-
-  border-radius: inherit;
-
-  transition: width 300ms ease;
-}
-
-
-/* ============================================================
-   24. AVATARS
-   ============================================================ */
-
-.avatar {
-  display: inline-flex;
-
-  align-items: center;
-  justify-content: center;
-
-  width: 40px;
-  height: 40px;
-
-  overflow: hidden;
-
-  color: var(--text-primary);
-  background: var(--bg-tertiary);
-
-  border: 1px solid var(--border);
-
-  border-radius: 50%;
-
-  font-weight: 700;
-}
-
-.avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-
-/* ============================================================
-   25. DASHBOARD
-   ============================================================ */
-
-.dashboard-grid,
-.stats-grid,
-.cards-grid,
-.projects-grid,
-.tasks-grid,
-.teams-grid {
-  display: grid;
-
-  gap: var(--space-4);
-}
-
-.dashboard-grid {
-  grid-template-columns:
-    repeat(auto-fit, minmax(280px, 1fr));
-}
-
-.stats-grid {
-  grid-template-columns:
-    repeat(auto-fit, minmax(180px, 1fr));
-}
-
-.projects-grid,
-.tasks-grid,
-.teams-grid {
-  grid-template-columns:
-    repeat(auto-fit, minmax(260px, 1fr));
-}
-
-
-/* ============================================================
-   26. STAT CARDS
-   ============================================================ */
-
-.stat-card {
-  position: relative;
-  overflow: hidden;
-
-  padding: var(--space-5);
-}
-
-.stat-card::before {
-  content: "";
-
-  position: absolute;
-
-  inset: 0 0 auto 0;
-
-  height: 2px;
-
-  background: linear-gradient(
-    90deg,
-    var(--brand),
-    var(--accent)
-  );
-
-  opacity: 0.8;
-}
-
-
-/* ============================================================
-   27. PROJECT CARDS
-   ============================================================ */
-
-.project-card {
-  padding: var(--space-5);
-}
-
-.project-card h3 {
-  margin-bottom: 8px;
-}
-
-.project-card p {
-  color: var(--text-muted);
-}
-
-
-/* ============================================================
-   28. TASKS
-   ============================================================ */
-
-.task-card {
-  padding: var(--space-4);
-}
-
-.task-card.completed {
-  opacity: 0.65;
-}
-
-.task-card.completed .task-title {
-  text-decoration: line-through;
-}
-
-
-/* ============================================================
-   29. KANBAN
-   ============================================================ */
-
-.kanban-board {
-  display: grid;
-
-  grid-template-columns:
-    repeat(auto-fit, minmax(260px, 1fr));
-
-  gap: var(--space-4);
-
-  width: 100%;
-
-  overflow-x: auto;
-}
-
-.kanban-column {
-  min-height: 300px;
-
-  padding: var(--space-4);
-
-  background: var(--bg-secondary);
-
-  border: 1px solid var(--border);
-
-  border-radius: var(--radius-lg);
-}
-
-.kanban-column-header {
-  display: flex;
-
-  align-items: center;
-  justify-content: space-between;
-
-  margin-bottom: var(--space-4);
-}
-
-
-/* ============================================================
-   30. PROFILE
-   ============================================================ */
-
-.profile-header {
-  display: flex;
-
-  align-items: center;
-
-  gap: var(--space-4);
-
-  padding: var(--space-6);
-
-  background: var(--surface);
-
-  border: 1px solid var(--border);
-
-  border-radius: var(--radius-xl);
-}
-
-
-/* ============================================================
-   31. SETTINGS
-   ============================================================ */
-
-.settings-layout {
-  display: grid;
-
-  grid-template-columns:
-    220px minmax(0, 1fr);
-
-  gap: var(--space-6);
-}
-
-.settings-sidebar {
-  padding: var(--space-3);
-
-  background: var(--surface);
-
-  border: 1px solid var(--border);
-
-  border-radius: var(--radius-lg);
-}
-
-.settings-content {
-  min-width: 0;
-}
-
-
-/* ============================================================
-   32. CODE WORKSPACE
-   ============================================================ */
-
-.workspace,
-.code-workspace,
-.ide,
-.editor-layout {
-  color: var(--text-primary);
-  background: var(--bg-primary);
-}
-
-.workspace-sidebar,
-.file-explorer,
-.explorer {
-  color: var(--text-primary);
-
-  background: var(--bg-secondary);
-
-  border-color: var(--border);
-}
-
-.workspace-header,
-.editor-header,
-.workspace-toolbar {
-  color: var(--text-primary);
-
-  background: var(--bg-secondary);
-
-  border-bottom: 1px solid var(--border);
-}
-
-.editor {
-  color: var(--text-primary);
-  background: #080808;
-}
-
-.editor-tab,
-.file-tab {
-  color: var(--text-muted);
-
-  background: transparent;
-
-  border-right: 1px solid var(--border);
-
-  transition:
-    background var(--transition-fast),
-    color var(--transition-fast);
-}
-
-.editor-tab:hover,
-.file-tab:hover {
-  color: var(--text-primary);
-  background: var(--bg-hover);
-}
-
-.editor-tab.active,
-.file-tab.active {
-  color: var(--text-primary);
-  background: var(--bg-active);
-
-  border-top: 2px solid var(--brand);
-}
-
-
-/* ============================================================
-   33. TERMINAL
-   ============================================================ */
-
-.terminal,
-.terminal-container,
-.xterm {
-  color: #e5e7eb;
-
-  background: #050505;
-}
-
-.terminal-header {
-  color: var(--text-secondary);
-
-  background: var(--bg-secondary);
-
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-}
-
-
-/* Neon terminal */
-
-html[data-theme="neon"] .terminal,
-html[data-theme="neon"] .terminal-container,
-.theme-neon .terminal,
-.theme-neon .terminal-container {
-  box-shadow:
-    inset 0 0 30px rgba(0, 245, 255, 0.04);
-}
-
-
-/* ============================================================
-   34. CODE
-   ============================================================ */
-
-code,
-pre,
-kbd {
-  font-family: var(--font-mono);
-}
-
-code {
-  padding: 2px 5px;
-
-  color: var(--brand);
-
-  background: var(--bg-tertiary);
-
-  border-radius: 4px;
-}
-
-pre {
-  overflow: auto;
-
-  padding: var(--space-4);
-
-  color: var(--text-secondary);
-
-  background: var(--bg-secondary);
-
-  border: 1px solid var(--border);
-
-  border-radius: var(--radius-md);
-}
-
-kbd {
-  padding: 2px 6px;
-
-  color: var(--text-secondary);
-  background: var(--bg-tertiary);
-
-  border: 1px solid var(--border);
-
-  border-radius: 4px;
-
-  font-size: 11px;
-}
-
-
-/* ============================================================
-   35. SEARCH
-   ============================================================ */
-
-.search,
-.search-box {
-  position: relative;
-}
-
-.search input,
-.search-box input {
-  padding-left: 38px;
-}
-
-
-/* ============================================================
-   36. EMPTY STATES
-   ============================================================ */
-
-.empty-state,
-.no-data,
-.no-results {
-  display: flex;
-
-  flex-direction: column;
-
-  align-items: center;
-  justify-content: center;
-
-  min-height: 240px;
-
-  padding: var(--space-8);
-
-  color: var(--text-muted);
-
-  text-align: center;
-}
-
-.empty-state svg,
-.no-data svg,
-.no-results svg {
-  margin-bottom: var(--space-4);
-
-  color: var(--text-disabled);
-}
-
-
-/* ============================================================
-   37. LINKS
-   ============================================================ */
-
-.link {
-  color: var(--brand);
-
-  cursor: pointer;
-
-  transition: color var(--transition-fast);
-}
-
-.link:hover {
-  color: var(--brand-hover);
-  text-decoration: underline;
-}
-
-
-/* ============================================================
-   38. ICON BUTTONS
-   ============================================================ */
-
-.icon-button,
-.icon-btn {
-  display: inline-flex;
-
-  align-items: center;
-  justify-content: center;
-
-  width: 36px;
-  height: 36px;
-
-  padding: 0;
-
-  color: var(--text-secondary);
-
-  background: transparent;
-
-  border: 1px solid transparent;
-
-  border-radius: var(--radius-md);
-}
-
-.icon-button:hover,
-.icon-btn:hover {
-  color: var(--text-primary);
-
-  background: var(--bg-hover);
-
-  border-color: var(--border);
-}
-
-
-/* ============================================================
-   39. THEME SWITCHER
-   ============================================================ */
-
-.theme-switcher {
-  display: flex;
-
-  align-items: center;
-
-  gap: 6px;
-
-  padding: 4px;
-
-  background: var(--bg-tertiary);
-
-  border: 1px solid var(--border);
-
-  border-radius: var(--radius-lg);
-}
-
-.theme-switcher button {
-  min-height: 34px;
-
-  padding: 6px 10px;
-
-  border: 0;
-
-  background: transparent;
-}
-
-.theme-switcher button.active {
-  color: var(--text-inverse);
-  background: var(--brand);
-
-  box-shadow: var(--shadow-sm);
-}
-
-
-/* ============================================================
-   40. NEON MODE SPECIAL EFFECTS
-   ============================================================ */
-
-html[data-theme="neon"] body {
-  background:
-    radial-gradient(
-      circle at 10% 10%,
-      rgba(0, 245, 255, 0.08),
-      transparent 25%
-    ),
-    radial-gradient(
-      circle at 90% 20%,
-      rgba(255, 0, 229, 0.08),
-      transparent 25%
-    ),
-    radial-gradient(
-      circle at 50% 100%,
-      rgba(124, 58, 237, 0.08),
-      transparent 30%
-    ),
-    var(--bg-primary);
-}
-
-html[data-theme="neon"] .btn-primary,
-html[data-theme="neon"] button.primary {
-  box-shadow:
-    0 0 12px rgba(0, 245, 255, 0.35);
-}
-
-html[data-theme="neon"] .card,
-html[data-theme="neon"] .panel {
-  border-color: rgba(0, 245, 255, 0.15);
-}
-
-
-/* ============================================================
-   41. HIGH CONTRAST OVERRIDES
-   ============================================================ */
-
-html[data-theme="high-contrast"] *,
-.theme-high-contrast * {
-  text-shadow: none !important;
-}
-
-html[data-theme="high-contrast"] button,
-html[data-theme="high-contrast"] input,
-html[data-theme="high-contrast"] textarea,
-html[data-theme="high-contrast"] select,
-html[data-theme="high-contrast"] .card,
-html[data-theme="high-contrast"] .panel {
-  border-width: 2px;
-}
-
-html[data-theme="high-contrast"] a {
-  text-decoration: underline;
-}
-
-html[data-theme="high-contrast"] button:focus-visible,
-html[data-theme="high-contrast"] input:focus-visible,
-html[data-theme="high-contrast"] textarea:focus-visible,
-html[data-theme="high-contrast"] select:focus-visible {
-  outline: 3px solid var(--brand);
-  outline-offset: 3px;
-}
-
-
-/* ============================================================
-   42. LIGHT MODE EXTRA POLISH
-   ============================================================ */
-
-html[data-theme="light"] .navbar,
-html[data-theme="light"] .top-navbar,
-html[data-theme="light"] .sidebar {
-  background:
-    color-mix(
-      in srgb,
-      #ffffff 94%,
-      var(--brand) 6%
-    );
-}
-
-html[data-theme="light"] .card,
-html[data-theme="light"] .panel {
-  box-shadow:
-    0 2px 10px rgba(15, 23, 42, 0.06);
-}
-
-
-/* ============================================================
-   43. DARK MODE EXTRA POLISH
-   ============================================================ */
-
-html[data-theme="dark"] body,
-body.theme-dark {
-  background:
-    radial-gradient(
-      circle at top right,
-      rgba(99, 102, 241, 0.05),
-      transparent 30%
-    ),
-    var(--bg-primary);
-}
-
-
-/* ============================================================
-   44. DIVIDERS
-   ============================================================ */
-
-.divider {
-  width: 100%;
-  height: 1px;
-
-  background: var(--border);
-}
-
-.divider-vertical {
-  width: 1px;
-  height: 100%;
-
-  background: var(--border);
-}
-
-
-/* ============================================================
-   45. FLEX UTILITIES
-   ============================================================ */
-
-.flex {
-  display: flex;
-}
-
-.flex-column {
-  flex-direction: column;
-}
-
-.items-center {
-  align-items: center;
-}
-
-.items-start {
-  align-items: flex-start;
-}
-
-.items-end {
-  align-items: flex-end;
-}
-
-.justify-center {
-  justify-content: center;
-}
-
-.justify-between {
-  justify-content: space-between;
-}
-
-.justify-end {
-  justify-content: flex-end;
-}
-
-.flex-wrap {
-  flex-wrap: wrap;
-}
-
-.gap-1 {
-  gap: var(--space-1);
-}
-
-.gap-2 {
-  gap: var(--space-2);
-}
-
-.gap-3 {
-  gap: var(--space-3);
-}
-
-.gap-4 {
-  gap: var(--space-4);
-}
-
-.gap-6 {
-  gap: var(--space-6);
-}
-
-
-/* ============================================================
-   46. SPACING UTILITIES
-   ============================================================ */
-
-.p-2 {
-  padding: var(--space-2);
-}
-
-.p-3 {
-  padding: var(--space-3);
-}
-
-.p-4 {
-  padding: var(--space-4);
-}
-
-.p-6 {
-  padding: var(--space-6);
-}
-
-.p-8 {
-  padding: var(--space-8);
-}
-
-.m-0 {
-  margin: 0;
-}
-
-.mt-2 {
-  margin-top: var(--space-2);
-}
-
-.mt-4 {
-  margin-top: var(--space-4);
-}
-
-.mt-6 {
-  margin-top: var(--space-6);
-}
-
-.mb-2 {
-  margin-bottom: var(--space-2);
-}
-
-.mb-4 {
-  margin-bottom: var(--space-4);
-}
-
-.mb-6 {
-  margin-bottom: var(--space-6);
-}
-
-
-/* ============================================================
-   47. WIDTH / HEIGHT UTILITIES
-   ============================================================ */
-
-.w-full {
-  width: 100%;
-}
-
-.h-full {
-  height: 100%;
-}
-
-.min-h-screen {
-  min-height: 100vh;
-}
-
-
-/* ============================================================
-   48. OVERFLOW
-   ============================================================ */
-
-.overflow-hidden {
-  overflow: hidden;
-}
-
-.overflow-auto {
-  overflow: auto;
-}
-
-.overflow-x-auto {
-  overflow-x: auto;
-}
-
-.overflow-y-auto {
-  overflow-y: auto;
-}
-
-
-/* ============================================================
-   49. VISIBILITY
-   ============================================================ */
-
-.hidden {
-  display: none !important;
-}
-
-.visible {
-  visibility: visible;
-}
-
-
-/* ============================================================
-   50. SCROLLBAR — GLOBAL
+   SCROLLBAR
    ============================================================ */
 
 * {
   scrollbar-width: thin;
-
   scrollbar-color:
-    color-mix(
-      in srgb,
-      var(--brand) 50%,
-      transparent
-    )
+    rgba(100, 116, 139, 0.55)
     transparent;
 }
 
@@ -2060,55 +287,288 @@ body.theme-dark {
 }
 
 *::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
+  background: transparent;
 }
 
 *::-webkit-scrollbar-thumb {
-  background:
-    color-mix(
-      in srgb,
-      var(--brand) 45%,
-      var(--bg-tertiary)
-    );
-
-  border-radius: var(--radius-full);
-
-  border: 2px solid var(--bg-secondary);
+  background: rgba(100, 116, 139, 0.5);
+  border-radius: 999px;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background: var(--brand);
+  background: var(--ds-brand);
 }
 
 
 /* ============================================================
-   51. SELECTION
+   DARK MODE — OVERRIDE COMMON TAILWIND LIGHT SURFACES
    ============================================================ */
 
-::selection {
-  color: var(--text-inverse);
+html[data-theme="dark"] body,
+body[data-theme="dark"] {
+  background: #09090b;
+  color: #f8fafc;
+}
 
-  background:
-    color-mix(
-      in srgb,
-      var(--brand) 80%,
-      transparent
-    );
+html[data-theme="dark"] .bg-white {
+  background-color: #111113 !important;
+}
+
+html[data-theme="dark"] .bg-slate-50 {
+  background-color: #09090b !important;
+}
+
+html[data-theme="dark"] .bg-slate-100 {
+  background-color: #18181b !important;
+}
+
+html[data-theme="dark"] .border-slate-100,
+html[data-theme="dark"] .border-slate-200 {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html[data-theme="dark"] .text-slate-900 {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .text-slate-800 {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .text-slate-700 {
+  color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"] .text-slate-600 {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .text-slate-400 {
+  color: #64748b !important;
 }
 
 
 /* ============================================================
-   52. FOCUS ACCESSIBILITY
+   DARK MODE — HOVER
+   ============================================================ */
+
+html[data-theme="dark"] .hover\:bg-slate-50:hover {
+  background-color: #18181b !important;
+}
+
+html[data-theme="dark"] .hover\:bg-slate-100:hover {
+  background-color: #27272a !important;
+}
+
+html[data-theme="dark"] .hover\:text-slate-900:hover {
+  color: #ffffff !important;
+}
+
+
+/* ============================================================
+   DARK MODE — FORM INPUTS
+   ============================================================ */
+
+html[data-theme="dark"] input,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select {
+  color: #f8fafc;
+  background-color: #111113;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder {
+  color: #64748b;
+}
+
+
+/* ============================================================
+   NEON MODE
+   ============================================================ */
+
+html[data-theme="neon"] body {
+  background:
+    radial-gradient(
+      circle at 10% 10%,
+      rgba(0, 245, 255, 0.08),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 90% 20%,
+      rgba(255, 0, 229, 0.08),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 50% 100%,
+      rgba(124, 58, 237, 0.1),
+      transparent 35%
+    ),
+    #03030a;
+
+  color: #f5ffff;
+}
+
+
+/* Neon surfaces */
+
+html[data-theme="neon"] .bg-white {
+  background-color: #080816 !important;
+}
+
+html[data-theme="neon"] .bg-slate-50 {
+  background-color: #03030a !important;
+}
+
+html[data-theme="neon"] .bg-slate-100 {
+  background-color: #10102a !important;
+}
+
+
+/* Neon text */
+
+html[data-theme="neon"] .text-slate-900,
+html[data-theme="neon"] .text-slate-800 {
+  color: #f5ffff !important;
+}
+
+html[data-theme="neon"] .text-slate-700 {
+  color: #d9ffff !important;
+}
+
+html[data-theme="neon"] .text-slate-600 {
+  color: #b5e9ef !important;
+}
+
+html[data-theme="neon"] .text-slate-500 {
+  color: #82b9c2 !important;
+}
+
+html[data-theme="neon"] .text-slate-400 {
+  color: #47727b !important;
+}
+
+
+/* Neon borders */
+
+html[data-theme="neon"] .border-slate-100,
+html[data-theme="neon"] .border-slate-200 {
+  border-color: rgba(0, 245, 255, 0.15) !important;
+}
+
+
+/* Neon cards */
+
+html[data-theme="neon"] .shadow-sm,
+html[data-theme="neon"] .shadow-md,
+html[data-theme="neon"] .shadow-lg,
+html[data-theme="neon"] .shadow-xl {
+  box-shadow:
+    0 0 20px rgba(0, 245, 255, 0.08),
+    0 0 40px rgba(255, 0, 229, 0.04) !important;
+}
+
+
+/* Neon blue */
+
+html[data-theme="neon"] .bg-blue-600 {
+  background-color: #00d9ff !important;
+}
+
+html[data-theme="neon"] .text-blue-600 {
+  color: #00f5ff !important;
+}
+
+html[data-theme="neon"] .text-blue-700 {
+  color: #67f9ff !important;
+}
+
+html[data-theme="neon"] .border-blue-200 {
+  border-color: rgba(0, 245, 255, 0.35) !important;
+}
+
+
+/* ============================================================
+   HIGH CONTRAST
+   ============================================================ */
+
+html[data-theme="high-contrast"] body {
+  background: #000000;
+  color: #ffffff;
+}
+
+html[data-theme="high-contrast"] .bg-white,
+html[data-theme="high-contrast"] .bg-slate-50,
+html[data-theme="high-contrast"] .bg-slate-100 {
+  background-color: #000000 !important;
+}
+
+html[data-theme="high-contrast"] .text-slate-900,
+html[data-theme="high-contrast"] .text-slate-800,
+html[data-theme="high-contrast"] .text-slate-700,
+html[data-theme="high-contrast"] .text-slate-600,
+html[data-theme="high-contrast"] .text-slate-500,
+html[data-theme="high-contrast"] .text-slate-400 {
+  color: #ffffff !important;
+}
+
+html[data-theme="high-contrast"] .border-slate-100,
+html[data-theme="high-contrast"] .border-slate-200 {
+  border-color: #ffffff !important;
+}
+
+html[data-theme="high-contrast"] button,
+html[data-theme="high-contrast"] input,
+html[data-theme="high-contrast"] textarea,
+html[data-theme="high-contrast"] select {
+  border-width: 2px;
+}
+
+html[data-theme="high-contrast"] :focus-visible {
+  outline: 3px solid #ffff00;
+  outline-offset: 3px;
+}
+
+
+/* ============================================================
+   THEME TRANSITIONS
+   ============================================================ */
+
+body,
+header,
+aside,
+main,
+section,
+article,
+button,
+input,
+textarea,
+select,
+nav,
+div {
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease;
+}
+
+
+/* ============================================================
+   ACCESSIBILITY
    ============================================================ */
 
 :focus-visible {
-  outline: 2px solid var(--brand);
+  outline: 2px solid var(--ds-brand);
   outline-offset: 2px;
 }
 
 
 /* ============================================================
-   53. REDUCED MOTION
+   REDUCED MOTION
    ============================================================ */
 
 @media (prefers-reduced-motion: reduce) {
@@ -2116,154 +576,32 @@ body.theme-dark {
   *::before,
   *::after {
     scroll-behavior: auto !important;
-
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-
     transition-duration: 0.01ms !important;
   }
 }
 
 
 /* ============================================================
-   54. RESPONSIVE — TABLET
+   MOBILE SAFETY
    ============================================================ */
 
-@media (max-width: 1024px) {
-  :root {
-    --sidebar-width: 220px;
-  }
-
-  .settings-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .dashboard-grid {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
-  }
+html,
+body,
+#root {
+  overflow-x: hidden;
 }
 
 
 /* ============================================================
-   55. RESPONSIVE — MOBILE
-   ============================================================ */
-
-@media (max-width: 768px) {
-  body {
-    font-size: 13px;
-  }
-
-  .page-container {
-    padding: var(--space-4);
-  }
-
-  .container {
-    width: min(100% - 24px, var(--max-content-width));
-  }
-
-  .dashboard-grid,
-  .stats-grid,
-  .projects-grid,
-  .tasks-grid,
-  .teams-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .settings-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .profile-header {
-    flex-direction: column;
-
-    align-items: flex-start;
-  }
-
-  .kanban-board {
-    grid-template-columns:
-      repeat(4, minmax(250px, 1fr));
-
-    overflow-x: auto;
-  }
-
-  .modal-content,
-  .dialog-content {
-    width: 100%;
-    padding: 18px;
-  }
-
-  table {
-    min-width: 650px;
-  }
-}
-
-
-/* ============================================================
-   56. RESPONSIVE — SMALL MOBILE
-   ============================================================ */
-
-@media (max-width: 480px) {
-  .page-container {
-    padding: 12px;
-  }
-
-  h1 {
-    font-size: 28px;
-  }
-
-  h2 {
-    font-size: 23px;
-  }
-
-  h3 {
-    font-size: 19px;
-  }
-
-  button,
-  .btn,
-  .button {
-    min-height: 36px;
-    padding: 7px 11px;
-  }
-
-  .card,
-  .panel {
-    border-radius: var(--radius-md);
-  }
-}
-
-
-/* ============================================================
-   57. PRINT
+   PRINT
    ============================================================ */
 
 @media print {
-  *,
-  *::before,
-  *::after {
-    color: #000 !important;
-    background: #fff !important;
+  * {
+    background: white !important;
+    color: black !important;
     box-shadow: none !important;
-    text-shadow: none !important;
-  }
-
-  button,
-  nav,
-  aside,
-  .sidebar,
-  .navbar,
-  .top-navbar {
-    display: none !important;
-  }
-
-  body,
-  #root {
-    min-height: auto;
   }
 }
-
-
-/* ============================================================
-   END DEVSYNC GLOBAL CSS
-   ============================================================ */
