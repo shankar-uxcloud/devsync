@@ -41,72 +41,23 @@ import "@xterm/xterm/css/xterm.css";
   - No external editor dependency required
 */
 
-const starterFiles = [
-  {
-    name: "App.jsx",
-    language: "JavaScript",
-    code: `function calculateTotal(price, quantity) {
-  return price * quantity;
-}
-
-const total = calculateTotal(100, 3);
-console.log(total);`,
-  },
-  {
-    name: "api.js",
-    language: "JavaScript",
-    code: `async function getUsers() {
-  const response = await fetch("/api/users");
-  const data = await response.json();
-
-  return data;
-}`,
-  },
-  {
-    name: "utils.js",
-    language: "JavaScript",
-    code: `export function formatName(firstName, lastName) {
-  return firstName + " " + lastName;
-}`,
-  },
-  {
-    name: "README.md",
-    language: "Markdown",
-    code: `# DevSync
-
-AI-powered developer collaboration workspace.
-
-## Features
-
-- Project collaboration
-- AI code assistance
-- Tasks and activity
-- Shared project files`,
-  },
-  {
-    name: "package.json",
-    language: "JSON",
-    code: `{
-  "name": "devsync-demo",
-  "version": "1.0.0",
-  "scripts": {
-    "dev": "vite"
-  }
-}`,
-  },
-];
+const API_BASE =
+  import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const aiWelcome = {
   role: "ai",
-  text: "Hi! I'm DevSync AI. I can understand the code currently open in your workspace. Ask me to explain, debug, review, improve, secure, or optimize it.",
+  text: "Hi! I'm DevSync AI. I can understand the real file currently open in your workspace. Ask me to explain, debug, review, improve, secure, or optimize it.",
 };
 
 function CodeWorkspace() {
   const navigate = useNavigate();
 
-  const [files, setFiles] = useState(starterFiles);
-  const [activeFile, setActiveFile] = useState("App.jsx");
-  const [code, setCode] = useState(starterFiles[0].code);
+  const [files, setFiles] = useState([]);
+  const [workspaceTree, setWorkspaceTree] = useState(null);
+  const [workspaceLoading, setWorkspaceLoading] = useState(true);
+  const [workspaceError, setWorkspaceError] = useState("");
+  const [activeFile, setActiveFile] = useState("");
+  const [code, setCode] = useState("");
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState([aiWelcome]);
   const [analysis, setAnalysis] = useState(null);
@@ -139,6 +90,7 @@ function CodeWorkspace() {
   const [copied, setCopied] = useState(false);
   const [saved, setSaved] = useState(false);
   const [terminalLinkPopup, setTerminalLinkPopup] = useState(null);
+  const [openFolders, setOpenFolders] = useState({});
 
   const activeTerminal = terminalSessions.find(
     (session) => session.id === activeTerminalId
@@ -616,33 +568,107 @@ function CodeWorkspace() {
   }, []);
 
   const currentFile = useMemo(
-    () => files.find((file) => file.name === activeFile),
+    () => files.find((file) => file.path === activeFile),
     [files, activeFile]
   );
 
   const filteredFiles = useMemo(() => {
     const query = search.trim().toLowerCase();
+
     if (!query) return files;
+
     return files.filter((file) =>
-      file.name.toLowerCase().includes(query)
+      file.path.toLowerCase().includes(query)
     );
   }, [files, search]);
 
+  const flattenTree = (node, result = []) => {
+    if (!node) return result;
+
+    if (node.type === "file") {
+      result.push(node);
+      return result;
+    }
+
+    (node.children || []).forEach((child) =>
+      flattenTree(child, result)
+    );
+
+    return result;
+  };
+
+  const loadWorkspace = async (preferredPath = "") => {
+    try {
+      setWorkspaceLoading(true);
+      setWorkspaceError("");
+
+      const response = await fetch(`${API_BASE}/api/workspace/tree`);
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Unable to load workspace.");
+      }
+
+      const allFiles = flattenTree(data.root, []);
+
+      setWorkspaceTree(data.root);
+      setFiles(allFiles);
+
+      const firstFile =
+        allFiles.find((file) => file.path === preferredPath) ||
+        allFiles[0];
+
+      if (firstFile) {
+        setActiveFile(firstFile.path);
+        await loadWorkspaceFile(firstFile.path);
+      } else {
+        setActiveFile("");
+        setCode("");
+      }
+    } catch (error) {
+      console.error("DevSync workspace load failed:", error);
+      setWorkspaceError(error.message || "Unable to load workspace.");
+    } finally {
+      setWorkspaceLoading(false);
+    }
+  };
+
+  const loadWorkspaceFile = async (filePath) => {
+    if (!filePath) return;
+
+    try {
+      const response = await fetch(
+        `${API_BASE}/api/workspace/file?path=${encodeURIComponent(filePath)}`
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Unable to open file.");
+      }
+
+      setActiveFile(data.path);
+      setCode(data.code);
+      setAnalysis(null);
+      setSaved(true);
+    } catch (error) {
+      console.error("DevSync file load failed:", error);
+      setWorkspaceError(error.message || "Unable to open file.");
+    }
+  };
+
+  useEffect(() => {
+    loadWorkspace();
+  }, []);
+
   const openFile = (file) => {
-    setActiveFile(file.name);
-    setCode(file.code);
-    setAnalysis(null);
-    setSaved(false);
+    if (!file || file.type === "folder") return;
+    loadWorkspaceFile(file.path);
   };
 
   const updateCode = (value) => {
     setCode(value);
     setSaved(false);
-    setFiles((current) =>
-      current.map((file) =>
-        file.name === activeFile ? { ...file, code: value } : file
-      )
-    );
   };
 
   const sendTerminalInput = (input) => {
@@ -651,22 +677,21 @@ function CodeWorkspace() {
     socket.emit("terminal:input", input);
   };
 
-  const saveCode = () => {
-    setFiles((current) =>
-      current.map((file) =>
-        file.name === activeFile ? { ...file, code } : file
-      )
-    );
-
-    setSaved(true);
-    addTerminal(`✓ Saved ${activeFile}`);
-    setTimeout(() => setSaved(false), 1800);
-  };
-
   const runCode = () => {
+    if (!activeFile) return;
+
     setShowTerminal(true);
     setTerminalTab("TERMINAL");
-    sendTerminalInput(`node "${activeFile}"\r`);
+
+    const extension = activeFile.split(".").pop().toLowerCase();
+
+    if (extension === "js" || extension === "mjs" || extension === "cjs") {
+      sendTerminalInput(`node "${activeFile}"\r`);
+    } else if (extension === "py") {
+      sendTerminalInput(`python "${activeFile}"\r`);
+    } else {
+      addTerminal(`Run is not configured for .${extension} files yet.`);
+    }
   };
 
   const addTerminal = (line) => {
@@ -836,66 +861,154 @@ function CodeWorkspace() {
     ]);
   };
 
-  const createFile = () => {
-    const name = newFileName.trim();
-    if (!name) return;
-
-    if (files.some((file) => file.name === name)) {
-      addTerminal(`Ã¢Å“â€” ${name} already exists.`);
-      return;
-    }
-
+  const getLanguageForFile = (name) => {
     const extension = name.split(".").pop().toLowerCase();
 
-    const language =
-      extension === "py"
-        ? "Python"
-        : extension === "java"
-        ? "Java"
-        : extension === "html"
-        ? "HTML"
-        : extension === "css"
-        ? "CSS"
-        : extension === "json"
-        ? "JSON"
-        : extension === "md"
-        ? "Markdown"
-        : "JavaScript";
-
-    const newFile = {
-      name,
-      language,
-      code:
-        language === "Python"
-          ? `def hello():\n    print("Hello from DevSync")\n\nhello()`
-          : language === "Java"
-          ? `public class Main {\n  public static void main(String[] args) {\n    System.out.println("Hello from DevSync");\n  }\n}`
-          : "",
+    const map = {
+      py: "Python",
+      java: "Java",
+      html: "HTML",
+      css: "CSS",
+      json: "JSON",
+      md: "Markdown",
+      ts: "TypeScript",
+      tsx: "TypeScript React",
+      jsx: "JavaScript React",
+      js: "JavaScript",
+      sql: "SQL",
+      ps1: "PowerShell",
     };
 
-    setFiles((current) => [...current, newFile]);
-    setNewFileName("");
-    setShowNewFile(false);
-    openFile(newFile);
-    addTerminal(`✓ Created ${name}`);
+    return map[extension] || "Plain Text";
   };
 
-  const deleteCurrentFile = () => {
-    if (files.length <= 1) {
-      addTerminal("Ã¢Å“â€” Workspace must contain at least one file.");
+  const saveCode = async () => {
+    if (!activeFile) return;
+
+    try {
+      const response = await fetch(`${API_BASE}/api/workspace/file`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          path: activeFile,
+          code,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Unable to save file.");
+      }
+
+      setSaved(true);
+      setWorkspaceError("");
+      addTerminal(`✓ Saved ${activeFile}`);
+
+      await loadWorkspace(activeFile);
+
+      setTimeout(() => setSaved(false), 1800);
+    } catch (error) {
+      console.error("DevSync save failed:", error);
+      setSaved(false);
+      setWorkspaceError(error.message || "Unable to save file.");
+      addTerminal(`✗ Save failed: ${error.message}`);
+    }
+  };
+
+  const createFile = async () => {
+    const name = newFileName.trim();
+
+    if (!name) return;
+
+    if (
+      name.includes("..") ||
+      name.startsWith("/") ||
+      name.startsWith("\\")
+    ) {
+      addTerminal("✗ Invalid file path.");
       return;
     }
 
-    const index = files.findIndex((file) => file.name === activeFile);
-    const remaining = files.filter((file) => file.name !== activeFile);
+    try {
+      const extension = name.split(".").pop().toLowerCase();
 
-    setFiles(remaining);
+      const starterCode =
+        extension === "py"
+          ? 'print("Hello from DevSync")\n'
+          : extension === "java"
+          ? `public class Main {\n  public static void main(String[] args) {\n    System.out.println("Hello from DevSync");\n  }\n}\n`
+          : extension === "json"
+          ? "{\n  \n}\n"
+          : "";
 
-    const next = remaining[Math.max(0, index - 1)];
-    setActiveFile(next.name);
-    setCode(next.code);
-    setAnalysis(null);
-    addTerminal(`✓ Deleted ${activeFile}`);
+      const response = await fetch(`${API_BASE}/api/workspace/file`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          path: name.replace(/\\/g, "/"),
+          code: starterCode,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Unable to create file.");
+      }
+
+      setNewFileName("");
+      setShowNewFile(false);
+
+      await loadWorkspace(data.path);
+
+      addTerminal(`✓ Created ${data.path}`);
+    } catch (error) {
+      console.error("DevSync create file failed:", error);
+      addTerminal(`✗ Create failed: ${error.message}`);
+    }
+  };
+
+  const deleteCurrentFile = async () => {
+    if (!activeFile) return;
+
+    const confirmed = window.confirm(
+      `Delete ${activeFile} from the real workspace?`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const response = await fetch(
+        `${API_BASE}/api/workspace/file?path=${encodeURIComponent(activeFile)}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Unable to delete file.");
+      }
+
+      addTerminal(`✓ Deleted ${activeFile}`);
+      await loadWorkspace();
+    } catch (error) {
+      console.error("DevSync delete file failed:", error);
+      addTerminal(`✗ Delete failed: ${error.message}`);
+    }
+  };
+
+  const toggleFolder = (folderPath) => {
+    setOpenFolders((current) => ({
+      ...current,
+      [folderPath]: !current[folderPath],
+    }));
   };
 
   const copyCode = async () => {
@@ -977,7 +1090,6 @@ function CodeWorkspace() {
         {/* EXPLORER */}
         {showExplorer && (
           <aside className="hidden w-60 shrink-0 flex-col border-r border-slate-800 bg-[#0d1218] md:flex">
-
             <div className="flex h-11 items-center justify-between border-b border-slate-800 px-3">
               <span className="text-[10px] font-black tracking-widest text-slate-500">
                 EXPLORER
@@ -987,15 +1099,16 @@ function CodeWorkspace() {
                 <button
                   onClick={() => setShowNewFile(true)}
                   className="flex h-7 w-7 items-center justify-center rounded text-slate-500 hover:bg-slate-800 hover:text-white"
-                  title="New file"
+                  title="Create real file"
                 >
                   <FaPlus className="text-[10px]" />
                 </button>
 
                 <button
                   onClick={deleteCurrentFile}
-                  className="flex h-7 w-7 items-center justify-center rounded text-slate-500 hover:bg-red-500/10 hover:text-red-400"
-                  title="Delete current file"
+                  disabled={!activeFile}
+                  className="flex h-7 w-7 items-center justify-center rounded text-slate-500 hover:bg-red-500/10 hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-30"
+                  title="Delete current real file"
                 >
                   <FaTrash className="text-[10px]" />
                 </button>
@@ -1008,52 +1121,66 @@ function CodeWorkspace() {
                 <input
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Search files..."
+                  placeholder="Search real files..."
                   className="w-full rounded-md border border-slate-800 bg-[#080b0f] py-2 pl-8 pr-2 text-[10px] text-slate-300 outline-none focus:border-blue-500"
                 />
               </div>
             </div>
 
             <div className="min-h-0 flex-1 overflow-y-auto p-2">
-
-              <div className="mb-2 flex items-center gap-2 px-2 py-1 text-[10px] font-black text-slate-400">
-                <FaChevronDown className="text-[8px]" />
-                <FaFolder className="text-yellow-500" />
-                DEVSYNC
-              </div>
-
-              <div className="space-y-0.5">
-                {filteredFiles.map((file) => (
+              {workspaceLoading ? (
+                <div className="px-2 py-4 text-[10px] text-slate-600">
+                  Loading real workspace...
+                </div>
+              ) : workspaceError ? (
+                <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-3 text-[10px] text-red-300">
+                  <p className="font-bold">Workspace error</p>
+                  <p className="mt-1 text-red-400/70">{workspaceError}</p>
                   <button
-                    key={file.name}
-                    onClick={() => openFile(file)}
-                    className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-[11px] transition ${
-                      activeFile === file.name
-                        ? "bg-blue-500/10 text-blue-300"
-                        : "text-slate-500 hover:bg-slate-800/60 hover:text-slate-300"
-                    }`}
+                    onClick={() => loadWorkspace(activeFile)}
+                    className="mt-2 rounded bg-slate-800 px-2 py-1 text-[9px] text-slate-300 hover:bg-slate-700"
                   >
-                    <FaFile
-                      className={
-                        file.name.endsWith(".jsx") ||
-                        file.name.endsWith(".js")
-                          ? "text-yellow-400"
-                          : file.name.endsWith(".json")
-                          ? "text-orange-400"
-                          : "text-slate-600"
-                      }
-                    />
-                    <span className="truncate">{file.name}</span>
+                    Retry
                   </button>
-                ))}
-              </div>
+                </div>
+              ) : search.trim() ? (
+                <div className="space-y-0.5">
+                  {filteredFiles.map((file) => (
+                    <button
+                      key={file.path}
+                      onClick={() => openFile(file)}
+                      className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-[10px] transition ${
+                        activeFile === file.path
+                          ? "bg-blue-500/10 text-blue-300"
+                          : "text-slate-500 hover:bg-slate-800/60 hover:text-slate-300"
+                      }`}
+                    >
+                      <FaFile className="shrink-0 text-yellow-400" />
+                      <span className="truncate">{file.path}</span>
+                    </button>
+                  ))}
 
+                  {filteredFiles.length === 0 && (
+                    <p className="px-2 py-4 text-[10px] text-slate-600">
+                      No matching files.
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <WorkspaceTreeNode
+                  node={workspaceTree}
+                  activeFile={activeFile}
+                  openFolders={openFolders}
+                  onToggleFolder={toggleFolder}
+                  onOpenFile={openFile}
+                />
+              )}
             </div>
 
             {showNewFile && (
               <div className="border-t border-slate-800 bg-[#11161d] p-3">
                 <p className="mb-2 text-[10px] font-black text-slate-400">
-                  NEW FILE
+                  CREATE REAL FILE
                 </p>
 
                 <input
@@ -1064,9 +1191,13 @@ function CodeWorkspace() {
                     if (event.key === "Enter") createFile();
                     if (event.key === "Escape") setShowNewFile(false);
                   }}
-                  placeholder="example.js"
+                  placeholder="server/test.js or notes.md"
                   className="w-full rounded-md border border-slate-700 bg-black px-3 py-2 text-[10px] text-white outline-none focus:border-blue-500"
                 />
+
+                <p className="mt-1 text-[8px] text-slate-600">
+                  Path is relative to the DevSync project root.
+                </p>
 
                 <div className="mt-2 flex gap-2">
                   <button
@@ -1085,7 +1216,6 @@ function CodeWorkspace() {
                 </div>
               </div>
             )}
-
           </aside>
         )}
 
@@ -1681,6 +1811,85 @@ function CodeWorkspace() {
 
       </div>
 
+    </div>
+  );
+}
+
+function WorkspaceTreeNode({
+  node,
+  activeFile,
+  openFolders,
+  onToggleFolder,
+  onOpenFile,
+  depth = 0,
+}) {
+  if (!node) return null;
+
+  if (node.type === "file") {
+    return (
+      <button
+        onClick={() => onOpenFile(node)}
+        className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[10px] transition ${
+          activeFile === node.path
+            ? "bg-blue-500/10 text-blue-300"
+            : "text-slate-500 hover:bg-slate-800/60 hover:text-slate-300"
+        }`}
+        style={{ paddingLeft: `${8 + depth * 12}px` }}
+        title={node.path}
+      >
+        <FaFile
+          className={
+            node.name.endsWith(".jsx") ||
+            node.name.endsWith(".js") ||
+            node.name.endsWith(".ts") ||
+            node.name.endsWith(".tsx")
+              ? "shrink-0 text-yellow-400"
+              : node.name.endsWith(".json")
+              ? "shrink-0 text-orange-400"
+              : "shrink-0 text-slate-600"
+          }
+        />
+        <span className="truncate">{node.name}</span>
+      </button>
+    );
+  }
+
+  const isOpen = depth === 0 || openFolders[node.path];
+
+  return (
+    <div>
+      <button
+        onClick={() => depth > 0 && onToggleFolder(node.path)}
+        className="flex w-full items-center gap-2 rounded-md py-1.5 text-left text-[10px] font-bold text-slate-400 hover:bg-slate-800/60 hover:text-slate-200"
+        style={{ paddingLeft: `${6 + depth * 12}px` }}
+        title={node.path || "Workspace root"}
+      >
+        <FaChevronDown
+          className={`text-[7px] transition-transform ${
+            isOpen ? "" : "-rotate-90"
+          }`}
+        />
+        <FaFolder className="text-yellow-500" />
+        <span className="truncate">
+          {depth === 0 ? "DEVSYNC-MAIN" : node.name}
+        </span>
+      </button>
+
+      {isOpen && (
+        <div>
+          {(node.children || []).map((child) => (
+            <WorkspaceTreeNode
+              key={child.path}
+              node={child}
+              activeFile={activeFile}
+              openFolders={openFolders}
+              onToggleFolder={onToggleFolder}
+              onOpenFile={onOpenFile}
+              depth={depth + 1}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
