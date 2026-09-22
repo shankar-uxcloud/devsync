@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   FiActivity,
@@ -7,11 +7,9 @@ import {
   FiArrowRight,
   FiBell,
   FiCheck,
-  FiCheckSquare,
   FiChevronDown,
   FiChevronRight,
   FiClock,
-  FiCode,
   FiEye,
   FiGlobe,
   FiGrid,
@@ -19,72 +17,23 @@ import {
   FiKey,
   FiLayout,
   FiLock,
-  FiMail,
   FiMonitor,
   FiMoon,
   FiRefreshCw,
   FiSave,
   FiSettings,
   FiShield,
-  FiSliders,
   FiSun,
   FiTerminal,
   FiTrash2,
-  FiUser,
   FiUsers,
-  FiX,
   FiZap,
 } from "react-icons/fi";
 
-const DEFAULT_SETTINGS = {
-  appearance: "light",
-  compactMode: false,
-  animations: true,
-  emailNotifications: true,
-  taskNotifications: true,
-  chatNotifications: true,
-  activityNotifications: false,
-  weeklyDigest: true,
-  profileVisibility: "Everyone",
-  activityVisibility: "Team members",
-  showOnlineStatus: true,
-  language: "English",
-  timezone: "Asia/Kolkata",
-  twoFactor: true,
-};
-
-const NAV_ITEMS = [
-  {
-    id: "appearance",
-    label: "Appearance",
-    description: "Customize your workspace experience",
-    icon: FiSun,
-  },
-  {
-    id: "notifications",
-    label: "Notifications",
-    description: "Control how DevSync keeps you updated",
-    icon: FiBell,
-  },
-  {
-    id: "privacy",
-    label: "Privacy",
-    description: "Manage visibility and presence",
-    icon: FiShield,
-  },
-  {
-    id: "workspace",
-    label: "Workspace",
-    description: "Language, timezone and interface",
-    icon: FiLayout,
-  },
-  {
-    id: "security",
-    label: "Security",
-    description: "Account protection and sessions",
-    icon: FiLock,
-  },
-];
+/* =========================================================
+   DEVSYNC THEME SYSTEM
+   Must stay synchronized with DemoLayout.jsx
+========================================================= */
 
 const THEMES = [
   {
@@ -92,23 +41,131 @@ const THEMES = [
     name: "Light",
     description: "Clean, bright and professional",
     icon: FiSun,
-    preview: "bg-white",
+    preview:
+      "bg-white",
+    accent: "bg-blue-600",
   },
   {
     id: "dark",
     name: "Dark",
-    description: "Focused experience for developers",
+    description: "Focused developer workspace",
     icon: FiMoon,
-    preview: "bg-slate-950",
+    preview:
+      "bg-gradient-to-br from-zinc-950 via-zinc-900 to-indigo-950",
+    accent: "bg-indigo-500",
+  },
+  {
+    id: "midnight",
+    name: "Midnight",
+    description: "Deep blue with cool contrast",
+    icon: FiMoon,
+    preview:
+      "bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900",
+    accent: "bg-sky-400",
   },
   {
     id: "neon",
     name: "Neon",
-    description: "High-energy developer workspace",
+    description: "Cyan, violet and electric glow",
     icon: FiZap,
-    preview: "bg-gradient-to-br from-slate-950 via-violet-950 to-cyan-950",
+    preview:
+      "bg-gradient-to-br from-black via-violet-950 to-cyan-950",
+    accent: "bg-cyan-400",
+  },
+  {
+    id: "cyberpunk",
+    name: "Cyberpunk",
+    description: "Magenta, yellow and sci-fi energy",
+    icon: FiTerminal,
+    preview:
+      "bg-gradient-to-br from-black via-fuchsia-950 to-yellow-950",
+    accent: "bg-fuchsia-500",
+  },
+  {
+    id: "highContrast",
+    name: "High Contrast",
+    description: "Maximum clarity and accessibility",
+    icon: FiEye,
+    preview:
+      "bg-black",
+    accent: "bg-yellow-300",
   },
 ];
+
+const STORAGE_KEY = "devsync-demo-theme";
+
+const DEFAULT_SETTINGS = {
+  appearance: "light",
+  compactMode: false,
+  animations: true,
+
+  emailNotifications: true,
+  taskNotifications: true,
+  chatNotifications: true,
+  activityNotifications: false,
+  weeklyDigest: true,
+
+  profileVisibility: "Everyone",
+  activityVisibility: "Team members",
+  showOnlineStatus: true,
+
+  language: "English",
+  timezone: "Asia/Kolkata",
+
+  twoFactor: true,
+};
+
+/* =========================================================
+   THEME HELPERS
+========================================================= */
+
+function getSavedTheme() {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+
+    if (
+      stored &&
+      THEMES.some((theme) => theme.id === stored)
+    ) {
+      return stored;
+    }
+  } catch {
+    // Ignore storage errors.
+  }
+
+  return "light";
+}
+
+function applyTheme(themeId) {
+  const validTheme = THEMES.some(
+    (theme) => theme.id === themeId
+  )
+    ? themeId
+    : "light";
+
+  const root = document.documentElement;
+  const body = document.body;
+
+  root.dataset.theme = validTheme;
+  root.dataset.demoTheme = validTheme;
+
+  body.dataset.theme = validTheme;
+
+  try {
+    localStorage.setItem(
+      STORAGE_KEY,
+      validTheme
+    );
+  } catch {
+    // Ignore storage errors.
+  }
+
+  return validTheme;
+}
+
+/* =========================================================
+   TOGGLE
+========================================================= */
 
 function Toggle({ enabled, onChange }) {
   return (
@@ -117,17 +174,25 @@ function Toggle({ enabled, onChange }) {
       onClick={() => onChange(!enabled)}
       aria-pressed={enabled}
       className={`relative h-6 w-11 shrink-0 rounded-full transition-all duration-200 ${
-        enabled ? "bg-slate-950" : "bg-slate-200"
+        enabled
+          ? "bg-slate-950"
+          : "bg-slate-200"
       }`}
     >
       <span
         className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 ${
-          enabled ? "translate-x-6" : "translate-x-1"
+          enabled
+            ? "translate-x-6"
+            : "translate-x-1"
         }`}
       />
     </button>
   );
 }
+
+/* =========================================================
+   SETTING ROW
+========================================================= */
 
 function SettingRow({
   icon: Icon,
@@ -158,7 +223,9 @@ function SettingRow({
         <div className="min-w-0">
           <p
             className={`text-xs font-black ${
-              danger ? "text-red-700" : "text-slate-800"
+              danger
+                ? "text-red-700"
+                : "text-slate-800"
             }`}
           >
             {title}
@@ -170,12 +237,22 @@ function SettingRow({
         </div>
       </div>
 
-      <div className="shrink-0">{children}</div>
+      <div className="shrink-0">
+        {children}
+      </div>
     </div>
   );
 }
 
-function SectionHeader({ eyebrow, title, description }) {
+/* =========================================================
+   SECTION HEADER
+========================================================= */
+
+function SectionHeader({
+  eyebrow,
+  title,
+  description,
+}) {
   return (
     <div className="mb-6">
       <p className="text-[9px] font-black uppercase tracking-[0.2em] text-blue-600">
@@ -193,16 +270,29 @@ function SectionHeader({ eyebrow, title, description }) {
   );
 }
 
-function SelectField({ value, onChange, options }) {
+/* =========================================================
+   SELECT FIELD
+========================================================= */
+
+function SelectField({
+  value,
+  onChange,
+  options,
+}) {
   return (
     <div className="relative">
       <select
         value={value}
-        onChange={(event) => onChange(event.target.value)}
+        onChange={(event) =>
+          onChange(event.target.value)
+        }
         className="appearance-none rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 pr-9 text-xs font-bold text-slate-700 outline-none transition focus:border-blue-300 focus:ring-4 focus:ring-blue-50"
       >
         {options.map((option) => (
-          <option key={option} value={option}>
+          <option
+            key={option}
+            value={option}
+          >
             {option}
           </option>
         ))}
@@ -216,7 +306,15 @@ function SelectField({ value, onChange, options }) {
   );
 }
 
-function ThemeCard({ theme, active, onSelect }) {
+/* =========================================================
+   THEME CARD
+========================================================= */
+
+function ThemeCard({
+  theme,
+  active,
+  onSelect,
+}) {
   const Icon = theme.icon;
 
   return (
@@ -229,7 +327,11 @@ function ThemeCard({ theme, active, onSelect }) {
           : "border-slate-200 bg-white hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
       }`}
     >
-      <div className={`h-24 ${theme.preview} relative overflow-hidden`}>
+      {/* Preview */}
+
+      <div
+        className={`relative h-28 overflow-hidden ${theme.preview}`}
+      >
         {theme.id === "light" && (
           <>
             <div className="absolute left-4 top-4 h-3 w-20 rounded-full bg-slate-200" />
@@ -240,26 +342,54 @@ function ThemeCard({ theme, active, onSelect }) {
 
         {theme.id === "dark" && (
           <>
-            <div className="absolute left-4 top-4 h-3 w-20 rounded-full bg-slate-700" />
-            <div className="absolute left-4 top-11 h-8 w-16 rounded-lg bg-slate-800" />
-            <div className="absolute right-4 top-4 h-16 w-20 rounded-xl border border-slate-700 bg-slate-900" />
+            <div className="absolute left-4 top-4 h-3 w-20 rounded-full bg-zinc-700" />
+            <div className="absolute left-4 top-11 h-8 w-16 rounded-lg bg-zinc-800" />
+            <div className="absolute right-4 top-4 h-16 w-20 rounded-xl border border-indigo-500/20 bg-zinc-900" />
+          </>
+        )}
+
+        {theme.id === "midnight" && (
+          <>
+            <div className="absolute left-4 top-4 h-3 w-20 rounded-full bg-sky-400/70" />
+            <div className="absolute left-4 top-11 h-8 w-16 rounded-lg bg-blue-900/60" />
+            <div className="absolute right-4 top-4 h-16 w-20 rounded-xl border border-sky-400/30 bg-blue-950/60" />
           </>
         )}
 
         {theme.id === "neon" && (
           <>
-            <div className="absolute left-4 top-4 h-3 w-20 rounded-full bg-cyan-400/70" />
+            <div className="absolute left-4 top-4 h-3 w-20 rounded-full bg-cyan-400/80 shadow-[0_0_12px_rgba(34,211,238,0.7)]" />
             <div className="absolute left-4 top-11 h-8 w-16 rounded-lg border border-violet-400/40 bg-violet-500/20" />
             <div className="absolute right-4 top-4 h-16 w-20 rounded-xl border border-cyan-400/30 bg-cyan-400/10" />
           </>
         )}
+
+        {theme.id === "cyberpunk" && (
+          <>
+            <div className="absolute left-4 top-4 h-3 w-20 rounded-full bg-fuchsia-500 shadow-[0_0_14px_rgba(217,70,239,0.75)]" />
+            <div className="absolute left-4 top-11 h-8 w-16 rounded-lg border border-yellow-300/50 bg-fuchsia-500/10" />
+            <div className="absolute right-4 top-4 h-16 w-20 rounded-xl border border-yellow-300/30 bg-yellow-300/10" />
+          </>
+        )}
+
+        {theme.id === "highContrast" && (
+          <>
+            <div className="absolute left-4 top-4 h-3 w-20 rounded bg-white" />
+            <div className="absolute left-4 top-11 h-8 w-16 rounded border-2 border-white bg-black" />
+            <div className="absolute right-4 top-4 h-16 w-20 rounded border-2 border-yellow-300 bg-black" />
+          </>
+        )}
       </div>
+
+      {/* Details */}
 
       <div className="flex items-center justify-between gap-3 p-4">
         <div>
           <div
             className={`flex items-center gap-2 text-xs font-black ${
-              active ? "text-white" : "text-slate-900"
+              active
+                ? "text-white"
+                : "text-slate-900"
             }`}
           >
             <Icon size={14} />
@@ -268,7 +398,9 @@ function ThemeCard({ theme, active, onSelect }) {
 
           <p
             className={`mt-1 text-[9px] font-semibold ${
-              active ? "text-slate-400" : "text-slate-400"
+              active
+                ? "text-slate-400"
+                : "text-slate-400"
             }`}
           >
             {theme.description}
@@ -282,12 +414,18 @@ function ThemeCard({ theme, active, onSelect }) {
               : "border-slate-200"
           }`}
         >
-          {active && <FiCheck size={11} />}
+          {active && (
+            <FiCheck size={11} />
+          )}
         </div>
       </div>
     </button>
   );
 }
+
+/* =========================================================
+   SECURITY SCORE
+========================================================= */
 
 function SecurityScore() {
   return (
@@ -302,7 +440,9 @@ function SecurityScore() {
             </span>
           </div>
 
-          <h3 className="mt-3 text-2xl font-black">94 / 100</h3>
+          <h3 className="mt-3 text-2xl font-black">
+            94 / 100
+          </h3>
 
           <p className="mt-1 text-[10px] font-semibold text-slate-400">
             Your account is strongly protected.
@@ -310,7 +450,10 @@ function SecurityScore() {
         </div>
 
         <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-400/10">
-          <FiLock size={22} className="text-emerald-300" />
+          <FiLock
+            size={22}
+            className="text-emerald-300"
+          />
         </div>
       </div>
 
@@ -320,20 +463,53 @@ function SecurityScore() {
 
       <div className="mt-3 flex items-center justify-between text-[9px] font-bold text-slate-500">
         <span>Protection level</span>
-        <span className="text-emerald-300">Excellent</span>
+        <span className="text-emerald-300">
+          Excellent
+        </span>
       </div>
     </div>
   );
 }
 
+/* =========================================================
+   MAIN SETTINGS
+========================================================= */
+
 export default function DemoSettings() {
   const navigate = useNavigate();
 
-  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
-  const [activeSection, setActiveSection] = useState("appearance");
+  const [settings, setSettings] =
+    useState(DEFAULT_SETTINGS);
+
+  const [activeSection, setActiveSection] =
+    useState("appearance");
+
   const [saved, setSaved] = useState(false);
   const [notice, setNotice] = useState("");
-  const [confirmReset, setConfirmReset] = useState(false);
+  const [confirmReset, setConfirmReset] =
+    useState(false);
+
+  const [activeTheme, setActiveTheme] =
+    useState(getSavedTheme);
+
+  /* =======================================================
+     APPLY THEME WHEN SETTINGS PAGE OPENS
+  ======================================================= */
+
+  useEffect(() => {
+    const currentTheme = applyTheme(
+      activeTheme
+    );
+
+    setSettings((current) => ({
+      ...current,
+      appearance: currentTheme,
+    }));
+  }, [activeTheme]);
+
+  /* =======================================================
+     SETTINGS UPDATE
+  ======================================================= */
 
   const updateSetting = (key, value) => {
     setSettings((current) => ({
@@ -344,6 +520,10 @@ export default function DemoSettings() {
     setSaved(false);
   };
 
+  /* =======================================================
+     TOAST
+  ======================================================= */
+
   const showNotice = (message) => {
     setNotice(message);
 
@@ -352,33 +532,95 @@ export default function DemoSettings() {
     }, 2800);
   };
 
+  /* =======================================================
+     SAVE
+  ======================================================= */
+
   const handleSave = () => {
+    try {
+      localStorage.setItem(
+        "devsync-demo-settings",
+        JSON.stringify(settings)
+      );
+    } catch {
+      // Ignore storage errors.
+    }
+
     setSaved(true);
-    showNotice("Settings saved successfully");
+    showNotice(
+      "Settings saved successfully"
+    );
   };
+
+  /* =======================================================
+     RESET
+  ======================================================= */
 
   const handleReset = () => {
+    const defaultTheme =
+      DEFAULT_SETTINGS.appearance;
+
     setSettings(DEFAULT_SETTINGS);
+    setActiveTheme(defaultTheme);
+    applyTheme(defaultTheme);
+
+    try {
+      localStorage.setItem(
+        "devsync-demo-settings",
+        JSON.stringify(DEFAULT_SETTINGS)
+      );
+    } catch {
+      // Ignore storage errors.
+    }
+
     setConfirmReset(false);
     setSaved(false);
-    showNotice("Demo settings restored");
+
+    showNotice(
+      "Demo settings restored"
+    );
   };
 
-  const handleThemeSelect = (theme) => {
-    updateSetting("appearance", theme);
+  /* =======================================================
+     THEME SELECTION
+  ======================================================= */
 
-    if (theme === "dark") {
-      showNotice("Dark mode selected — theme engine ready");
-    } else if (theme === "neon") {
-      showNotice("Neon mode selected — theme engine ready");
-    } else {
-      showNotice("Light mode selected");
-    }
+  const handleThemeSelect = (themeId) => {
+    const appliedTheme =
+      applyTheme(themeId);
+
+    setActiveTheme(appliedTheme);
+
+    updateSetting(
+      "appearance",
+      appliedTheme
+    );
+
+    const selectedTheme =
+      THEMES.find(
+        (theme) =>
+          theme.id === appliedTheme
+      );
+
+    showNotice(
+      `${selectedTheme?.name || "Theme"} mode activated`
+    );
   };
 
   return (
-    <div className="min-h-full bg-[#f7f9fc] text-slate-900">
-      {/* Page header */}
+    <div
+      className="min-h-full bg-[#f7f9fc] text-slate-900"
+      style={{
+        background:
+          "var(--ds-bg)",
+        color:
+          "var(--ds-text)",
+      }}
+    >
+      {/* ===================================================
+          PAGE HEADER
+      =================================================== */}
+
       <div className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-[1800px] px-5 py-5 sm:px-7 lg:px-9">
           <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
@@ -386,7 +628,9 @@ export default function DemoSettings() {
               <div className="mb-3 flex items-center gap-2 text-xs font-semibold text-slate-400">
                 <button
                   type="button"
-                  onClick={() => navigate("/demo")}
+                  onClick={() =>
+                    navigate("/demo")
+                  }
                   className="transition hover:text-slate-700"
                 >
                   Dashboard
@@ -394,11 +638,21 @@ export default function DemoSettings() {
 
                 <FiChevronRight size={12} />
 
-                <span className="text-slate-700">Settings</span>
+                <span className="text-slate-700">
+                  Settings
+                </span>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-950 text-white shadow-lg shadow-slate-950/10">
+                <div
+                  className="flex h-11 w-11 items-center justify-center rounded-2xl text-white shadow-lg"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, var(--ds-brand), var(--ds-accent))",
+                    boxShadow:
+                      "0 12px 30px color-mix(in srgb, var(--ds-brand) 20%, transparent)",
+                  }}
+                >
                   <FiSettings size={20} />
                 </div>
 
@@ -417,7 +671,9 @@ export default function DemoSettings() {
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
-                onClick={() => navigate("/demo")}
+                onClick={() =>
+                  navigate("/demo")
+                }
                 className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-600 transition hover:bg-slate-50"
               >
                 <FiArrowLeft size={14} />
@@ -427,19 +683,34 @@ export default function DemoSettings() {
               <button
                 type="button"
                 onClick={handleSave}
-                className="inline-flex items-center gap-2 rounded-xl bg-slate-950 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-slate-950/10 transition hover:-translate-y-0.5 hover:bg-slate-800"
+                className="inline-flex items-center gap-2 rounded-xl bg-slate-950 px-4 py-2.5 text-xs font-bold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-slate-800"
               >
-                {saved ? <FiCheck size={14} /> : <FiSave size={14} />}
-                {saved ? "Saved" : "Save changes"}
+                {saved ? (
+                  <FiCheck size={14} />
+                ) : (
+                  <FiSave size={14} />
+                )}
+
+                {saved
+                  ? "Saved"
+                  : "Save changes"}
               </button>
             </div>
           </div>
         </div>
       </div>
 
+      {/* ===================================================
+          PAGE BODY
+      =================================================== */}
+
       <main className="mx-auto max-w-[1800px] px-5 py-6 sm:px-7 lg:px-9">
         <div className="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
-          {/* Settings navigation */}
+
+          {/* =================================================
+              SETTINGS NAV
+          ================================================= */}
+
           <aside className="h-fit rounded-3xl border border-slate-200 bg-white p-3 shadow-sm lg:sticky lg:top-6">
             <div className="mb-3 px-3 py-2">
               <p className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400">
@@ -448,18 +719,60 @@ export default function DemoSettings() {
             </div>
 
             <nav className="space-y-1">
-              {NAV_ITEMS.map((item) => {
+              {[
+                {
+                  id: "appearance",
+                  label: "Appearance",
+                  description:
+                    "Customize your workspace experience",
+                  icon: FiSun,
+                },
+                {
+                  id: "notifications",
+                  label: "Notifications",
+                  description:
+                    "Control how DevSync keeps you updated",
+                  icon: FiBell,
+                },
+                {
+                  id: "privacy",
+                  label: "Privacy",
+                  description:
+                    "Manage visibility and presence",
+                  icon: FiShield,
+                },
+                {
+                  id: "workspace",
+                  label: "Workspace",
+                  description:
+                    "Language, timezone and interface",
+                  icon: FiLayout,
+                },
+                {
+                  id: "security",
+                  label: "Security",
+                  description:
+                    "Account protection and sessions",
+                  icon: FiLock,
+                },
+              ].map((item) => {
                 const Icon = item.icon;
-                const active = activeSection === item.id;
+                const active =
+                  activeSection ===
+                  item.id;
 
                 return (
                   <button
                     type="button"
                     key={item.id}
-                    onClick={() => setActiveSection(item.id)}
+                    onClick={() =>
+                      setActiveSection(
+                        item.id
+                      )
+                    }
                     className={`flex w-full items-center gap-3 rounded-2xl p-3 text-left transition ${
                       active
-                        ? "bg-slate-950 text-white shadow-md shadow-slate-950/10"
+                        ? "bg-slate-950 text-white shadow-md"
                         : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                     }`}
                   >
@@ -504,51 +817,82 @@ export default function DemoSettings() {
                   <FiInfo size={13} />
 
                   <span className="text-[9px] font-black uppercase tracking-wider">
-                    Demo mode
+                    Theme engine
                   </span>
                 </div>
 
                 <p className="mt-2 text-[9px] font-semibold leading-5 text-slate-400">
-                  Changes here are local demo preferences. They do not affect
-                  a real account.
+                  Theme changes are applied globally across the DevSync demo and are stored locally.
                 </p>
               </div>
             </div>
           </aside>
 
-          {/* Main settings content */}
+          {/* =================================================
+              MAIN SETTINGS
+          ================================================= */}
+
           <div className="min-w-0">
-            {/* Appearance */}
-            {activeSection === "appearance" && (
+
+            {/* =================================================
+                APPEARANCE
+            ================================================= */}
+
+            {activeSection ===
+              "appearance" && (
               <div className="space-y-6">
+
                 <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
                   <SectionHeader
                     eyebrow="Interface"
                     title="Appearance"
-                    description="Choose how your DevSync workspace looks and feels."
+                    description="Choose a visual mode for the entire DevSync workspace."
                   />
 
-                  <div className="grid gap-4 md:grid-cols-3">
-                    {THEMES.map((theme) => (
-                      <ThemeCard
-                        key={theme.id}
-                        theme={theme}
-                        active={settings.appearance === theme.id}
-                        onSelect={handleThemeSelect}
-                      />
-                    ))}
+                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                    {THEMES.map(
+                      (theme) => (
+                        <ThemeCard
+                          key={theme.id}
+                          theme={theme}
+                          active={
+                            activeTheme ===
+                            theme.id
+                          }
+                          onSelect={
+                            handleThemeSelect
+                          }
+                        />
+                      )
+                    )}
                   </div>
 
-                  <div className="mt-5 flex items-start gap-3 rounded-2xl border border-blue-100 bg-blue-50 p-4">
+                  <div
+                    className="mt-5 flex items-start gap-3 rounded-2xl border p-4"
+                    style={{
+                      borderColor:
+                        "color-mix(in srgb, var(--ds-brand) 18%, var(--ds-border))",
+                      background:
+                        "color-mix(in srgb, var(--ds-brand) 7%, var(--ds-surface))",
+                    }}
+                  >
                     <FiInfo
                       size={15}
-                      className="mt-0.5 shrink-0 text-blue-600"
+                      className="mt-0.5 shrink-0"
+                      style={{
+                        color:
+                          "var(--ds-brand)",
+                      }}
                     />
 
-                    <p className="text-[10px] font-semibold leading-5 text-blue-700">
-                      Light mode is the default experience. Dark and Neon are
-                      already prepared in the UI so the global theme engine can
-                      be connected next.
+                    <p
+                      className="text-[10px] font-semibold leading-5"
+                      style={{
+                        color:
+                          "var(--ds-text-secondary)",
+                      }}
+                    >
+                      The selected theme is applied immediately to the global DevSync theme engine. It remains active after navigation and browser refresh.
                     </p>
                   </div>
                 </section>
@@ -567,9 +911,14 @@ export default function DemoSettings() {
                       description="Reduce spacing and make more information visible at once."
                     >
                       <Toggle
-                        enabled={settings.compactMode}
+                        enabled={
+                          settings.compactMode
+                        }
                         onChange={(value) =>
-                          updateSetting("compactMode", value)
+                          updateSetting(
+                            "compactMode",
+                            value
+                          )
                         }
                       />
                     </SettingRow>
@@ -580,195 +929,227 @@ export default function DemoSettings() {
                       description="Enable subtle transitions and motion throughout the interface."
                     >
                       <Toggle
-                        enabled={settings.animations}
+                        enabled={
+                          settings.animations
+                        }
                         onChange={(value) =>
-                          updateSetting("animations", value)
+                          updateSetting(
+                            "animations",
+                            value
+                          )
                         }
                       />
                     </SettingRow>
                   </div>
                 </section>
 
-                <section className="rounded-3xl bg-slate-950 p-6 text-white shadow-xl shadow-slate-950/10">
+                <section
+                  className="rounded-3xl p-6 text-white shadow-xl"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, var(--ds-surface-3), var(--ds-surface))",
+                    border:
+                      "1px solid var(--ds-border)",
+                  }}
+                >
                   <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <div className="flex items-center gap-2 text-blue-300">
+                      <div
+                        className="flex items-center gap-2"
+                        style={{
+                          color:
+                            "var(--ds-brand)",
+                        }}
+                      >
                         <FiMonitor size={15} />
 
                         <span className="text-[9px] font-black uppercase tracking-[0.18em]">
-                          Theme architecture
+                          Active theme
                         </span>
                       </div>
 
-                      <h3 className="mt-3 text-lg font-black">
-                        One theme system. Entire workspace.
+                      <h3
+                        className="mt-3 text-lg font-black"
+                        style={{
+                          color:
+                            "var(--ds-text)",
+                        }}
+                      >
+                        {
+                          THEMES.find(
+                            (theme) =>
+                              theme.id ===
+                              activeTheme
+                          )?.name
+                        }{" "}
+                        mode
                       </h3>
 
-                      <p className="mt-2 max-w-xl text-[10px] leading-5 text-slate-400">
-                        The next DevSync upgrade will connect this preference
-                        to the global DemoLayout so every page responds to the
-                        same theme.
+                      <p
+                        className="mt-1 max-w-xl text-[10px] leading-5"
+                        style={{
+                          color:
+                            "var(--ds-text-muted)",
+                        }}
+                      >
+                        DevSync is using the selected visual system across the current demo workspace.
                       </p>
                     </div>
 
-                    <div className="rounded-2xl bg-white/5 p-4">
-                      <FiSun size={22} className="text-blue-300" />
+                    <div
+                      className="flex h-14 w-14 items-center justify-center rounded-2xl"
+                      style={{
+                        background:
+                          "color-mix(in srgb, var(--ds-brand) 14%, transparent)",
+                        color:
+                          "var(--ds-brand)",
+                      }}
+                    >
+                      <FiTerminal size={22} />
                     </div>
                   </div>
                 </section>
               </div>
             )}
 
-            {/* Notifications */}
-            {activeSection === "notifications" && (
+            {/* =================================================
+                NOTIFICATIONS
+            ================================================= */}
+
+            {activeSection ===
+              "notifications" && (
               <div className="space-y-6">
                 <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
                   <SectionHeader
                     eyebrow="Communication"
                     title="Notifications"
-                    description="Choose which DevSync events deserve your attention."
+                    description="Control how DevSync keeps you updated."
                   />
 
                   <div className="space-y-3">
                     <SettingRow
-                      icon={FiMail}
+                      icon={FiBell}
                       title="Email notifications"
-                      description="Receive important workspace updates by email."
+                      description="Receive important DevSync updates by email."
                     >
                       <Toggle
-                        enabled={settings.emailNotifications}
-                        onChange={(value) =>
-                          updateSetting("emailNotifications", value)
+                        enabled={
+                          settings.emailNotifications
                         }
-                      />
-                    </SettingRow>
-
-                    <SettingRow
-                      icon={FiCheck}
-                      title="Task updates"
-                      description="Notify me when assigned tasks change status."
-                    >
-                      <Toggle
-                        enabled={settings.taskNotifications}
                         onChange={(value) =>
-                          updateSetting("taskNotifications", value)
-                        }
-                      />
-                    </SettingRow>
-
-                    <SettingRow
-                      icon={FiMessageCircle}
-                      title="Chat messages"
-                      description="Notify me about direct messages and mentions."
-                    >
-                      <Toggle
-                        enabled={settings.chatNotifications}
-                        onChange={(value) =>
-                          updateSetting("chatNotifications", value)
+                          updateSetting(
+                            "emailNotifications",
+                            value
+                          )
                         }
                       />
                     </SettingRow>
 
                     <SettingRow
                       icon={FiActivity}
-                      title="Project activity"
-                      description="Receive updates about repository and workspace activity."
+                      title="Task notifications"
+                      description="Get notified when tasks are assigned or changed."
                     >
                       <Toggle
-                        enabled={settings.activityNotifications}
+                        enabled={
+                          settings.taskNotifications
+                        }
                         onChange={(value) =>
-                          updateSetting("activityNotifications", value)
+                          updateSetting(
+                            "taskNotifications",
+                            value
+                          )
                         }
                       />
                     </SettingRow>
 
                     <SettingRow
-                      icon={FiCalendar}
-                      title="Weekly digest"
-                      description="Receive a weekly summary of project progress and activity."
+                      icon={FiUsers}
+                      title="Chat notifications"
+                      description="Show notifications for important project conversations."
                     >
                       <Toggle
-                        enabled={settings.weeklyDigest}
+                        enabled={
+                          settings.chatNotifications
+                        }
                         onChange={(value) =>
-                          updateSetting("weeklyDigest", value)
+                          updateSetting(
+                            "chatNotifications",
+                            value
+                          )
                         }
                       />
                     </SettingRow>
-                  </div>
-                </section>
 
-                <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                  <SectionHeader
-                    eyebrow="Notification preview"
-                    title="What you'll receive"
-                    description="A quick preview of the DevSync notification experience."
-                  />
+                    <SettingRow
+                      icon={FiActivity}
+                      title="Activity notifications"
+                      description="Receive updates when important project activity happens."
+                    >
+                      <Toggle
+                        enabled={
+                          settings.activityNotifications
+                        }
+                        onChange={(value) =>
+                          updateSetting(
+                            "activityNotifications",
+                            value
+                          )
+                        }
+                      />
+                    </SettingRow>
 
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3 rounded-2xl border border-slate-100 p-4">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
-                        <FiCheckCircle size={15} />
-                      </div>
-
-                      <div className="min-w-0">
-                        <p className="text-xs font-black text-slate-800">
-                          Task completed
-                        </p>
-
-                        <p className="mt-1 text-[10px] leading-5 text-slate-400">
-                          Priya completed “Responsive navigation”.
-                        </p>
-                      </div>
-
-                      <span className="ml-auto text-[9px] font-bold text-slate-400">
-                        Now
-                      </span>
-                    </div>
-
-                    <div className="flex items-start gap-3 rounded-2xl border border-slate-100 p-4">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
-                        <FiGitBranch size={15} />
-                      </div>
-
-                      <div className="min-w-0">
-                        <p className="text-xs font-black text-slate-800">
-                          New commit
-                        </p>
-
-                        <p className="mt-1 text-[10px] leading-5 text-slate-400">
-                          Arjun pushed a commit to main.
-                        </p>
-                      </div>
-
-                      <span className="ml-auto text-[9px] font-bold text-slate-400">
-                        12m
-                      </span>
-                    </div>
+                    <SettingRow
+                      icon={FiClock}
+                      title="Weekly digest"
+                      description="Receive a weekly summary of workspace activity."
+                    >
+                      <Toggle
+                        enabled={
+                          settings.weeklyDigest
+                        }
+                        onChange={(value) =>
+                          updateSetting(
+                            "weeklyDigest",
+                            value
+                          )
+                        }
+                      />
+                    </SettingRow>
                   </div>
                 </section>
               </div>
             )}
 
-            {/* Privacy */}
-            {activeSection === "privacy" && (
+            {/* =================================================
+                PRIVACY
+            ================================================= */}
+
+            {activeSection ===
+              "privacy" && (
               <div className="space-y-6">
                 <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
                   <SectionHeader
-                    eyebrow="Visibility"
-                    title="Privacy & presence"
-                    description="Control what other people can see about your DevSync identity."
+                    eyebrow="Privacy"
+                    title="Privacy controls"
+                    description="Manage visibility and presence within your DevSync workspace."
                   />
 
                   <div className="space-y-3">
                     <SettingRow
-                      icon={FiGlobe}
+                      icon={FiEye}
                       title="Profile visibility"
-                      description="Choose who can view your public developer profile."
+                      description="Choose who can view your developer profile."
                     >
                       <SelectField
-                        value={settings.profileVisibility}
+                        value={
+                          settings.profileVisibility
+                        }
                         onChange={(value) =>
-                          updateSetting("profileVisibility", value)
+                          updateSetting(
+                            "profileVisibility",
+                            value
+                          )
                         }
                         options={[
                           "Everyone",
@@ -784,9 +1165,14 @@ export default function DemoSettings() {
                       description="Control who can see your project activity."
                     >
                       <SelectField
-                        value={settings.activityVisibility}
+                        value={
+                          settings.activityVisibility
+                        }
                         onChange={(value) =>
-                          updateSetting("activityVisibility", value)
+                          updateSetting(
+                            "activityVisibility",
+                            value
+                          )
                         }
                         options={[
                           "Everyone",
@@ -802,9 +1188,14 @@ export default function DemoSettings() {
                       description="Allow teammates to see when you're active."
                     >
                       <Toggle
-                        enabled={settings.showOnlineStatus}
+                        enabled={
+                          settings.showOnlineStatus
+                        }
                         onChange={(value) =>
-                          updateSetting("showOnlineStatus", value)
+                          updateSetting(
+                            "showOnlineStatus",
+                            value
+                          )
                         }
                       />
                     </SettingRow>
@@ -841,6 +1232,7 @@ export default function DemoSettings() {
 
                         <div className="mt-2 flex items-center gap-2 text-[9px] font-bold text-emerald-600">
                           <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+
                           {settings.showOnlineStatus
                             ? "Online"
                             : "Status hidden"}
@@ -852,8 +1244,12 @@ export default function DemoSettings() {
               </div>
             )}
 
-            {/* Workspace */}
-            {activeSection === "workspace" && (
+            {/* =================================================
+                WORKSPACE
+            ================================================= */}
+
+            {activeSection ===
+              "workspace" && (
               <div className="space-y-6">
                 <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
                   <SectionHeader
@@ -869,9 +1265,14 @@ export default function DemoSettings() {
                       description="Choose the language used throughout the interface."
                     >
                       <SelectField
-                        value={settings.language}
+                        value={
+                          settings.language
+                        }
                         onChange={(value) =>
-                          updateSetting("language", value)
+                          updateSetting(
+                            "language",
+                            value
+                          )
                         }
                         options={[
                           "English",
@@ -888,9 +1289,14 @@ export default function DemoSettings() {
                       description="Used for activity timestamps, schedules and reminders."
                     >
                       <SelectField
-                        value={settings.timezone}
+                        value={
+                          settings.timezone
+                        }
                         onChange={(value) =>
-                          updateSetting("timezone", value)
+                          updateSetting(
+                            "timezone",
+                            value
+                          )
                         }
                         options={[
                           "Asia/Kolkata",
@@ -907,7 +1313,15 @@ export default function DemoSettings() {
                       title="Developer-friendly interface"
                       description="Keep code, repository and technical actions visually prominent."
                     >
-                      <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-[9px] font-black text-emerald-600">
+                      <span
+                        className="rounded-full px-3 py-1.5 text-[9px] font-black"
+                        style={{
+                          background:
+                            "color-mix(in srgb, var(--ds-success) 12%, transparent)",
+                          color:
+                            "var(--ds-success)",
+                        }}
+                      >
                         ENABLED
                       </span>
                     </SettingRow>
@@ -1030,8 +1444,12 @@ export default function DemoSettings() {
               </div>
             )}
 
-            {/* Security */}
-            {activeSection === "security" && (
+            {/* =================================================
+                SECURITY
+            ================================================= */}
+
+            {activeSection ===
+              "security" && (
               <div className="space-y-6">
                 <SecurityScore />
 
@@ -1054,9 +1472,14 @@ export default function DemoSettings() {
                         </span>
 
                         <Toggle
-                          enabled={settings.twoFactor}
+                          enabled={
+                            settings.twoFactor
+                          }
                           onChange={(value) =>
-                            updateSetting("twoFactor", value)
+                            updateSetting(
+                              "twoFactor",
+                              value
+                            )
                           }
                         />
                       </div>
@@ -1069,7 +1492,11 @@ export default function DemoSettings() {
                     >
                       <button
                         type="button"
-                        onClick={() => showNotice("Password flow opened")}
+                        onClick={() =>
+                          showNotice(
+                            "Password flow opened"
+                          )
+                        }
                         className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-[9px] font-black text-slate-600 transition hover:bg-slate-50"
                       >
                         Change
@@ -1083,7 +1510,11 @@ export default function DemoSettings() {
                     >
                       <button
                         type="button"
-                        onClick={() => showNotice("Session manager opened")}
+                        onClick={() =>
+                          showNotice(
+                            "Session manager opened"
+                          )
+                        }
                         className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-[9px] font-black text-slate-600 transition hover:bg-slate-50"
                       >
                         Manage
@@ -1104,14 +1535,16 @@ export default function DemoSettings() {
                       </h3>
 
                       <p className="mt-1 max-w-2xl text-[10px] leading-5 text-red-500/80">
-                        This is a public demo, so destructive account actions
-                        are intentionally simulated and will not delete real
-                        data.
+                        This is a public demo, so destructive account actions are simulated and do not delete real data.
                       </p>
 
                       <button
                         type="button"
-                        onClick={() => showNotice("Account deletion is disabled in demo mode")}
+                        onClick={() =>
+                          showNotice(
+                            "Account deletion is disabled in demo mode"
+                          )
+                        }
                         className="mt-4 inline-flex items-center gap-2 rounded-xl border border-red-200 bg-white px-4 py-2.5 text-[10px] font-black text-red-600 transition hover:bg-red-50"
                       >
                         <FiTrash2 size={13} />
@@ -1123,7 +1556,10 @@ export default function DemoSettings() {
               </div>
             )}
 
-            {/* Bottom controls */}
+            {/* =================================================
+                BOTTOM CONTROLS
+            ================================================= */}
+
             <section className="mt-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
@@ -1139,7 +1575,9 @@ export default function DemoSettings() {
                 <div className="flex flex-wrap gap-2">
                   <button
                     type="button"
-                    onClick={() => setConfirmReset(true)}
+                    onClick={() =>
+                      setConfirmReset(true)
+                    }
                     className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3.5 py-2.5 text-[10px] font-bold text-slate-500 transition hover:bg-slate-50"
                   >
                     <FiRefreshCw size={13} />
@@ -1159,7 +1597,9 @@ export default function DemoSettings() {
             </section>
 
             <div className="flex flex-col items-center justify-between gap-3 pb-4 pt-5 text-[9px] font-semibold text-slate-400 sm:flex-row">
-              <span>DevSync public demo · Settings</span>
+              <span>
+                DevSync public demo · Settings
+              </span>
 
               <span className="inline-flex items-center gap-1.5">
                 <FiShield size={11} />
@@ -1170,7 +1610,10 @@ export default function DemoSettings() {
         </div>
       </main>
 
-      {/* Reset confirmation */}
+      {/* =====================================================
+          RESET CONFIRMATION
+      ===================================================== */}
+
       {confirmReset && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/30 p-4 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl">
@@ -1183,15 +1626,15 @@ export default function DemoSettings() {
             </h2>
 
             <p className="mt-2 text-xs leading-6 text-slate-400">
-              This will restore all appearance, notification, privacy,
-              workspace and security preferences to their original demo
-              values.
+              This will restore appearance, notification, privacy, workspace and security preferences to their original demo values.
             </p>
 
             <div className="mt-6 flex justify-end gap-2">
               <button
                 type="button"
-                onClick={() => setConfirmReset(false)}
+                onClick={() =>
+                  setConfirmReset(false)
+                }
                 className="rounded-xl px-4 py-2.5 text-xs font-bold text-slate-500 transition hover:bg-slate-100"
               >
                 Cancel
@@ -1210,13 +1653,21 @@ export default function DemoSettings() {
         </div>
       )}
 
-      {/* Toast */}
+      {/* =====================================================
+          TOAST
+      ===================================================== */}
+
       {notice && (
         <div className="fixed bottom-5 left-1/2 z-[120] -translate-x-1/2">
           <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-950 px-4 py-3 text-white shadow-2xl">
-            <FiCheck size={14} className="text-emerald-400" />
+            <FiCheck
+              size={14}
+              className="text-emerald-400"
+            />
 
-            <span className="text-[10px] font-bold">{notice}</span>
+            <span className="text-[10px] font-bold">
+              {notice}
+            </span>
           </div>
         </div>
       )}
