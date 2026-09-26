@@ -943,6 +943,82 @@ function ContributionMatrix() {
    DASHBOARD
 ========================================================= */
 
+
+function QuickAction({
+  icon: Icon,
+  title,
+  text,
+  description,
+  onClick,
+  tone = "blue",
+}) {
+  const tones = {
+    blue: {
+      icon: "bg-blue-50 text-blue-600",
+      hover: "hover:border-blue-200 hover:bg-blue-50/40",
+    },
+    cyan: {
+      icon: "bg-cyan-50 text-cyan-600",
+      hover: "hover:border-cyan-200 hover:bg-cyan-50/40",
+    },
+    violet: {
+      icon: "bg-violet-50 text-violet-600",
+      hover: "hover:border-violet-200 hover:bg-violet-50/40",
+    },
+    emerald: {
+      icon: "bg-emerald-50 text-emerald-600",
+      hover: "hover:border-emerald-200 hover:bg-emerald-50/40",
+    },
+    orange: {
+      icon: "bg-orange-50 text-orange-600",
+      hover: "hover:border-orange-200 hover:bg-orange-50/40",
+    },
+  };
+
+  const current = tones[tone] || tones.blue;
+  const copy = text ?? description ?? "";
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`group flex w-full items-center gap-4 rounded-2xl border p-4 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg ${current.hover}`}
+      style={{
+        background: "var(--demo-surface)",
+        borderColor: "var(--demo-border)",
+      }}
+    >
+      <div
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${current.icon}`}
+      >
+        <Icon size={17} />
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <p
+          className="text-[10px] font-black"
+          style={{ color: "var(--demo-text)" }}
+        >
+          {title}
+        </p>
+
+        <p
+          className="mt-1 truncate text-[8px] font-medium"
+          style={{ color: "var(--demo-text-muted)" }}
+        >
+          {copy}
+        </p>
+      </div>
+
+      <ChevronRight
+        size={14}
+        className="shrink-0 transition-transform duration-200 group-hover:translate-x-1"
+        style={{ color: "var(--demo-text-soft)" }}
+      />
+    </button>
+  );
+}
+
 export default function DemoDashboard() {
   const navigate = useNavigate();
 
