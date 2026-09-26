@@ -1,8 +1,20 @@
 @import "tailwindcss";
 
 /* ============================================================
-   DEVSYNC GLOBAL THEME SYSTEM
-   6 MODES
+   DEVSYNC GLOBAL DESIGN SYSTEM
+   6 DISTINCT VISUAL MODES
+
+   light
+   dark
+   midnight
+   neon
+   cyberpunk
+   highContrast
+   ============================================================ */
+
+
+/* ============================================================
+   CORE TOKENS — LIGHT
    ============================================================ */
 
 :root,
@@ -11,31 +23,35 @@ html[data-theme="light"] {
   --ds-brand-hover: #1d4ed8;
   --ds-accent: #7c3aed;
 
-  --ds-bg: #f8fafc;
-  --ds-surface: #ffffff;
-  --ds-surface-2: #f1f5f9;
-  --ds-surface-3: #e2e8f0;
+  --ds-bg: #f6f8fc;
+  --ds-bg-alt: #eef3f9;
 
-  --ds-text: #0f172a;
+  --ds-surface: #ffffff;
+  --ds-surface-2: #f7f9fc;
+  --ds-surface-3: #eef2f7;
+
+  --ds-text: #0b1220;
   --ds-text-secondary: #475569;
   --ds-text-muted: #64748b;
+  --ds-text-soft: #94a3b8;
 
-  --ds-border: #e2e8f0;
-  --ds-border-light: #f1f5f9;
+  --ds-border: #dfe7f1;
+  --ds-border-light: #edf2f7;
 
-  --ds-success: #16a34a;
-  --ds-warning: #d97706;
-  --ds-danger: #dc2626;
-  --ds-info: #0284c7;
+  --ds-success: #10b981;
+  --ds-warning: #f59e0b;
+  --ds-danger: #ef4444;
+  --ds-info: #0ea5e9;
 
   --ds-glow: transparent;
+  --ds-shadow: 0 12px 35px rgba(15, 23, 42, 0.06);
 
   color-scheme: light;
 }
 
 
 /* ============================================================
-   DARK MODE
+   DARK — GRAPHITE DEVELOPER CONSOLE
    ============================================================ */
 
 html[data-theme="dark"] {
@@ -43,31 +59,35 @@ html[data-theme="dark"] {
   --ds-brand-hover: #818cf8;
   --ds-accent: #a78bfa;
 
-  --ds-bg: #09090b;
-  --ds-surface: #111113;
-  --ds-surface-2: #18181b;
-  --ds-surface-3: #27272a;
+  --ds-bg: #08090c;
+  --ds-bg-alt: #0d1016;
+
+  --ds-surface: #111318;
+  --ds-surface-2: #171a21;
+  --ds-surface-3: #1e232c;
 
   --ds-text: #f8fafc;
   --ds-text-secondary: #cbd5e1;
   --ds-text-muted: #94a3b8;
+  --ds-text-soft: #64748b;
 
-  --ds-border: rgba(255, 255, 255, 0.10);
-  --ds-border-light: rgba(255, 255, 255, 0.06);
+  --ds-border: rgba(255, 255, 255, 0.09);
+  --ds-border-light: rgba(255, 255, 255, 0.05);
 
   --ds-success: #22c55e;
   --ds-warning: #f59e0b;
   --ds-danger: #f87171;
   --ds-info: #38bdf8;
 
-  --ds-glow: rgba(99, 102, 241, 0.16);
+  --ds-glow: rgba(99, 102, 241, 0.18);
+  --ds-shadow: 0 18px 45px rgba(0, 0, 0, 0.32);
 
   color-scheme: dark;
 }
 
 
 /* ============================================================
-   MIDNIGHT MODE
+   MIDNIGHT — BLUE COMMAND CENTER
    ============================================================ */
 
 html[data-theme="midnight"] {
@@ -76,15 +96,18 @@ html[data-theme="midnight"] {
   --ds-accent: #818cf8;
 
   --ds-bg: #020617;
+  --ds-bg-alt: #041025;
+
   --ds-surface: #071329;
-  --ds-surface-2: #0b1b36;
-  --ds-surface-3: #10284f;
+  --ds-surface-2: #0a1932;
+  --ds-surface-3: #10284d;
 
   --ds-text: #f8fbff;
   --ds-text-secondary: #c7d8ee;
   --ds-text-muted: #8da7c9;
+  --ds-text-soft: #55739d;
 
-  --ds-border: rgba(56, 189, 248, 0.16);
+  --ds-border: rgba(56, 189, 248, 0.17);
   --ds-border-light: rgba(129, 140, 248, 0.10);
 
   --ds-success: #22c55e;
@@ -92,14 +115,15 @@ html[data-theme="midnight"] {
   --ds-danger: #fb7185;
   --ds-info: #38bdf8;
 
-  --ds-glow: rgba(56, 189, 248, 0.18);
+  --ds-glow: rgba(56, 189, 248, 0.22);
+  --ds-shadow: 0 18px 50px rgba(0, 0, 0, 0.42);
 
   color-scheme: dark;
 }
 
 
 /* ============================================================
-   NEON MODE
+   NEON — CYAN / MAGENTA DIGITAL LAB
    ============================================================ */
 
 html[data-theme="neon"] {
@@ -107,63 +131,71 @@ html[data-theme="neon"] {
   --ds-brand-hover: #67f9ff;
   --ds-accent: #ff00e5;
 
-  --ds-bg: #03030a;
-  --ds-surface: #080816;
-  --ds-surface-2: #10102a;
-  --ds-surface-3: #171742;
+  --ds-bg: #02020a;
+  --ds-bg-alt: #050513;
 
-  --ds-text: #f5ffff;
-  --ds-text-secondary: #c9faff;
-  --ds-text-muted: #82b9c2;
+  --ds-surface: rgba(9, 10, 24, 0.90);
+  --ds-surface-2: rgba(15, 17, 40, 0.92);
+  --ds-surface-3: #171842;
 
-  --ds-border: rgba(0, 245, 255, 0.18);
-  --ds-border-light: rgba(255, 0, 229, 0.12);
+  --ds-text: #f3ffff;
+  --ds-text-secondary: #cafcff;
+  --ds-text-muted: #81bcc5;
+  --ds-text-soft: #54777d;
+
+  --ds-border: rgba(0, 245, 255, 0.20);
+  --ds-border-light: rgba(255, 0, 229, 0.13);
 
   --ds-success: #2dd4bf;
   --ds-warning: #facc15;
   --ds-danger: #fb7185;
   --ds-info: #22d3ee;
 
-  --ds-glow: rgba(0, 245, 255, 0.24);
+  --ds-glow: rgba(0, 245, 255, 0.27);
+  --ds-shadow: 0 0 35px rgba(0, 245, 255, 0.08);
 
   color-scheme: dark;
 }
 
 
 /* ============================================================
-   CYBERPUNK MODE
+   CYBERPUNK — MAGENTA / YELLOW CONTROL GRID
    ============================================================ */
 
 html[data-theme="cyberpunk"] {
   --ds-brand: #ff2bd6;
-  --ds-brand-hover: #ff63e6;
+  --ds-brand-hover: #ff66e5;
   --ds-accent: #ffe600;
 
-  --ds-bg: #07070b;
-  --ds-surface: #101016;
-  --ds-surface-2: #171720;
-  --ds-surface-3: #242432;
+  --ds-bg: #060609;
+  --ds-bg-alt: #0b0b10;
 
-  --ds-text: #fff7ff;
-  --ds-text-secondary: #f4dff1;
-  --ds-text-muted: #bca9bb;
+  --ds-surface: #0f0f16;
+  --ds-surface-2: #16161f;
+  --ds-surface-3: #23232e;
 
-  --ds-border: rgba(255, 43, 214, 0.24);
-  --ds-border-light: rgba(255, 230, 0, 0.12);
+  --ds-text: #fff8ff;
+  --ds-text-secondary: #f0dceb;
+  --ds-text-muted: #beaaba;
+  --ds-text-soft: #81717f;
+
+  --ds-border: rgba(255, 43, 214, 0.26);
+  --ds-border-light: rgba(255, 230, 0, 0.14);
 
   --ds-success: #00f5a0;
   --ds-warning: #ffe600;
   --ds-danger: #ff4d6d;
   --ds-info: #00e5ff;
 
-  --ds-glow: rgba(255, 43, 214, 0.24);
+  --ds-glow: rgba(255, 43, 214, 0.25);
+  --ds-shadow: 0 0 32px rgba(255, 43, 214, 0.09);
 
   color-scheme: dark;
 }
 
 
 /* ============================================================
-   HIGH CONTRAST MODE
+   HIGH CONTRAST — MAXIMUM CLARITY
    ============================================================ */
 
 html[data-theme="highContrast"] {
@@ -172,13 +204,16 @@ html[data-theme="highContrast"] {
   --ds-accent: #00ffff;
 
   --ds-bg: #000000;
+  --ds-bg-alt: #050505;
+
   --ds-surface: #000000;
   --ds-surface-2: #111111;
-  --ds-surface-3: #1f1f1f;
+  --ds-surface-3: #1b1b1b;
 
   --ds-text: #ffffff;
   --ds-text-secondary: #ffffff;
-  --ds-text-muted: #eeeeee;
+  --ds-text-muted: #ffffff;
+  --ds-text-soft: #ffffff;
 
   --ds-border: #ffffff;
   --ds-border-light: #ffffff;
@@ -189,6 +224,7 @@ html[data-theme="highContrast"] {
   --ds-info: #00ffff;
 
   --ds-glow: transparent;
+  --ds-shadow: none;
 
   color-scheme: dark;
 }
@@ -213,6 +249,10 @@ html {
   background: var(--ds-bg);
 
   scroll-behavior: smooth;
+
+  transition:
+    background-color 280ms ease,
+    color 280ms ease;
 }
 
 body {
@@ -239,8 +279,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
 
   transition:
-    background-color 250ms ease,
-    color 250ms ease;
+    background-color 280ms ease,
+    color 280ms ease;
 }
 
 #root {
@@ -289,7 +329,7 @@ textarea::placeholder {
 
 
 /* ============================================================
-   TEXT SELECTION
+   SELECTION
    ============================================================ */
 
 ::selection {
@@ -306,7 +346,11 @@ textarea::placeholder {
   scrollbar-width: thin;
 
   scrollbar-color:
-    color-mix(in srgb, var(--ds-brand) 58%, transparent)
+    color-mix(
+      in srgb,
+      var(--ds-brand) 60%,
+      transparent
+    )
     transparent;
 }
 
@@ -323,7 +367,7 @@ textarea::placeholder {
   background:
     color-mix(
       in srgb,
-      var(--ds-text-muted) 48%,
+      var(--ds-text-muted) 42%,
       transparent
     );
 
@@ -336,7 +380,7 @@ textarea::placeholder {
 
 
 /* ============================================================
-   DARK / MIDNIGHT / NEON / CYBERPUNK SURFACES
+   BASE SURFACE TRANSLATION
    ============================================================ */
 
 html[data-theme="dark"] .bg-white,
@@ -352,7 +396,7 @@ html[data-theme="midnight"] .bg-slate-50,
 html[data-theme="neon"] .bg-slate-50,
 html[data-theme="cyberpunk"] .bg-slate-50,
 html[data-theme="highContrast"] .bg-slate-50 {
-  background-color: var(--ds-bg) !important;
+  background-color: var(--ds-surface-2) !important;
 }
 
 html[data-theme="dark"] .bg-slate-100,
@@ -360,7 +404,7 @@ html[data-theme="midnight"] .bg-slate-100,
 html[data-theme="neon"] .bg-slate-100,
 html[data-theme="cyberpunk"] .bg-slate-100,
 html[data-theme="highContrast"] .bg-slate-100 {
-  background-color: var(--ds-surface-2) !important;
+  background-color: var(--ds-surface-3) !important;
 }
 
 html[data-theme="dark"] .bg-slate-200,
@@ -373,7 +417,7 @@ html[data-theme="highContrast"] .bg-slate-200 {
 
 
 /* ============================================================
-   THEME TEXT
+   TEXT SYSTEM
    ============================================================ */
 
 html[data-theme="dark"] .text-slate-950,
@@ -426,7 +470,7 @@ html[data-theme="highContrast"] .text-slate-400 {
 
 
 /* ============================================================
-   THEME BORDERS
+   BORDERS
    ============================================================ */
 
 html[data-theme="dark"] .border-slate-100,
@@ -445,7 +489,7 @@ html[data-theme="highContrast"] .border-slate-200 {
 
 
 /* ============================================================
-   INPUTS
+   FORM CONTROLS
    ============================================================ */
 
 html[data-theme="dark"] input,
@@ -474,63 +518,112 @@ html[data-theme="highContrast"] select {
 
 
 /* ============================================================
-   BLUE ACCENT → ACTIVE THEME ACCENT
+   THEME-AWARE BLUE ACCENTS
    ============================================================ */
 
 html[data-theme="dark"] .bg-blue-600,
 html[data-theme="midnight"] .bg-blue-600,
 html[data-theme="neon"] .bg-blue-600,
-html[data-theme="cyberpunk"] .bg-blue-600 {
+html[data-theme="cyberpunk"] .bg-blue-600,
+html[data-theme="highContrast"] .bg-blue-600 {
   background-color: var(--ds-brand) !important;
 }
 
 html[data-theme="dark"] .text-blue-600,
 html[data-theme="midnight"] .text-blue-600,
 html[data-theme="neon"] .text-blue-600,
-html[data-theme="cyberpunk"] .text-blue-600 {
+html[data-theme="cyberpunk"] .text-blue-600,
+html[data-theme="highContrast"] .text-blue-600 {
   color: var(--ds-brand) !important;
 }
 
 html[data-theme="dark"] .text-blue-700,
 html[data-theme="midnight"] .text-blue-700,
 html[data-theme="neon"] .text-blue-700,
-html[data-theme="cyberpunk"] .text-blue-700 {
+html[data-theme="cyberpunk"] .text-blue-700,
+html[data-theme="highContrast"] .text-blue-700 {
   color: var(--ds-brand-hover) !important;
 }
 
 
 /* ============================================================
-   DARK BACKGROUND
+   BACKGROUND ATMOSPHERE — DARK
    ============================================================ */
 
 html[data-theme="dark"] body {
   background:
     radial-gradient(
       circle at 10% 0%,
-      rgba(99, 102, 241, 0.06),
-      transparent 28%
+      rgba(99, 102, 241, 0.08),
+      transparent 25%
+    ),
+    radial-gradient(
+      circle at 100% 100%,
+      rgba(59, 130, 246, 0.035),
+      transparent 30%
     ),
     var(--ds-bg);
 }
 
 
 /* ============================================================
-   MIDNIGHT BACKGROUND
+   DARK — DEVELOPER CONSOLE SHAPE
+   ============================================================ */
+
+html[data-theme="dark"] .rounded-3xl {
+  border-radius: 18px !important;
+}
+
+html[data-theme="dark"] .rounded-2xl {
+  border-radius: 14px !important;
+}
+
+html[data-theme="dark"] .rounded-xl {
+  border-radius: 10px !important;
+}
+
+html[data-theme="dark"] .shadow-sm,
+html[data-theme="dark"] .shadow-md,
+html[data-theme="dark"] .shadow-lg,
+html[data-theme="dark"] .shadow-xl {
+  box-shadow: var(--ds-shadow) !important;
+}
+
+html[data-theme="dark"] .font-black {
+  letter-spacing: -0.015em;
+}
+
+
+/* ============================================================
+   MIDNIGHT ATMOSPHERE
    ============================================================ */
 
 html[data-theme="midnight"] body {
   background:
     radial-gradient(
       circle at 0% 0%,
-      rgba(56, 189, 248, 0.08),
-      transparent 26%
+      rgba(56, 189, 248, 0.12),
+      transparent 25%
     ),
     radial-gradient(
-      circle at 100% 20%,
-      rgba(129, 140, 248, 0.06),
+      circle at 100% 15%,
+      rgba(129, 140, 248, 0.08),
       transparent 28%
     ),
+    linear-gradient(
+      180deg,
+      rgba(2, 6, 23, 0),
+      rgba(2, 6, 23, 0.45)
+    ),
     var(--ds-bg);
+}
+
+html[data-theme="midnight"] .rounded-3xl {
+  border-radius: 20px !important;
+}
+
+html[data-theme="midnight"] .rounded-2xl {
+  border-radius: 16px !important;
 }
 
 html[data-theme="midnight"] .shadow-sm,
@@ -538,25 +631,30 @@ html[data-theme="midnight"] .shadow-md,
 html[data-theme="midnight"] .shadow-lg,
 html[data-theme="midnight"] .shadow-xl {
   box-shadow:
-    0 12px 42px rgba(0, 0, 0, 0.28) !important;
+    0 16px 50px rgba(0, 0, 0, 0.36),
+    0 0 30px rgba(56, 189, 248, 0.035) !important;
+}
+
+html[data-theme="midnight"] .border-slate-200 {
+  border-color: rgba(56, 189, 248, 0.15) !important;
 }
 
 
 /* ============================================================
-   NEON BACKGROUND
+   NEON ATMOSPHERE
    ============================================================ */
 
 html[data-theme="neon"] body {
   background:
     radial-gradient(
-      circle at 8% 8%,
-      rgba(0, 245, 255, 0.10),
-      transparent 25%
+      circle at 5% 5%,
+      rgba(0, 245, 255, 0.12),
+      transparent 23%
     ),
     radial-gradient(
-      circle at 92% 18%,
-      rgba(255, 0, 229, 0.10),
-      transparent 26%
+      circle at 95% 12%,
+      rgba(255, 0, 229, 0.11),
+      transparent 24%
     ),
     radial-gradient(
       circle at 50% 100%,
@@ -566,57 +664,184 @@ html[data-theme="neon"] body {
     var(--ds-bg);
 }
 
+html[data-theme="neon"] #root {
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 79px,
+      rgba(0, 245, 255, 0.018) 80px
+    );
+}
+
+html[data-theme="neon"] .rounded-3xl {
+  border-radius: 16px !important;
+}
+
+html[data-theme="neon"] .rounded-2xl {
+  border-radius: 12px !important;
+}
+
+html[data-theme="neon"] .rounded-xl {
+  border-radius: 9px !important;
+}
+
 html[data-theme="neon"] .shadow-sm,
 html[data-theme="neon"] .shadow-md,
 html[data-theme="neon"] .shadow-lg,
 html[data-theme="neon"] .shadow-xl {
   box-shadow:
-    0 0 24px rgba(0, 245, 255, 0.08),
-    0 0 50px rgba(255, 0, 229, 0.05) !important;
+    0 0 20px rgba(0, 245, 255, 0.06),
+    0 0 38px rgba(255, 0, 229, 0.04) !important;
+}
+
+html[data-theme="neon"] .border-slate-200 {
+  border-color: rgba(0, 245, 255, 0.17) !important;
+}
+
+html[data-theme="neon"] .bg-white {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(10, 10, 26, 0.96),
+      rgba(6, 6, 18, 0.96)
+    ) !important;
+}
+
+html[data-theme="neon"] .bg-slate-50 {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(14, 17, 40, 0.90),
+      rgba(8, 9, 24, 0.92)
+    ) !important;
+}
+
+html[data-theme="neon"] .bg-slate-100 {
+  background-color: #12132e !important;
+}
+
+html[data-theme="neon"] .bg-blue-600 {
+  background:
+    linear-gradient(
+      135deg,
+      #00f5ff,
+      #7c3aed,
+      #ff00e5
+    ) !important;
+  color: #02020a !important;
+  box-shadow:
+    0 0 20px rgba(0, 245, 255, 0.22),
+    0 0 40px rgba(255, 0, 229, 0.10);
 }
 
 
 /* ============================================================
-   CYBERPUNK
+   CYBERPUNK ATMOSPHERE
    ============================================================ */
 
 html[data-theme="cyberpunk"] body {
   background:
     linear-gradient(
       180deg,
-      rgba(255, 43, 214, 0.045),
-      transparent 18%
+      rgba(255, 43, 214, 0.06),
+      transparent 16%
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255, 230, 0, 0.025),
+      transparent 25%,
+      transparent 75%,
+      rgba(0, 229, 255, 0.025)
     ),
     radial-gradient(
-      circle at 10% 10%,
-      rgba(255, 230, 0, 0.06),
+      circle at 12% 15%,
+      rgba(255, 230, 0, 0.065),
       transparent 22%
     ),
     radial-gradient(
-      circle at 90% 80%,
+      circle at 90% 82%,
       rgba(0, 229, 255, 0.05),
-      transparent 25%
+      transparent 24%
     ),
     var(--ds-bg);
+}
+
+html[data-theme="cyberpunk"] #root {
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 7px,
+      rgba(255, 255, 255, 0.012) 8px
+    );
+}
+
+html[data-theme="cyberpunk"] .rounded-3xl {
+  border-radius: 8px !important;
+}
+
+html[data-theme="cyberpunk"] .rounded-2xl {
+  border-radius: 6px !important;
+}
+
+html[data-theme="cyberpunk"] .rounded-xl {
+  border-radius: 5px !important;
+}
+
+html[data-theme="cyberpunk"] .rounded-lg {
+  border-radius: 4px !important;
+}
+
+html[data-theme="cyberpunk"] .shadow-sm,
+html[data-theme="cyberpunk"] .shadow-md,
+html[data-theme="cyberpunk"] .shadow-lg,
+html[data-theme="cyberpunk"] .shadow-xl {
+  box-shadow:
+    0 0 16px rgba(255, 43, 214, 0.08),
+    0 0 28px rgba(255, 230, 0, 0.025) !important;
+}
+
+html[data-theme="cyberpunk"] .border-slate-200,
+html[data-theme="cyberpunk"] .border-slate-100 {
+  border-color: rgba(255, 43, 214, 0.22) !important;
 }
 
 html[data-theme="cyberpunk"] .bg-white {
   background:
     linear-gradient(
       135deg,
-      rgba(255, 43, 214, 0.04),
-      rgba(255, 230, 0, 0.015)
+      rgba(255, 43, 214, 0.055),
+      rgba(255, 230, 0, 0.018)
     ),
     var(--ds-surface) !important;
+}
+
+html[data-theme="cyberpunk"] .bg-slate-50 {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 43, 214, 0.045),
+      rgba(255, 230, 0, 0.015)
+    ),
+    var(--ds-surface-2) !important;
+}
+
+html[data-theme="cyberpunk"] .bg-slate-100 {
+  background-color: var(--ds-surface-3) !important;
 }
 
 html[data-theme="cyberpunk"] .bg-blue-600 {
   background:
     linear-gradient(
-      135deg,
-      #ff2bd6,
-      #8b5cf6
+      120deg,
+      #ff2bd6 0%,
+      #c026d3 48%,
+      #7c3aed 100%
     ) !important;
+
+  box-shadow:
+    0 0 18px rgba(255, 43, 214, 0.20);
 }
 
 html[data-theme="cyberpunk"] .text-blue-600 {
@@ -631,21 +856,23 @@ html[data-theme="cyberpunk"] .text-emerald-600 {
   color: #00f5a0 !important;
 }
 
+html[data-theme="cyberpunk"] .text-orange-600,
 html[data-theme="cyberpunk"] .text-orange-500 {
   color: #ffe600 !important;
 }
 
+html[data-theme="cyberpunk"] .text-red-600,
 html[data-theme="cyberpunk"] .text-red-500 {
   color: #ff4d6d !important;
 }
 
-html[data-theme="cyberpunk"] .shadow-sm,
-html[data-theme="cyberpunk"] .shadow-md,
-html[data-theme="cyberpunk"] .shadow-lg,
-html[data-theme="cyberpunk"] .shadow-xl {
-  box-shadow:
-    0 0 20px rgba(255, 43, 214, 0.08),
-    0 0 36px rgba(255, 230, 0, 0.025) !important;
+html[data-theme="cyberpunk"] .bg-amber-50 {
+  background-color: rgba(255, 230, 0, 0.10) !important;
+}
+
+html[data-theme="cyberpunk"] .text-amber-600,
+html[data-theme="cyberpunk"] .text-amber-700 {
+  color: #ffe600 !important;
 }
 
 
@@ -654,15 +881,15 @@ html[data-theme="cyberpunk"] .shadow-xl {
    ============================================================ */
 
 html[data-theme="highContrast"] body {
-  background: #000000;
-  color: #ffffff;
+  background: #000;
+  color: #fff;
 }
 
 html[data-theme="highContrast"] .bg-white,
 html[data-theme="highContrast"] .bg-slate-50,
 html[data-theme="highContrast"] .bg-slate-100,
 html[data-theme="highContrast"] .bg-slate-200 {
-  background: #000000 !important;
+  background: #000 !important;
 }
 
 html[data-theme="highContrast"] .text-slate-950,
@@ -672,12 +899,23 @@ html[data-theme="highContrast"] .text-slate-700,
 html[data-theme="highContrast"] .text-slate-600,
 html[data-theme="highContrast"] .text-slate-500,
 html[data-theme="highContrast"] .text-slate-400 {
-  color: #ffffff !important;
+  color: #fff !important;
+}
+
+html[data-theme="highContrast"] .text-blue-600,
+html[data-theme="highContrast"] .text-blue-700 {
+  color: #ffff00 !important;
 }
 
 html[data-theme="highContrast"] .border-slate-100,
 html[data-theme="highContrast"] .border-slate-200 {
-  border-color: #ffffff !important;
+  border-color: #fff !important;
+}
+
+html[data-theme="highContrast"] .rounded-3xl,
+html[data-theme="highContrast"] .rounded-2xl,
+html[data-theme="highContrast"] .rounded-xl {
+  border-radius: 4px !important;
 }
 
 html[data-theme="highContrast"] button,
@@ -692,6 +930,62 @@ html[data-theme="highContrast"] :focus-visible {
   outline-offset: 3px;
 }
 
+html[data-theme="highContrast"] .shadow-sm,
+html[data-theme="highContrast"] .shadow-md,
+html[data-theme="highContrast"] .shadow-lg,
+html[data-theme="highContrast"] .shadow-xl {
+  box-shadow: none !important;
+}
+
+
+/* ============================================================
+   COMMON THEME SURFACE EFFECTS
+   ============================================================ */
+
+/* Neon glass */
+html[data-theme="neon"] .backdrop-blur-xl,
+html[data-theme="neon"] .backdrop-blur-sm {
+  backdrop-filter: blur(18px);
+}
+
+/* Cyberpunk technical separators */
+html[data-theme="cyberpunk"] hr,
+html[data-theme="cyberpunk"] .h-px {
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 43, 214, 0.40),
+      rgba(255, 230, 0, 0.20),
+      transparent
+    ) !important;
+}
+
+
+/* ============================================================
+   GENERIC INTERACTION POLISH
+   ============================================================ */
+
+html[data-theme="neon"] button:hover,
+html[data-theme="neon"] a:hover {
+  transition:
+    color 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+html[data-theme="cyberpunk"] button:hover,
+html[data-theme="cyberpunk"] a:hover {
+  transition:
+    color 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
 
 /* ============================================================
    FOCUS
@@ -700,6 +994,14 @@ html[data-theme="highContrast"] :focus-visible {
 :focus-visible {
   outline: 2px solid var(--ds-brand);
   outline-offset: 2px;
+}
+
+html[data-theme="cyberpunk"] :focus-visible {
+  outline-color: #ffe600;
+}
+
+html[data-theme="neon"] :focus-visible {
+  outline-color: #00f5ff;
 }
 
 
@@ -736,8 +1038,8 @@ body,
 
 @media print {
   * {
-    background: white !important;
-    color: black !important;
+    background: #fff !important;
+    color: #000 !important;
     box-shadow: none !important;
   }
 }
